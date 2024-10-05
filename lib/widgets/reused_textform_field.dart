@@ -34,7 +34,7 @@ class _ReusedTextFormFieldState extends State<ReusedTextFormField> {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
-          color: Colors.deepOrange[300]!, // Adjust based on need
+          color: kDeepOrange, // Adjust based on need
         ),
         borderRadius: BorderRadius.circular(30),
       ),
