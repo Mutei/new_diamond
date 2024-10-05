@@ -151,9 +151,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                       ),
                       const SizedBox(height: 20),
-                      ReusedElevatedButton(
-                        text: "Login",
-                        icon: Icons.message,
+                      CustomButton(
+                        text: 'Login',
+                        onPressed: () {
+                          // Your sign in logic
+                        },
                       ),
                     ],
                   ),
@@ -220,7 +222,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: const Text(
                     "Sign Up",
                     style: TextStyle(
-                      color: Colors.teal,
+                      color: Colors.blue,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

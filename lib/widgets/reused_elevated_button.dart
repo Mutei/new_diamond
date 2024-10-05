@@ -1,40 +1,33 @@
-import 'package:diamond_host_admin/extension/sized_box_extension.dart';
 import 'package:flutter/material.dart';
-import '../constants/styles.dart';
+import '../constants/colors.dart'; // Adjust the path as needed
 
-class ReusedElevatedButton extends StatelessWidget {
+class CustomButton extends StatelessWidget {
   final String text;
-  final VoidCallback? onPressed;
-  final IconData? icon;
+  final VoidCallback onPressed;
 
-  const ReusedElevatedButton({
-    super.key,
+  const CustomButton({
+    Key? key,
     required this.text,
-    this.onPressed,
-    this.icon,
-  });
+    required this.onPressed,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: kElevatedButtonStyle, // Make sure this uses the correct style
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (icon != null)
-            Icon(
-              icon,
-              color: Colors.white,
-            ),
-          if (icon != null) const SizedBox(width: 10),
-          Text(
-            text,
-            style: const TextStyle(
-              color: Colors.white,
-            ),
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(30),
+        gradient: kPrimaryGradient, // Use the gradient from colors.dart
+      ),
+      child: TextButton(
+        onPressed: onPressed,
+        child: Text(
+          text,
+          style: const TextStyle(
+            color: Colors.white, // White text for better contrast
+            fontSize: 18,
           ),
-        ],
+        ),
       ),
     );
   }

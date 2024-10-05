@@ -66,7 +66,7 @@ Widget buildIndicator(int currentIndex, int totalPages) {
           height: 10.0,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: currentIndex == index ? Colors.teal : Colors.grey,
+            color: currentIndex == index ? Colors.orange : Colors.grey,
           ),
         );
       }),
