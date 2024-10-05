@@ -42,8 +42,8 @@ final kPrimaryStyle = TextStyle(
   foreground: Paint()
     ..shader = LinearGradient(
       colors: [
-        kSecondaryGradient,
-        kTeritaryGradient,
+        kDeepOrange,
+        kOrange,
       ], // Increase contrast
     ).createShader(Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
 );
@@ -53,8 +53,8 @@ final kSecondaryStyle = TextStyle(
   foreground: Paint()
     ..shader = LinearGradient(
       colors: [
-        kSecondaryGradient,
-        kTeritaryGradient,
+        kDeepOrange,
+        kOrange,
       ], // Increase contrast
     ).createShader(Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
 );

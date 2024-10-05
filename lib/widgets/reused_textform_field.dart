@@ -46,7 +46,7 @@ class _ReusedTextFormFieldState extends State<ReusedTextFormField> {
           hintText: widget.hintText,
           prefixIcon: Icon(
             widget.prefixIcon, // Use icons from icons_plus
-            color: kSecondaryGradient, // Adjust based on need
+            color: kDeepOrange, // Adjust based on need
           ),
           suffixIcon: widget.obscureText
               ? IconButton(
