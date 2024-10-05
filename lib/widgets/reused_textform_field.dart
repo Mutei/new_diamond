@@ -1,16 +1,17 @@
 import 'package:diamond_host_admin/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:icons_plus/icons_plus.dart'; // Import the icons_plus package
 
 class ReusedTextFormField extends StatefulWidget {
   final String hintText;
-  final IconData prefixIcon;
+  final IconData prefixIcon; // Update type to IconData (from icons_plus)
   final bool obscureText;
   final TextEditingController? controller;
 
   const ReusedTextFormField({
     Key? key,
     required this.hintText,
-    required this.prefixIcon,
+    required this.prefixIcon, // Expect icons_plus icons
     this.obscureText = false,
     this.controller,
   }) : super(key: key);
@@ -44,13 +45,15 @@ class _ReusedTextFormFieldState extends State<ReusedTextFormField> {
           border: InputBorder.none,
           hintText: widget.hintText,
           prefixIcon: Icon(
-            widget.prefixIcon,
+            widget.prefixIcon, // Use icons from icons_plus
             color: kSecondaryGradient, // Adjust based on need
           ),
           suffixIcon: widget.obscureText
               ? IconButton(
                   icon: Icon(
-                    _isObscure ? Icons.visibility_off : Icons.visibility,
+                    _isObscure
+                        ? Bootstrap.eye_slash
+                        : Bootstrap.eye, // icons_plus eye icon
                     color: Colors.grey,
                   ),
                   onPressed: () {

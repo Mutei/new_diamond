@@ -6,6 +6,8 @@ import '../widgets/reused_elevated_button.dart';
 import '../widgets/reused_textform_field.dart';
 import 'login_screen.dart';
 
+import 'package:icons_plus/icons_plus.dart'; // Import the icons_plus package
+
 class SignInScreen extends StatelessWidget {
   const SignInScreen({super.key});
 
@@ -24,13 +26,13 @@ class SignInScreen extends StatelessWidget {
             ),
             20.kH,
             const ReusedTextFormField(
-              hintText: 'Email or User Name',
-              prefixIcon: Icons.email_outlined,
-            ),
+                hintText: 'Email or User Name',
+                prefixIcon: IonIcons.person_circle),
             20.kH,
             const ReusedTextFormField(
               hintText: 'Password',
-              prefixIcon: Icons.lock_outline,
+              prefixIcon:
+                  LineAwesome.user_lock_solid, // Using an icon from icons_plus
               obscureText: true, // Password field
             ),
             20.kH,
