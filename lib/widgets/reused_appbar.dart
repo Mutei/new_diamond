@@ -17,7 +17,7 @@ class ReusedAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       title: Text(
         title,
-        style: TextStyle(color: kDeepOrange),
+        style: TextStyle(color: kDeepOrangeColor),
       ),
       centerTitle: centerTitle,
       iconTheme: kIconTheme,

@@ -11,7 +11,7 @@ void showErrorDialog(BuildContext context, String message) {
         title: const Text(
           "Login Failed",
           style: TextStyle(
-            color: kError,
+            color: kErrorColor,
           ),
         ),
         content: Text(message),
@@ -39,7 +39,7 @@ void showLoginErrorDialog(BuildContext context, String message) {
         title: const Text(
           "Access Denied",
           style: TextStyle(
-            color: kError,
+            color: kErrorColor,
           ),
         ),
         content: Text(message),
@@ -51,6 +51,44 @@ void showLoginErrorDialog(BuildContext context, String message) {
             child: Text(
               "OK",
               style: kSecondaryStyle,
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void showLogoutConfirmationDialog(BuildContext context, Function onConfirm) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text(
+          "Confirm Logout",
+          style: TextStyle(
+            color: kConfirmColor, // Customize as needed
+          ),
+        ),
+        content: const Text("Are you sure you want to log out?"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: const Text(
+              "Cancel",
+              style: TextStyle(color: Colors.grey), // Customize as needed
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog first
+              onConfirm(); // Then trigger the logout
+            },
+            child: const Text(
+              "Logout",
+              style: TextStyle(color: kConfirmColor), // Customize as needed
             ),
           ),
         ],

@@ -64,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               bottom: BorderSide(
                                 width: 2.0,
                                 color: _currentIndex == 0
-                                    ? kOrange
+                                    ? kOrangeColor
                                     : Colors.transparent,
                               ),
                             ),
@@ -93,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               bottom: BorderSide(
                                 width: 2.0,
                                 color: _currentIndex == 1
-                                    ? kOrange
+                                    ? kOrangeColor
                                     : Colors.transparent,
                               ),
                             ),

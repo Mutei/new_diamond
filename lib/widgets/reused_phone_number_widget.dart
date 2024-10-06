@@ -25,25 +25,25 @@ class ReusedPhoneNumberField extends StatelessWidget {
         // Set the default enabled border
         enabledBorder: OutlineInputBorder(
           borderSide:
-              BorderSide(color: kDeepOrange), // Border color when enabled
+              BorderSide(color: kDeepOrangeColor), // Border color when enabled
           borderRadius: BorderRadius.circular(30),
         ),
         // Set the border color when focused
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(
-              color: kDeepOrange, width: 2), // Border color when focused
+              color: kDeepOrangeColor, width: 2), // Border color when focused
           borderRadius: BorderRadius.circular(30),
         ),
         // Set the border color when there's an error
         errorBorder: OutlineInputBorder(
           borderSide: BorderSide(
-              color: kOrange, width: 2), // Border color when there's an error
+              color: kOrangeColor, width: 2), // Border color when there's an error
           borderRadius: BorderRadius.circular(30),
         ),
         // Set the border for focused error
         focusedErrorBorder: OutlineInputBorder(
           borderSide: BorderSide(
-              color: kOrange,
+              color: kOrangeColor,
               width: 2), // Border color when focused and there's an error
           borderRadius: BorderRadius.circular(30),
         ),

@@ -10,9 +10,10 @@ const kTextButtonColor = Colors.blue;
 const kSenderTextMessage = Colors.white;
 const kReceiverTextMessage = Colors.black;
 final kAmberColor = Colors.amber[600];
-final kDeepOrange = Colors.deepOrange[300]!;
-final kOrange = Colors.orange[300]!;
-const kError = Colors.red;
+final kDeepOrangeColor = Colors.deepOrange[300]!;
+final kOrangeColor = Colors.orange[300]!;
+const kErrorColor = Colors.red;
+const kConfirmColor = Colors.green;
 // Define the gradient as a reusable constant
 final LinearGradient kPrimaryGradient = LinearGradient(
   colors: [

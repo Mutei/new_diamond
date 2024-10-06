@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
+import '../backend/log_out_method.dart';
 import '../constants/colors.dart';
+import '../utils/global_methods.dart';
 import '../widgets/item_drawer.dart';
 import 'package:badges/badges.dart' as badges;
 
@@ -27,7 +29,7 @@ class CustomDrawer extends StatelessWidget {
             ),
             DrawerItem(
                 text: "Profile",
-                icon: Icon(Icons.person, color: kDeepOrange),
+                icon: Icon(Icons.person, color: kDeepOrangeColor),
                 onTap: () {
                   // Navigator.of(context).push(MaterialPageRoute(
                   //     builder: (context) => const ProfileScreenUser()));
@@ -35,7 +37,7 @@ class CustomDrawer extends StatelessWidget {
                 hint: "You can view your data here"),
             DrawerItem(
               text: "Posts",
-              icon: Icon(Icons.person, color: kDeepOrange),
+              icon: Icon(Icons.person, color: kDeepOrangeColor),
               onTap: () {
                 // Navigator.of(context).push(MaterialPageRoute(
                 //     builder: (context) => const AllPostsScreen()));
@@ -43,7 +45,7 @@ class CustomDrawer extends StatelessWidget {
               hint: "Show the Post ",
             ),
             DrawerItem(
-              icon: Icon(Icons.point_of_sale, color: kDeepOrange),
+              icon: Icon(Icons.point_of_sale, color: kDeepOrangeColor),
               onTap: () {
                 // Navigator.of(context).push(MaterialPageRoute(
                 //     builder: (context) => const CustomerPoints()));
@@ -52,7 +54,7 @@ class CustomDrawer extends StatelessWidget {
               text: "My Points",
             ),
             DrawerItem(
-              icon: Icon(Icons.message, color: kDeepOrange),
+              icon: Icon(Icons.message, color: kDeepOrangeColor),
               onTap: () {
                 // Navigator.of(context).push(MaterialPageRoute(
                 //     builder: (context) => const PrivateChatRequest()));
@@ -62,7 +64,7 @@ class CustomDrawer extends StatelessWidget {
             ),
             DrawerItem(
               text: "Notification",
-              icon: Icon(Icons.notification_add, color: kDeepOrange),
+              icon: Icon(Icons.notification_add, color: kDeepOrangeColor),
               onTap: () {
                 // Navigator.of(context).push(MaterialPageRoute(
                 //     builder: (context) => ProviderNotificationScreen()));
@@ -74,7 +76,7 @@ class CustomDrawer extends StatelessWidget {
               text: "Upgrade account",
               icon: Icon(
                 Icons.update,
-                color: kDeepOrange,
+                color: kDeepOrangeColor,
               ),
               onTap: () {
                 // Navigator.of(context).pop();
@@ -85,7 +87,7 @@ class CustomDrawer extends StatelessWidget {
             ),
             DrawerItem(
               text: "Arabic",
-              icon: Icon(Icons.language, color: kDeepOrange),
+              icon: Icon(Icons.language, color: kDeepOrangeColor),
               onTap: () async {
                 // SharedPreferences sharedPreferences =
                 // await SharedPreferences.getInstance();
@@ -99,7 +101,7 @@ class CustomDrawer extends StatelessWidget {
             ),
             DrawerItem(
               text: "English",
-              icon: Icon(Icons.language, color: kDeepOrange),
+              icon: Icon(Icons.language, color: kDeepOrangeColor),
               onTap: () async {
                 // SharedPreferences sharedPreferences =
                 // await SharedPreferences.getInstance();
@@ -113,12 +115,15 @@ class CustomDrawer extends StatelessWidget {
             ),
             DrawerItem(
               text: "Logout",
-              icon: Icon(Icons.logout, color: kDeepOrange),
-              onTap: () async {
-                // await AuthMethods().signOut(context);
+              icon: Icon(Icons.logout, color: kDeepOrangeColor),
+              onTap: () {
+                showLogoutConfirmationDialog(context, () async {
+                  // Perform the actual logout here
+                  await LogOutMethod().logOut(context);
+                });
               },
               hint: '',
-            )
+            ),
           ],
         ),
       ),

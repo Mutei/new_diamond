@@ -36,7 +36,7 @@ class _ReusedTextFormFieldState extends State<ReusedTextFormField> {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
-          color: kDeepOrange, // Adjust based on need
+          color: kDeepOrangeColor, // Adjust based on need
         ),
         borderRadius: BorderRadius.circular(30),
       ),
@@ -49,7 +49,7 @@ class _ReusedTextFormFieldState extends State<ReusedTextFormField> {
           hintText: widget.hintText,
           prefixIcon: Icon(
             widget.prefixIcon, // Use icons from icons_plus
-            color: kDeepOrange, // Adjust based on need
+            color: kDeepOrangeColor, // Adjust based on need
           ),
           suffixIcon: widget.obscureText
               ? IconButton(
