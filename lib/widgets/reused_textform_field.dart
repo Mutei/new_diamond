@@ -7,6 +7,7 @@ class ReusedTextFormField extends StatefulWidget {
   final IconData prefixIcon; // Update type to IconData (from icons_plus)
   final bool obscureText;
   final TextEditingController? controller;
+  final String? Function(String?)? validator; // Validator function
 
   const ReusedTextFormField({
     super.key,
@@ -14,6 +15,7 @@ class ReusedTextFormField extends StatefulWidget {
     required this.prefixIcon, // Expect icons_plus icons
     this.obscureText = false,
     this.controller,
+    this.validator, // Add the validator here
   });
 
   @override
@@ -41,6 +43,7 @@ class _ReusedTextFormFieldState extends State<ReusedTextFormField> {
       child: TextFormField(
         obscureText: _isObscure, // Controls the obscure text behavior
         controller: widget.controller,
+        validator: widget.validator, // Add the validator here
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: widget.hintText,

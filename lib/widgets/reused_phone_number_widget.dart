@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:intl_phone_field/phone_number.dart';
 import '../constants/colors.dart'; // Adjust the path as needed
 
 class ReusedPhoneNumberField extends StatelessWidget {
   final Function(String) onPhoneNumberChanged;
+  final String? Function(PhoneNumber?)?
+      validator; // Modify to handle PhoneNumber?
 
-  const ReusedPhoneNumberField({Key? key, required this.onPhoneNumberChanged})
-      : super(key: key);
+  const ReusedPhoneNumberField({
+    Key? key,
+    required this.onPhoneNumberChanged,
+    this.validator, // Include the validator for PhoneNumber?
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -30,15 +36,14 @@ class ReusedPhoneNumberField extends StatelessWidget {
         ),
         // Set the border color when there's an error
         errorBorder: OutlineInputBorder(
-          borderSide: const BorderSide(
-              color: Colors.red,
-              width: 2), // Border color when there's an error
+          borderSide: BorderSide(
+              color: kOrange, width: 2), // Border color when there's an error
           borderRadius: BorderRadius.circular(30),
         ),
         // Set the border for focused error
         focusedErrorBorder: OutlineInputBorder(
-          borderSide: const BorderSide(
-              color: Colors.red,
+          borderSide: BorderSide(
+              color: kOrange,
               width: 2), // Border color when focused and there's an error
           borderRadius: BorderRadius.circular(30),
         ),
@@ -47,6 +52,7 @@ class ReusedPhoneNumberField extends StatelessWidget {
       onChanged: (phone) {
         onPhoneNumberChanged(phone.completeNumber); // Handle phone number input
       },
+      validator: validator, // Add the correct validator type
     );
   }
 }
