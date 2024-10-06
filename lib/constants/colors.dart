@@ -12,6 +12,7 @@ const kReceiverTextMessage = Colors.black;
 final kAmberColor = Colors.amber[600];
 final kDeepOrange = Colors.deepOrange[300]!;
 final kOrange = Colors.orange[300]!;
+const kError = Colors.red;
 // Define the gradient as a reusable constant
 final LinearGradient kPrimaryGradient = LinearGradient(
   colors: [
