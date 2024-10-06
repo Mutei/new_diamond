@@ -1,14 +1,12 @@
 import 'package:diamond_host_admin/constants/colors.dart';
 import 'package:diamond_host_admin/extension/sized_box_extension.dart';
 import 'package:diamond_host_admin/widgets/reused_elevated_button.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:diamond_host_admin/widgets/reused_appbar.dart';
 import 'package:icons_plus/icons_plus.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 import '../constants/styles.dart';
+import '../widgets/reused_phone_number_widget.dart';
 import '../widgets/reused_textform_field.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -159,47 +157,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     // Phone Number Form
                     Column(
                       children: [
-                        IntlPhoneField(
-                          decoration: InputDecoration(
-                            labelText: 'Phone Number',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            // Set the default enabled border
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                  color:
-                                      kDeepOrange), // Border color when enabled
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            // Set the border color when focused
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                  color: kDeepOrange,
-                                  width: 2), // Border color when focused
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            // Set the border color when there's an error
-                            errorBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                  color: Colors.red,
-                                  width:
-                                      2), // Border color when there's an error
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            // Set the border for focused error
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                  color: Colors.red,
-                                  width:
-                                      2), // Border color when focused and there's an error
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                          initialCountryCode: 'SA', // Default country code
-                          onChanged: (phone) {
-                            print(phone
-                                .completeNumber); // Handle phone number input
+                        ReusedPhoneNumberField(
+                          onPhoneNumberChanged: (phone) {
+                            print('Phone number entered: $phone');
                           },
                         ),
                         10.kH,

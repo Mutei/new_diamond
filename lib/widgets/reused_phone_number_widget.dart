@@ -1,0 +1,52 @@
+import 'package:flutter/material.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
+import '../constants/colors.dart'; // Adjust the path as needed
+
+class ReusedPhoneNumberField extends StatelessWidget {
+  final Function(String) onPhoneNumberChanged;
+
+  const ReusedPhoneNumberField({Key? key, required this.onPhoneNumberChanged})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return IntlPhoneField(
+      decoration: InputDecoration(
+        labelText: 'Phone Number',
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+        // Set the default enabled border
+        enabledBorder: OutlineInputBorder(
+          borderSide:
+              BorderSide(color: kDeepOrange), // Border color when enabled
+          borderRadius: BorderRadius.circular(30),
+        ),
+        // Set the border color when focused
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+              color: kDeepOrange, width: 2), // Border color when focused
+          borderRadius: BorderRadius.circular(30),
+        ),
+        // Set the border color when there's an error
+        errorBorder: OutlineInputBorder(
+          borderSide: const BorderSide(
+              color: Colors.red,
+              width: 2), // Border color when there's an error
+          borderRadius: BorderRadius.circular(30),
+        ),
+        // Set the border for focused error
+        focusedErrorBorder: OutlineInputBorder(
+          borderSide: const BorderSide(
+              color: Colors.red,
+              width: 2), // Border color when focused and there's an error
+          borderRadius: BorderRadius.circular(30),
+        ),
+      ),
+      initialCountryCode: 'SA', // Default country code
+      onChanged: (phone) {
+        onPhoneNumberChanged(phone.completeNumber); // Handle phone number input
+      },
+    );
+  }
+}

@@ -9,12 +9,12 @@ class ReusedTextFormField extends StatefulWidget {
   final TextEditingController? controller;
 
   const ReusedTextFormField({
-    Key? key,
+    super.key,
     required this.hintText,
     required this.prefixIcon, // Expect icons_plus icons
     this.obscureText = false,
     this.controller,
-  }) : super(key: key);
+  });
 
   @override
   _ReusedTextFormFieldState createState() => _ReusedTextFormFieldState();
