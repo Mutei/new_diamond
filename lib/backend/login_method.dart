@@ -9,7 +9,7 @@ class LoginMethod {
   final DatabaseReference _databaseRef = FirebaseDatabase.instance.ref();
 
   // Method to handle email login
-  Future<void> loginWithEmail({
+  void loginWithEmail({
     required String email,
     required String password,
     required BuildContext context,
@@ -33,16 +33,14 @@ class LoginMethod {
       if (snapshot.exists && snapshot.value == '1') {
         // If TypeUser is '1', navigate to the MainScreen
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => MainScreen()),
+          MaterialPageRoute(builder: (context) => const MainScreen()),
           (Route<dynamic> route) => false,
         );
       } else {
         // If TypeUser is not '1', show an alert dialog
-
         showLoginErrorDialog(context, "You are not allowed to log in.");
       }
     } on FirebaseAuthException catch (e) {
-      // Handle specific FirebaseAuth errors
       if (e.code == 'user-not-found') {
         showErrorDialog(context, "No user found for that email.");
       } else if (e.code == 'wrong-password') {
@@ -54,7 +52,6 @@ class LoginMethod {
             context, e.message ?? "Login failed. Please try again.");
       }
     } catch (e) {
-      // Show a generic error message for other exceptions
       showErrorDialog(
           context, "An unexpected error occurred. Please try again.");
     }

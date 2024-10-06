@@ -1,13 +1,21 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
+import '../screens/main_screen.dart';
 
 class AuthenticationMethods {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final DatabaseReference _db = FirebaseDatabase.instance.ref();
 
-  Future<void> signUpWithEmailPhone(
-      String email, String password, String phone, bool acceptedTerms) async {
+  Future<void> signUpWithEmailPhone({
+    required String email,
+    required String password,
+    required String phone,
+    required bool acceptedTerms,
+    required BuildContext context, // Add context as a required parameter
+  }) async {
     try {
       // Password validation
       if (!validatePassword(password)) {
@@ -35,6 +43,12 @@ class AuthenticationMethods {
         'TypeUser': '1', // Assuming '1' is for a regular user
         'DateOfRegistration': registrationDate,
       });
+
+      // Navigate to MainScreen after successful signup
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MainScreen()),
+      );
     } catch (e) {
       throw Exception('Sign up failed: ${e.toString()}');
     }

@@ -116,10 +116,11 @@ class _SignInScreenState extends State<SignInScreen> {
                         // Call sign-up method
                         try {
                           await _authMethods.signUpWithEmailPhone(
-                            _emailController.text,
-                            _passwordController.text,
-                            _phoneNumber!,
-                            _acceptedTerms,
+                            email: _emailController.text.trim(),
+                            password: _passwordController.text.trim(),
+                            phone: _phoneNumber!, // Make sure this is not null
+                            acceptedTerms: _acceptedTerms,
+                            context: context, // Pass the context here
                           );
                           print('OTP sent for verification');
                         } catch (e) {
