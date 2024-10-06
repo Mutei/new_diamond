@@ -1,5 +1,6 @@
 import 'package:diamond_host_admin/constants/styles.dart';
 import 'package:diamond_host_admin/screens/sign_in_screen.dart';
+import 'package:diamond_host_admin/widgets/reused_elevated_button.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:diamond_host_admin/constants/colors.dart';
@@ -27,27 +28,14 @@ Widget buildPage({
         ),
         const SizedBox(height: 20),
         if (isLastPage)
-          ElevatedButton(
+          CustomButton(
+            text: 'Next', // Phone icon for the button
             onPressed: () {
-              // Navigate to login screen
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => SignInScreen()),
               );
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.teal, // Use your primary color here
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-            ),
-            child: const Text(
-              'Next',
-              style: TextStyle(
-                color: kSecondaryColor,
-              ),
-            ),
           ),
       ],
     ),
