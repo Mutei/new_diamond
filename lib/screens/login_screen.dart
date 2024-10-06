@@ -125,18 +125,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       Column(
                         children: [
                           ReusedTextFormField(
-                            controller: _emailController,
                             hintText: 'Email',
                             prefixIcon: Icons.email,
+                            keyboardType: TextInputType
+                                .emailAddress, // Specify email keyboard type
+                            controller: _emailController,
                             validator: (value) {
-                              if (_currentIndex == 0) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter your email';
-                                }
-                                if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
-                                    .hasMatch(value)) {
-                                  return 'Please enter a valid email address';
-                                }
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your email';
+                              }
+                              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
+                                  .hasMatch(value)) {
+                                return 'Please enter a valid email address';
                               }
                               return null;
                             },
@@ -174,6 +174,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           CustomButton(
                             text: 'Login',
                             onPressed: () {
+                              // Hide the keyboard
+                              FocusScope.of(context).unfocus();
+
                               if (_formKey.currentState!.validate()) {
                                 // Use the login method for email
                                 _loginMethod.loginWithEmail(

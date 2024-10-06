@@ -8,6 +8,7 @@ class ReusedTextFormField extends StatefulWidget {
   final bool obscureText;
   final TextEditingController? controller;
   final String? Function(String?)? validator; // Validator function
+  final TextInputType? keyboardType; // Nullable TextInputType
 
   const ReusedTextFormField({
     super.key,
@@ -16,6 +17,7 @@ class ReusedTextFormField extends StatefulWidget {
     this.obscureText = false,
     this.controller,
     this.validator, // Add the validator here
+    this.keyboardType, // Add keyboardType parameter
   });
 
   @override
@@ -44,6 +46,9 @@ class _ReusedTextFormFieldState extends State<ReusedTextFormField> {
         obscureText: _isObscure, // Controls the obscure text behavior
         controller: widget.controller,
         validator: widget.validator, // Add the validator here
+        keyboardType: widget.keyboardType ??
+            TextInputType
+                .text, // Use keyboardType if provided, else default to TextInputType.text
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: widget.hintText,
@@ -66,7 +71,8 @@ class _ReusedTextFormFieldState extends State<ReusedTextFormField> {
                   },
                 )
               : null, // Only show the toggle icon for password fields
-          hintStyle: TextStyle(color: Colors.grey), // Adjust based on need
+          hintStyle:
+              const TextStyle(color: Colors.grey), // Adjust based on need
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         ),

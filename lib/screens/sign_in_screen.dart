@@ -46,6 +46,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     controller: _emailController,
                     hintText: 'Email',
                     prefixIcon: Icons.email,
+                    keyboardType: TextInputType.emailAddress,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your email';
@@ -97,6 +98,9 @@ class _SignInScreenState extends State<SignInScreen> {
                   CustomButton(
                     text: 'Sign Up',
                     onPressed: () async {
+                      // Hide the keyboard
+                      FocusScope.of(context).unfocus();
+
                       if (_formKey.currentState!.validate()) {
                         if (!_acceptedTerms) {
                           // Show error if terms are not accepted
