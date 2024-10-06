@@ -1,3 +1,4 @@
+import 'package:diamond_host_admin/screens/custom_drawer.dart';
 import 'package:diamond_host_admin/widgets/reused_appbar.dart';
 import 'package:flutter/material.dart';
 
@@ -15,6 +16,7 @@ class _MainScreenState extends State<MainScreen> {
       appBar: ReusedAppBar(
         title: "Main Screen",
       ),
+      drawer: CustomDrawer(),
     );
   }
 }

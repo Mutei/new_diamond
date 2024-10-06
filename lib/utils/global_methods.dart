@@ -30,3 +30,31 @@ void showErrorDialog(BuildContext context, String message) {
     },
   );
 }
+
+void showLoginErrorDialog(BuildContext context, String message) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text(
+          "Access Denied",
+          style: TextStyle(
+            color: kError,
+          ),
+        ),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              "OK",
+              style: kSecondaryStyle,
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}

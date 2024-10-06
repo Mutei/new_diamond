@@ -3,8 +3,8 @@ import 'package:pinput/pinput.dart';
 
 import 'colors.dart';
 
-const kIconTheme = IconThemeData(
-  color: kPrimaryColor, // Change this to your desired color
+final kIconTheme = IconThemeData(
+  color: kDeepOrange, // Change this to your desired color
 );
 final kDefaultPinTheme = PinTheme(
   width: 56,
