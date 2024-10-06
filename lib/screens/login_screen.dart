@@ -1,13 +1,13 @@
+import 'package:flutter/material.dart';
+import 'package:diamond_host_admin/widgets/reused_textform_field.dart';
+import 'package:diamond_host_admin/widgets/reused_phone_number_widget.dart';
+import 'package:diamond_host_admin/constants/styles.dart';
 import 'package:diamond_host_admin/constants/colors.dart';
 import 'package:diamond_host_admin/extension/sized_box_extension.dart';
 import 'package:diamond_host_admin/widgets/reused_elevated_button.dart';
-import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
-
-import '../constants/styles.dart';
-import '../widgets/reused_phone_number_widget.dart';
-import '../widgets/reused_textform_field.dart';
+import '../backend/login_method.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -22,16 +22,18 @@ class _LoginScreenState extends State<LoginScreen> {
   PhoneNumber number = PhoneNumber(isoCode: 'SA');
   PageController _pageController = PageController(initialPage: 0);
   int _currentIndex = 0;
-  final _formKey = GlobalKey<FormState>(); // Form key to manage the form state
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   String? _phoneNumber;
+
+  // Create an instance of LoginMethod
+  final LoginMethod _loginMethod = LoginMethod();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
-        // Added this to make the screen scrollable
         child: Form(
           key: _formKey,
           child: Padding(
@@ -131,7 +133,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter your email';
                                 }
-                                // Validate email format
                                 if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
                                     .hasMatch(value)) {
                                   return 'Please enter a valid email address';
@@ -151,7 +152,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter your password';
                                 }
-                                // Optional: Add a length constraint if needed
                               }
                               return null;
                             },
@@ -175,15 +175,19 @@ class _LoginScreenState extends State<LoginScreen> {
                             text: 'Login',
                             onPressed: () {
                               if (_formKey.currentState!.validate()) {
-                                // Proceed with email/password login logic
-                                print('Logging in with email and password');
+                                // Use the login method for email
+                                _loginMethod.loginWithEmail(
+                                  email: _emailController.text.trim(),
+                                  password: _passwordController.text.trim(),
+                                  context: context,
+                                );
                               }
                             },
                           ),
                         ],
                       ),
 
-                      // Phone Number Form
+                      // Phone Number Form (unchanged)
                       Column(
                         children: [
                           ReusedPhoneNumberField(
@@ -231,14 +235,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
 
-                // Sign Up Link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text("Are you new here? "),
                     GestureDetector(
                       onTap: () {
-                        // Navigate to Sign Up Screen
                         Navigator.pop(context);
                       },
                       child: const Text(

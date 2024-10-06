@@ -1,7 +1,7 @@
-import 'package:diamond_host_admin/extension/sized_box_extension.dart';
 import 'package:flutter/material.dart';
-import '../constants/styles.dart';
+import '../backend/authentication_methods.dart';
 import '../constants/colors.dart';
+import '../constants/styles.dart';
 import '../widgets/reused_elevated_button.dart';
 import '../widgets/reused_phone_number_widget.dart';
 import '../widgets/reused_textform_field.dart';
@@ -16,34 +16,36 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
-  final _formKey = GlobalKey<FormState>(); // Form key to manage the form state
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   String? _phoneNumber;
+  bool _acceptedTerms = false; // Track if terms are accepted
+
+  final AuthenticationMethods _authMethods = AuthenticationMethods();
 
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: kSecondaryColor, // Use kSecondaryColor (white)
+      backgroundColor: kSecondaryColor,
       body: SingleChildScrollView(
         child: ConstrainedBox(
           constraints: BoxConstraints(minHeight: height),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Form(
-              key: _formKey, // Associate the form key with the Form widget
+              key: _formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text('Sign in', style: kPrimaryStyle),
-                  20.kH,
+                  const SizedBox(height: 20),
                   ReusedTextFormField(
                     controller: _emailController,
                     hintText: 'Email',
                     prefixIcon: Icons.email,
-                    // Add email validation
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your email';
@@ -51,22 +53,24 @@ class _SignInScreenState extends State<SignInScreen> {
                       return null;
                     },
                   ),
-                  20.kH,
+                  const SizedBox(height: 20),
                   ReusedTextFormField(
                     controller: _passwordController,
                     hintText: 'Password',
                     prefixIcon: LineAwesome.user_lock_solid,
                     obscureText: true,
-                    // Add password validation
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your password';
                       }
+                      if (!RegExp(r'^(?=.*?[A-Z])(?=.*?[!@#\$&*~]).{8,}$')
+                          .hasMatch(value)) {
+                        return 'Password must be at least 8 characters, 1 special char, 1 uppercase';
+                      }
                       return null;
                     },
                   ),
-                  20.kH,
-                  // Use the custom phone number field with validation
+                  const SizedBox(height: 20),
                   ReusedPhoneNumberField(
                     onPhoneNumberChanged: (phone) {
                       setState(() {
@@ -80,18 +84,47 @@ class _SignInScreenState extends State<SignInScreen> {
                       return null;
                     },
                   ),
-                  10.kH,
+                  const SizedBox(height: 10),
+                  CheckboxListTile(
+                    title: const Text('I accept the terms and conditions'),
+                    value: _acceptedTerms,
+                    onChanged: (value) {
+                      setState(() {
+                        _acceptedTerms = value!;
+                      });
+                    },
+                  ),
                   CustomButton(
                     text: 'Sign Up',
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        // Proceed with sign-up logic
-                        print('Form is valid and phone number is entered');
-                        // Proceed with your further logic
+                        if (!_acceptedTerms) {
+                          // Show error if terms are not accepted
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  'Please accept the terms and conditions'),
+                            ),
+                          );
+                          return;
+                        }
+
+                        // Call sign-up method
+                        try {
+                          await _authMethods.signUpWithEmailPhone(
+                            _emailController.text,
+                            _passwordController.text,
+                            _phoneNumber!,
+                            _acceptedTerms,
+                          );
+                          print('OTP sent for verification');
+                        } catch (e) {
+                          print('Sign-up failed: $e');
+                        }
                       }
                     },
                   ),
-                  20.kH,
+                  const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -101,7 +134,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => LoginScreen()),
+                                builder: (context) => const LoginScreen()),
                           );
                         },
                         child: const Text(
