@@ -7,7 +7,13 @@ import 'package:diamond_host_admin/extension/sized_box_extension.dart';
 import 'package:diamond_host_admin/widgets/reused_elevated_button.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../backend/login_method.dart';
+import '../localization/language_constants.dart';
+import '../main.dart';
+import '../state_management/general_provider.dart';
+import '../widgets/language_translator_widget.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -33,6 +39,24 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        actions: [
+          // Icon button for changing language
+          IconButton(
+            icon: Icon(Icons.language, color: kOrangeColor),
+            onPressed: () {
+              // Show the language dialog as a custom widget
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return const LanguageDialogWidget();
+                },
+              );
+            },
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Form(
           key: _formKey,

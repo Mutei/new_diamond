@@ -1,6 +1,12 @@
 import 'package:diamond_host_admin/constants/colors.dart';
 import 'package:diamond_host_admin/constants/styles.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../localization/language_constants.dart';
+import '../main.dart';
+import '../state_management/general_provider.dart';
 
 // Global method to display an error alert dialog
 void showErrorDialog(BuildContext context, String message) {
@@ -96,3 +102,60 @@ void showLogoutConfirmationDialog(BuildContext context, Function onConfirm) {
     },
   );
 }
+
+// void _showLanguageDialog(BuildContext context) {
+//   showDialog(
+//     context: context,
+//     builder: (BuildContext context) {
+//       return AlertDialog(
+//         title: Text(
+//           getTranslated(context, "Select Language"),
+//           style: TextStyle(
+//             color: kPrimaryColor,
+//           ),
+//         ),
+//         content: Column(
+//           mainAxisSize: MainAxisSize.min,
+//           children: [
+//             ListTile(
+//               title: Text(
+//                 getTranslated(context, 'English'),
+//                 style: TextStyle(
+//                   color: kPrimaryColor,
+//                 ),
+//               ),
+//               onTap: () async {
+//                 SharedPreferences sharedPreferences =
+//                     await SharedPreferences.getInstance();
+//                 sharedPreferences.setString("Language", "en");
+//                 Locale newLocale = const Locale("en", "SA");
+//                 MyApp.setLocale(context, newLocale);
+//                 Provider.of<GeneralProvider>(context, listen: false)
+//                     .updateLanguage(true);
+//                 Navigator.of(context).pop();
+//               },
+//             ),
+//             ListTile(
+//               title: Text(
+//                 getTranslated(context, 'Arabic'),
+//                 style: TextStyle(
+//                   color: kPrimaryColor,
+//                 ),
+//               ),
+//               onTap: () async {
+//                 SharedPreferences sharedPreferences =
+//                     await SharedPreferences.getInstance();
+//                 sharedPreferences.setString("Language", "ar");
+//                 Locale newLocale = const Locale("ar", "SA");
+//                 MyApp.setLocale(context, newLocale);
+//                 Provider.of<GeneralProvider>(context, listen: false)
+//                     .updateLanguage(false);
+//                 Navigator.of(context).pop();
+//               },
+//             ),
+//           ],
+//         ),
+//       );
+//     },
+//   );
+// }

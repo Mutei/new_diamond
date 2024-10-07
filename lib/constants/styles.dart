@@ -47,6 +47,18 @@ final kPrimaryStyle = TextStyle(
       ], // Increase contrast
     ).createShader(Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
 );
+final kTeritary = TextStyle(
+  fontSize: 20,
+  fontWeight: FontWeight.bold,
+  foreground: Paint()
+    ..shader = LinearGradient(
+      colors: [
+        kDeepOrangeColor,
+        kOrangeColor,
+      ], // Increase contrast
+    ).createShader(Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
+);
+
 final kSecondaryStyle = TextStyle(
   fontSize: 16,
   fontWeight: FontWeight.bold,

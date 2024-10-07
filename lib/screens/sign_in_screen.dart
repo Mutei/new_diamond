@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../backend/authentication_methods.dart';
 import '../constants/colors.dart';
 import '../constants/styles.dart';
+import '../widgets/language_translator_widget.dart';
 import '../widgets/reused_elevated_button.dart';
 import '../widgets/reused_phone_number_widget.dart';
 import '../widgets/reused_textform_field.dart';
@@ -29,7 +30,24 @@ class _SignInScreenState extends State<SignInScreen> {
     final height = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: kSecondaryColor,
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        actions: [
+          // Icon button for changing language
+          IconButton(
+            icon: Icon(Icons.language, color: kOrangeColor),
+            onPressed: () {
+              // Show the language dialog as a custom widget
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return const LanguageDialogWidget();
+                },
+              );
+            },
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         child: ConstrainedBox(
           constraints: BoxConstraints(minHeight: height),
