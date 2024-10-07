@@ -1,3 +1,4 @@
+import 'package:diamond_host_admin/localization/language_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,21 +33,21 @@ class CustomDrawer extends StatelessWidget {
               ),
             ),
             DrawerItem(
-                text: "Profile",
+                text: getTranslated(context, "Profile"),
                 icon: Icon(Icons.person, color: kDeepPurpleColor),
                 onTap: () {
                   // Navigator.of(context).push(MaterialPageRoute(
                   //     builder: (context) => const ProfileScreenUser()));
                 },
-                hint: "You can view your data here"),
+                hint: getTranslated(context, "You can view your data here")),
             DrawerItem(
-              text: "Posts",
+              text: getTranslated(context, "Posts"),
               icon: Icon(Icons.person, color: kDeepPurpleColor),
               onTap: () {
                 // Navigator.of(context).push(MaterialPageRoute(
                 //     builder: (context) => const AllPostsScreen()));
               },
-              hint: "Show the Post ",
+              hint: getTranslated(context, "Show the Post"),
             ),
             DrawerItem(
               icon: Icon(Icons.point_of_sale, color: kDeepPurpleColor),
@@ -54,8 +55,9 @@ class CustomDrawer extends StatelessWidget {
                 // Navigator.of(context).push(MaterialPageRoute(
                 //     builder: (context) => const CustomerPoints()));
               },
-              hint: "From here you can get points and discounts",
-              text: "My Points",
+              hint: getTranslated(
+                  context, "From here you can get points and discounts"),
+              text: getTranslated(context, "My Points"),
             ),
             DrawerItem(
               icon: Icon(Icons.message, color: kDeepPurpleColor),
@@ -63,21 +65,22 @@ class CustomDrawer extends StatelessWidget {
                 // Navigator.of(context).push(MaterialPageRoute(
                 //     builder: (context) => const PrivateChatRequest()));
               },
-              hint: "From here you can chat privately with other users",
-              text: "Private Chat",
+              hint: getTranslated(
+                  context, "From here you can chat privately with other users"),
+              text: getTranslated(context, "Private Chat"),
             ),
             DrawerItem(
-              text: "Notification",
+              text: getTranslated(context, "Notification"),
               icon: Icon(Icons.notification_add, color: kDeepPurpleColor),
               onTap: () {
                 // Navigator.of(context).push(MaterialPageRoute(
                 //     builder: (context) => ProviderNotificationScreen()));
               },
-              hint:
-                  "You can see the notifications that come to you, such as booking confirmation",
+              hint: getTranslated(context,
+                  "You can see the notifications that come to you, such as booking confirmation"),
             ),
             DrawerItem(
-              text: "Upgrade account",
+              text: getTranslated(context, "Upgrade account"),
               icon: Icon(
                 Icons.update,
                 color: kDeepPurpleColor,
@@ -87,10 +90,11 @@ class CustomDrawer extends StatelessWidget {
                 // Navigator.of(context).push(
                 //     MaterialPageRoute(builder: (context) => UpgradeAccount()));
               },
-              hint: "From here you can upgrade account to Vip",
+              hint: getTranslated(
+                  context, "From here you can upgrade account to Vip"),
             ),
             DrawerItem(
-              text: "Arabic",
+              text: getTranslated(context, "Arabic"),
               icon: Icon(Icons.language, color: kDeepPurpleColor),
               onTap: () async {
                 SharedPreferences sharedPreferences =
@@ -104,7 +108,7 @@ class CustomDrawer extends StatelessWidget {
               hint: "",
             ),
             DrawerItem(
-              text: "English",
+              text: getTranslated(context, "English"),
               icon: Icon(Icons.language, color: kDeepPurpleColor),
               onTap: () async {
                 SharedPreferences sharedPreferences =
@@ -118,7 +122,7 @@ class CustomDrawer extends StatelessWidget {
               hint: '',
             ),
             DrawerItem(
-              text: "Logout",
+              text: getTranslated(context, "Logout"),
               icon: Icon(Icons.logout, color: kDeepPurpleColor),
               onTap: () {
                 showLogoutConfirmationDialog(context, () async {

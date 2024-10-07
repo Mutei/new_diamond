@@ -1,3 +1,4 @@
+import 'package:diamond_host_admin/localization/language_constants.dart';
 import 'package:diamond_host_admin/screens/custom_drawer.dart';
 import 'package:diamond_host_admin/widgets/reused_appbar.dart';
 import 'package:flutter/material.dart';
@@ -12,11 +13,11 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       appBar: ReusedAppBar(
-        title: "Main Screen",
+        title: getTranslated(context, "Main Screen"),
       ),
-      drawer: CustomDrawer(),
+      drawer: const CustomDrawer(),
     );
   }
 }

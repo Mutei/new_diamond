@@ -42,15 +42,30 @@ class _LoginScreenState extends State<LoginScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         actions: [
-          // Icon button for changing language
+          // Language change button
           IconButton(
             icon: Icon(Icons.language, color: kPurpleColor),
             onPressed: () {
-              // Show the language dialog as a custom widget
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
                   return const LanguageDialogWidget();
+                },
+              );
+            },
+          ),
+          // Dark/Light mode toggle button
+          Consumer<GeneralProvider>(
+            builder: (context, generalProvider, child) {
+              return IconButton(
+                icon: Icon(
+                  generalProvider.isDarkMode
+                      ? Icons.dark_mode
+                      : Icons.light_mode,
+                  color: kPurpleColor,
+                ),
+                onPressed: () {
+                  generalProvider.toggleTheme(); // Toggle theme
                 },
               );
             },
@@ -66,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 40.kH, // Added space for status bar
                 Text(
-                  "Login",
+                  getTranslated(context, "Login"),
                   style: kPrimaryStyle,
                 ),
                 Row(
@@ -94,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           child: Text(
-                            'Email & Password',
+                            getTranslated(context, 'Email & Password'),
                             textAlign: TextAlign.center,
                             style: kSecondaryStyle,
                           ),
@@ -123,7 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           child: Text(
-                            'Phone Number',
+                            getTranslated(context, 'Phone Number'),
                             textAlign: TextAlign.center,
                             style: kSecondaryStyle,
                           ),
@@ -149,18 +164,20 @@ class _LoginScreenState extends State<LoginScreen> {
                       Column(
                         children: [
                           ReusedTextFormField(
-                            hintText: 'Email',
+                            hintText: getTranslated(context, 'Email'),
                             prefixIcon: Icons.email,
                             keyboardType: TextInputType
                                 .emailAddress, // Specify email keyboard type
                             controller: _emailController,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please enter your email';
+                                return getTranslated(
+                                    context, 'Please enter your email');
                               }
                               if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
                                   .hasMatch(value)) {
-                                return 'Please enter a valid email address';
+                                return getTranslated(context,
+                                    'Please enter a valid email address');
                               }
                               return null;
                             },
@@ -168,13 +185,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           20.kH,
                           ReusedTextFormField(
                             controller: _passwordController,
-                            hintText: 'Password',
+                            hintText: getTranslated(context, 'Password'),
                             prefixIcon: LineAwesome.user_lock_solid,
                             obscureText: true,
                             validator: (value) {
                               if (_currentIndex == 0) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please enter your password';
+                                  return getTranslated(
+                                      context, 'Please enter your password');
                                 }
                               }
                               return null;
@@ -196,7 +214,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           // ),
                           20.kH,
                           CustomButton(
-                            text: 'Login',
+                            text: getTranslated(context, 'Login'),
                             onPressed: () {
                               // Hide the keyboard
                               FocusScope.of(context).unfocus();
@@ -226,7 +244,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             validator: (phone) {
                               if (_currentIndex == 1) {
                                 if (phone == null || phone.number.isEmpty) {
-                                  return 'Please enter a valid phone number';
+                                  return getTranslated(context,
+                                      'Please enter a valid phone number');
                                 }
                               }
                               return null;
@@ -265,14 +284,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Are you new here? "),
+                    Text(getTranslated(context, "Are you new here? ")),
                     GestureDetector(
                       onTap: () {
                         Navigator.pop(context);
                       },
-                      child: const Text(
-                        "Sign Up",
-                        style: TextStyle(
+                      child: Text(
+                        getTranslated(context, "Sign in"),
+                        style: const TextStyle(
                           color: Colors.blue,
                           fontWeight: FontWeight.bold,
                         ),

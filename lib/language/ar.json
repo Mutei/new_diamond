@@ -13,7 +13,21 @@
   "Please accept the terms and conditions": "يرجى قبول الشروط والأحكام",
   "Already have an account? ": "لديك حساب بالفعل؟ ",
   "Login": "تسجيل الدخول",
-  "Phone Number": "رقم الهاتف"
-
-
+  "Phone Number": "رقم الهاتف",
+  "Email & Password": "البريد الإلكتروني وكلمة المرور",
+  "Are you new here? ": "هل أنت جديد هنا؟",
+  "Main Screen": "لإستضافة الماسية",
+  "Profile": "الملف الشخصي",
+  "Posts": "المنشورات",
+  "You can view your data here": "يمكنك عرض بياناتك هنا",
+  "Show the Post": "عرض المنشور",
+  "From here you can get points and discounts": "من هنا يمكنك الحصول على نقاط وخصومات",
+  "My Points": "نقاطي",
+  "From here you can chat privately with other users": "من هنا يمكنك الدردشة بشكل خاص مع المستخدمين الآخرين",
+  "Private Chat": "الدردشة الخاصة",
+  "Notification": "الإشعارات",
+  "You can see the notifications that come to you, such as booking confirmation": "يمكنك رؤية الإشعارات التي تأتيك، مثل تأكيد الحجز",
+  "Upgrade account": "ترقية الحساب",
+  "From here you can upgrade account to Vip": "من هنا يمكنك ترقية الحساب إلى VIP",
+  "Logout": "تسجيل الخروج"
 }
