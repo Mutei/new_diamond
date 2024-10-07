@@ -49,6 +49,12 @@ class _ReusedTextFormFieldState extends State<ReusedTextFormField> {
         keyboardType: widget.keyboardType ??
             TextInputType
                 .text, // Use keyboardType if provided, else default to TextInputType.text
+        style: TextStyle(
+          color: Theme.of(context)
+              .textTheme
+              .bodyLarge
+              ?.color, // Replace bodyText1 with bodyLarge
+        ),
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: widget.hintText,

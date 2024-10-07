@@ -174,7 +174,12 @@ class _SignInScreenState extends State<SignInScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(getTranslated(context, "Already have an account? ")),
+                      Text(
+                        getTranslated(context, "Already have an account? "),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyLarge, // Replace bodyText1 with bodyLarge
+                      ),
                       GestureDetector(
                         onTap: () {
                           Navigator.push(
@@ -185,10 +190,12 @@ class _SignInScreenState extends State<SignInScreen> {
                         },
                         child: Text(
                           getTranslated(context, "Login"),
-                          style: const TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    color: Colors
+                                        .blue, // Keeping the blue color for this specific text
+                                    fontWeight: FontWeight.bold,
+                                  ),
                         ),
                       ),
                     ],

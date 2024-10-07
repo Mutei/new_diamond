@@ -115,8 +115,16 @@ class _MyAppState extends State<MyApp> {
                         ? const ColorScheme.dark()
                         : const ColorScheme.light(),
                     useMaterial3: true,
-                    textTheme:
-                        GoogleFonts.lailaTextTheme(Theme.of(context).textTheme),
+                    textTheme: GoogleFonts.lailaTextTheme(
+                      Theme.of(context).textTheme.apply(
+                            bodyColor: provider.isDarkMode
+                                ? Colors.white
+                                : Colors.black,
+                            displayColor: provider.isDarkMode
+                                ? Colors.white
+                                : Colors.black,
+                          ),
+                    ),
                   ),
                   locale: _locale,
                   supportedLocales: const [
