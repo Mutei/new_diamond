@@ -44,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
         actions: [
           // Icon button for changing language
           IconButton(
-            icon: Icon(Icons.language, color: kOrangeColor),
+            icon: Icon(Icons.language, color: kPurpleColor),
             onPressed: () {
               // Show the language dialog as a custom widget
               showDialog(
@@ -88,7 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               bottom: BorderSide(
                                 width: 2.0,
                                 color: _currentIndex == 0
-                                    ? kOrangeColor
+                                    ? kPurpleColor
                                     : Colors.transparent,
                               ),
                             ),
@@ -117,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               bottom: BorderSide(
                                 width: 2.0,
                                 color: _currentIndex == 1
-                                    ? kOrangeColor
+                                    ? kPurpleColor
                                     : Colors.transparent,
                               ),
                             ),
@@ -181,19 +181,19 @@ class _LoginScreenState extends State<LoginScreen> {
                             },
                           ),
                           10.kH,
-                          Row(
-                            children: [
-                              Checkbox(
-                                value: rememberMe,
-                                onChanged: (value) {
-                                  setState(() {
-                                    rememberMe = value!;
-                                  });
-                                },
-                              ),
-                              const Text("Remember Me"),
-                            ],
-                          ),
+                          // Row(
+                          //   children: [
+                          //     Checkbox(
+                          //       value: rememberMe,
+                          //       onChanged: (value) {
+                          //         setState(() {
+                          //           rememberMe = value!;
+                          //         });
+                          //       },
+                          //     ),
+                          //     const Text("Remember Me"),
+                          //   ],
+                          // ),
                           20.kH,
                           CustomButton(
                             text: 'Login',
@@ -233,19 +233,19 @@ class _LoginScreenState extends State<LoginScreen> {
                             },
                           ),
                           10.kH,
-                          Row(
-                            children: [
-                              Checkbox(
-                                value: rememberMe,
-                                onChanged: (value) {
-                                  setState(() {
-                                    rememberMe = value!;
-                                  });
-                                },
-                              ),
-                              const Text("Remember Me"),
-                            ],
-                          ),
+                          // Row(
+                          //   children: [
+                          //     Checkbox(
+                          //       value: rememberMe,
+                          //       onChanged: (value) {
+                          //         setState(() {
+                          //           rememberMe = value!;
+                          //         });
+                          //       },
+                          //     ),
+                          //     const Text("Remember Me"),
+                          //   ],
+                          // ),
                           20.kH,
                           CustomButton(
                             text: 'Login through phone number',

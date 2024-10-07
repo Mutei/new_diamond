@@ -33,7 +33,7 @@ class CustomDrawer extends StatelessWidget {
             ),
             DrawerItem(
                 text: "Profile",
-                icon: Icon(Icons.person, color: kDeepOrangeColor),
+                icon: Icon(Icons.person, color: kDeepPurpleColor),
                 onTap: () {
                   // Navigator.of(context).push(MaterialPageRoute(
                   //     builder: (context) => const ProfileScreenUser()));
@@ -41,7 +41,7 @@ class CustomDrawer extends StatelessWidget {
                 hint: "You can view your data here"),
             DrawerItem(
               text: "Posts",
-              icon: Icon(Icons.person, color: kDeepOrangeColor),
+              icon: Icon(Icons.person, color: kDeepPurpleColor),
               onTap: () {
                 // Navigator.of(context).push(MaterialPageRoute(
                 //     builder: (context) => const AllPostsScreen()));
@@ -49,7 +49,7 @@ class CustomDrawer extends StatelessWidget {
               hint: "Show the Post ",
             ),
             DrawerItem(
-              icon: Icon(Icons.point_of_sale, color: kDeepOrangeColor),
+              icon: Icon(Icons.point_of_sale, color: kDeepPurpleColor),
               onTap: () {
                 // Navigator.of(context).push(MaterialPageRoute(
                 //     builder: (context) => const CustomerPoints()));
@@ -58,7 +58,7 @@ class CustomDrawer extends StatelessWidget {
               text: "My Points",
             ),
             DrawerItem(
-              icon: Icon(Icons.message, color: kDeepOrangeColor),
+              icon: Icon(Icons.message, color: kDeepPurpleColor),
               onTap: () {
                 // Navigator.of(context).push(MaterialPageRoute(
                 //     builder: (context) => const PrivateChatRequest()));
@@ -68,7 +68,7 @@ class CustomDrawer extends StatelessWidget {
             ),
             DrawerItem(
               text: "Notification",
-              icon: Icon(Icons.notification_add, color: kDeepOrangeColor),
+              icon: Icon(Icons.notification_add, color: kDeepPurpleColor),
               onTap: () {
                 // Navigator.of(context).push(MaterialPageRoute(
                 //     builder: (context) => ProviderNotificationScreen()));
@@ -80,7 +80,7 @@ class CustomDrawer extends StatelessWidget {
               text: "Upgrade account",
               icon: Icon(
                 Icons.update,
-                color: kDeepOrangeColor,
+                color: kDeepPurpleColor,
               ),
               onTap: () {
                 // Navigator.of(context).pop();
@@ -91,7 +91,7 @@ class CustomDrawer extends StatelessWidget {
             ),
             DrawerItem(
               text: "Arabic",
-              icon: Icon(Icons.language, color: kDeepOrangeColor),
+              icon: Icon(Icons.language, color: kDeepPurpleColor),
               onTap: () async {
                 SharedPreferences sharedPreferences =
                     await SharedPreferences.getInstance();
@@ -105,7 +105,7 @@ class CustomDrawer extends StatelessWidget {
             ),
             DrawerItem(
               text: "English",
-              icon: Icon(Icons.language, color: kDeepOrangeColor),
+              icon: Icon(Icons.language, color: kDeepPurpleColor),
               onTap: () async {
                 SharedPreferences sharedPreferences =
                     await SharedPreferences.getInstance();
@@ -119,7 +119,7 @@ class CustomDrawer extends StatelessWidget {
             ),
             DrawerItem(
               text: "Logout",
-              icon: Icon(Icons.logout, color: kDeepOrangeColor),
+              icon: Icon(Icons.logout, color: kDeepPurpleColor),
               onTap: () {
                 showLogoutConfirmationDialog(context, () async {
                   // Perform the actual logout here

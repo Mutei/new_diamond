@@ -4,7 +4,7 @@ import 'package:pinput/pinput.dart';
 import 'colors.dart';
 
 final kIconTheme = IconThemeData(
-  color: kDeepOrangeColor, // Change this to your desired color
+  color: kDeepPurpleColor, // Change this to your desired color
 );
 final kDefaultPinTheme = PinTheme(
   width: 56,
@@ -42,8 +42,8 @@ final kPrimaryStyle = TextStyle(
   foreground: Paint()
     ..shader = LinearGradient(
       colors: [
-        kDeepOrangeColor,
-        kOrangeColor,
+        kDeepPurpleColor,
+        kPurpleColor,
       ], // Increase contrast
     ).createShader(Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
 );
@@ -53,8 +53,8 @@ final kTeritary = TextStyle(
   foreground: Paint()
     ..shader = LinearGradient(
       colors: [
-        kDeepOrangeColor,
-        kOrangeColor,
+        kDeepPurpleColor,
+        kPurpleColor,
       ], // Increase contrast
     ).createShader(Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
 );
@@ -65,8 +65,8 @@ final kSecondaryStyle = TextStyle(
   foreground: Paint()
     ..shader = LinearGradient(
       colors: [
-        kDeepOrangeColor,
-        kOrangeColor,
+        kDeepPurpleColor,
+        kPurpleColor,
       ], // Increase contrast
     ).createShader(Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
 );

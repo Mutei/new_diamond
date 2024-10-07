@@ -1,3 +1,4 @@
+import 'package:diamond_host_admin/localization/language_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/phone_number.dart';
@@ -18,32 +19,33 @@ class ReusedPhoneNumberField extends StatelessWidget {
   Widget build(BuildContext context) {
     return IntlPhoneField(
       decoration: InputDecoration(
-        labelText: 'Phone Number',
+        labelText: getTranslated(context, 'Phone Number'),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
         ),
         // Set the default enabled border
         enabledBorder: OutlineInputBorder(
           borderSide:
-              BorderSide(color: kDeepOrangeColor), // Border color when enabled
+              BorderSide(color: kDeepPurpleColor), // Border color when enabled
           borderRadius: BorderRadius.circular(30),
         ),
         // Set the border color when focused
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(
-              color: kDeepOrangeColor, width: 2), // Border color when focused
+              color: kDeepPurpleColor, width: 2), // Border color when focused
           borderRadius: BorderRadius.circular(30),
         ),
         // Set the border color when there's an error
         errorBorder: OutlineInputBorder(
           borderSide: BorderSide(
-              color: kOrangeColor, width: 2), // Border color when there's an error
+              color: kPurpleColor,
+              width: 2), // Border color when there's an error
           borderRadius: BorderRadius.circular(30),
         ),
         // Set the border for focused error
         focusedErrorBorder: OutlineInputBorder(
           borderSide: BorderSide(
-              color: kOrangeColor,
+              color: kPurpleColor,
               width: 2), // Border color when focused and there's an error
           borderRadius: BorderRadius.circular(30),
         ),

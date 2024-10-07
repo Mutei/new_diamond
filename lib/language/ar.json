@@ -1,5 +1,19 @@
 {
   "Choose Language": "إختر اللغة",
   "English": "الإنجليزي",
-  "Arabic": "العربي"
+  "Arabic": "العربي",
+  "Sign in": "تسجيل الدخول",
+  "Email": "البريد الإلكتروني",
+  "Please enter your email": "يرجى إدخال بريدك الإلكتروني",
+  "Password": "كلمة المرور",
+  "Please enter your password": "يرجى إدخال كلمة المرور",
+  "Password Description": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل، وتحتوي على حرف خاص واحد وحرف كبير واحد",
+  "Please enter a valid phone number": "يرجى إدخال رقم هاتف صحيح",
+  "I accept the terms and conditions": "أوافق على الشروط والأحكام",
+  "Please accept the terms and conditions": "يرجى قبول الشروط والأحكام",
+  "Already have an account? ": "لديك حساب بالفعل؟ ",
+  "Login": "تسجيل الدخول",
+  "Phone Number": "رقم الهاتف"
+
+
 }

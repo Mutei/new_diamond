@@ -16,7 +16,11 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
 
   int get newRequestCount => _newRequestCount;
   int get chatRequestCount => _chatRequestCount;
-
+  bool isDarkMode = false; // Track theme mode
+  void toggleTheme() {
+    isDarkMode = !isDarkMode;
+    notifyListeners();
+  }
   // FunSnackBarPage(String hint, BuildContext context) {
   //   final snackBar = SnackBar(
   //     content: Text(

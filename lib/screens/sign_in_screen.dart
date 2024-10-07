@@ -1,7 +1,11 @@
+import 'package:diamond_host_admin/extension/sized_box_extension.dart';
+import 'package:diamond_host_admin/localization/language_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../backend/authentication_methods.dart';
 import '../constants/colors.dart';
 import '../constants/styles.dart';
+import '../state_management/general_provider.dart';
 import '../widgets/language_translator_widget.dart';
 import '../widgets/reused_elevated_button.dart';
 import '../widgets/reused_phone_number_widget.dart';
@@ -33,15 +37,30 @@ class _SignInScreenState extends State<SignInScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         actions: [
-          // Icon button for changing language
+          // Language change button
           IconButton(
-            icon: Icon(Icons.language, color: kOrangeColor),
+            icon: Icon(Icons.language, color: kPurpleColor),
             onPressed: () {
-              // Show the language dialog as a custom widget
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
                   return const LanguageDialogWidget();
+                },
+              );
+            },
+          ),
+          // Dark/Light mode toggle button
+          Consumer<GeneralProvider>(
+            builder: (context, generalProvider, child) {
+              return IconButton(
+                icon: Icon(
+                  generalProvider.isDarkMode
+                      ? Icons.dark_mode
+                      : Icons.light_mode,
+                  color: kPurpleColor,
+                ),
+                onPressed: () {
+                  generalProvider.toggleTheme(); // Toggle theme
                 },
               );
             },
@@ -58,38 +77,40 @@ class _SignInScreenState extends State<SignInScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Sign in', style: kPrimaryStyle),
-                  const SizedBox(height: 20),
+                  Text(getTranslated(context, 'Sign in'), style: kPrimaryStyle),
+                  20.kH,
                   ReusedTextFormField(
                     controller: _emailController,
-                    hintText: 'Email',
+                    hintText: getTranslated(context, 'Email'),
                     prefixIcon: Icons.email,
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
+                        return getTranslated(
+                            context, 'Please enter your email');
                       }
                       return null;
                     },
                   ),
-                  const SizedBox(height: 20),
+                  20.kH,
                   ReusedTextFormField(
                     controller: _passwordController,
-                    hintText: 'Password',
+                    hintText: getTranslated(context, 'Password'),
                     prefixIcon: LineAwesome.user_lock_solid,
                     obscureText: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
+                        return getTranslated(
+                            context, 'Please enter your password');
                       }
                       if (!RegExp(r'^(?=.*?[A-Z])(?=.*?[!@#\$&*~]).{8,}$')
                           .hasMatch(value)) {
-                        return 'Password must be at least 8 characters, 1 special char, 1 uppercase';
+                        return getTranslated(context, 'Password Description');
                       }
                       return null;
                     },
                   ),
-                  const SizedBox(height: 20),
+                  20.kH,
                   ReusedPhoneNumberField(
                     onPhoneNumberChanged: (phone) {
                       setState(() {
@@ -98,14 +119,16 @@ class _SignInScreenState extends State<SignInScreen> {
                     },
                     validator: (phone) {
                       if (phone == null || phone.number.isEmpty) {
-                        return 'Please enter a valid phone number';
+                        return getTranslated(
+                            context, 'Please enter a valid phone number');
                       }
                       return null;
                     },
                   ),
-                  const SizedBox(height: 10),
+                  10.kH,
                   CheckboxListTile(
-                    title: const Text('I accept the terms and conditions'),
+                    title: Text(getTranslated(
+                        context, 'I accept the terms and conditions')),
                     value: _acceptedTerms,
                     onChanged: (value) {
                       setState(() {
@@ -114,7 +137,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     },
                   ),
                   CustomButton(
-                    text: 'Sign Up',
+                    text: getTranslated(context, 'Sign in'),
                     onPressed: () async {
                       // Hide the keyboard
                       FocusScope.of(context).unfocus();
@@ -123,9 +146,9 @@ class _SignInScreenState extends State<SignInScreen> {
                         if (!_acceptedTerms) {
                           // Show error if terms are not accepted
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                  'Please accept the terms and conditions'),
+                            SnackBar(
+                              content: Text(getTranslated(context,
+                                  'Please accept the terms and conditions')),
                             ),
                           );
                           return;
@@ -147,11 +170,11 @@ class _SignInScreenState extends State<SignInScreen> {
                       }
                     },
                   ),
-                  const SizedBox(height: 20),
+                  20.kH,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text("Already have an account? "),
+                      Text(getTranslated(context, "Already have an account? ")),
                       GestureDetector(
                         onTap: () {
                           Navigator.push(
@@ -160,9 +183,9 @@ class _SignInScreenState extends State<SignInScreen> {
                                 builder: (context) => const LoginScreen()),
                           );
                         },
-                        child: const Text(
-                          "Login",
-                          style: TextStyle(
+                        child: Text(
+                          getTranslated(context, "Login"),
+                          style: const TextStyle(
                             color: Colors.blue,
                             fontWeight: FontWeight.bold,
                           ),
