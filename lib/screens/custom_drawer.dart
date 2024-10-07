@@ -1,3 +1,4 @@
+import 'package:diamond_host_admin/extension/sized_box_extension.dart';
 import 'package:diamond_host_admin/localization/language_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -22,7 +23,8 @@ class CustomDrawer extends StatelessWidget {
           padding: EdgeInsets.zero,
           children: [
             Container(
-              padding: EdgeInsets.only(top: 20), // Reduce space above image
+              padding:
+                  const EdgeInsets.only(top: 20), // Reduce space above image
               child: Center(
                 child: Image.asset(
                   "assets/images/logo.png",
@@ -35,36 +37,24 @@ class CustomDrawer extends StatelessWidget {
             DrawerItem(
                 text: getTranslated(context, "Profile"),
                 icon: Icon(Icons.person, color: kDeepPurpleColor),
-                onTap: () {
-                  // Navigator.of(context).push(MaterialPageRoute(
-                  //     builder: (context) => const ProfileScreenUser()));
-                },
+                onTap: () {},
                 hint: getTranslated(context, "You can view your data here")),
             DrawerItem(
               text: getTranslated(context, "Posts"),
               icon: Icon(Icons.person, color: kDeepPurpleColor),
-              onTap: () {
-                // Navigator.of(context).push(MaterialPageRoute(
-                //     builder: (context) => const AllPostsScreen()));
-              },
+              onTap: () {},
               hint: getTranslated(context, "Show the Post"),
             ),
             DrawerItem(
               icon: Icon(Icons.point_of_sale, color: kDeepPurpleColor),
-              onTap: () {
-                // Navigator.of(context).push(MaterialPageRoute(
-                //     builder: (context) => const CustomerPoints()));
-              },
+              onTap: () {},
               hint: getTranslated(
                   context, "From here you can get points and discounts"),
               text: getTranslated(context, "My Points"),
             ),
             DrawerItem(
               icon: Icon(Icons.message, color: kDeepPurpleColor),
-              onTap: () {
-                // Navigator.of(context).push(MaterialPageRoute(
-                //     builder: (context) => const PrivateChatRequest()));
-              },
+              onTap: () {},
               hint: getTranslated(
                   context, "From here you can chat privately with other users"),
               text: getTranslated(context, "Private Chat"),
@@ -72,10 +62,7 @@ class CustomDrawer extends StatelessWidget {
             DrawerItem(
               text: getTranslated(context, "Notification"),
               icon: Icon(Icons.notification_add, color: kDeepPurpleColor),
-              onTap: () {
-                // Navigator.of(context).push(MaterialPageRoute(
-                //     builder: (context) => ProviderNotificationScreen()));
-              },
+              onTap: () {},
               hint: getTranslated(context,
                   "You can see the notifications that come to you, such as booking confirmation"),
             ),
@@ -85,11 +72,7 @@ class CustomDrawer extends StatelessWidget {
                 Icons.update,
                 color: kDeepPurpleColor,
               ),
-              onTap: () {
-                // Navigator.of(context).pop();
-                // Navigator.of(context).push(
-                //     MaterialPageRoute(builder: (context) => UpgradeAccount()));
-              },
+              onTap: () {},
               hint: getTranslated(
                   context, "From here you can upgrade account to Vip"),
             ),
@@ -122,11 +105,25 @@ class CustomDrawer extends StatelessWidget {
               hint: '',
             ),
             DrawerItem(
+                text: Provider.of<GeneralProvider>(context).isDarkMode
+                    ? getTranslated(context, "Light Mode")
+                    : getTranslated(context, "Dark Mode"), // Text for dark mode
+                icon: Icon(
+                  Provider.of<GeneralProvider>(context).isDarkMode
+                      ? Icons.light_mode
+                      : Icons.dark_mode,
+                  color: kDeepPurpleColor,
+                ),
+                onTap: () {
+                  Provider.of<GeneralProvider>(context, listen: false)
+                      .toggleTheme();
+                },
+                hint: ''),
+            DrawerItem(
               text: getTranslated(context, "Logout"),
               icon: Icon(Icons.logout, color: kDeepPurpleColor),
               onTap: () {
                 showLogoutConfirmationDialog(context, () async {
-                  // Perform the actual logout here
                   await LogOutMethod().logOut(context);
                 });
               },
