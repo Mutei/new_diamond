@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
 import '../backend/log_out_method.dart';
 import '../constants/colors.dart';
+import '../main.dart';
+import '../state_management/general_provider.dart';
 import '../utils/global_methods.dart';
 import '../widgets/item_drawer.dart';
 import 'package:badges/badges.dart' as badges;
@@ -89,13 +93,13 @@ class CustomDrawer extends StatelessWidget {
               text: "Arabic",
               icon: Icon(Icons.language, color: kDeepOrangeColor),
               onTap: () async {
-                // SharedPreferences sharedPreferences =
-                // await SharedPreferences.getInstance();
-                // sharedPreferences.setString("Language", "ar");
-                // Locale newLocale = const Locale("ar", "SA");
-                // MyApp.setLocale(context, newLocale);
-                // Provider.of<GeneralProvider>(context, listen: false)
-                //     .updateLanguage(false);
+                SharedPreferences sharedPreferences =
+                    await SharedPreferences.getInstance();
+                sharedPreferences.setString("Language", "ar");
+                Locale newLocale = const Locale("ar", "SA");
+                MyApp.setLocale(context, newLocale);
+                Provider.of<GeneralProvider>(context, listen: false)
+                    .updateLanguage(false);
               },
               hint: "",
             ),
@@ -103,13 +107,13 @@ class CustomDrawer extends StatelessWidget {
               text: "English",
               icon: Icon(Icons.language, color: kDeepOrangeColor),
               onTap: () async {
-                // SharedPreferences sharedPreferences =
-                // await SharedPreferences.getInstance();
-                // sharedPreferences.setString("Language", "en");
-                // Locale newLocale = const Locale("en", "SA");
-                // MyApp.setLocale(context, newLocale);
-                // Provider.of<GeneralProvider>(context, listen: false)
-                //     .updateLanguage(true);
+                SharedPreferences sharedPreferences =
+                    await SharedPreferences.getInstance();
+                sharedPreferences.setString("Language", "en");
+                Locale newLocale = const Locale("en", "SA");
+                MyApp.setLocale(context, newLocale);
+                Provider.of<GeneralProvider>(context, listen: false)
+                    .updateLanguage(true);
               },
               hint: '',
             ),
