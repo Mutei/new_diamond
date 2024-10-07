@@ -16,29 +16,29 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
 
   int get newRequestCount => _newRequestCount;
   int get chatRequestCount => _chatRequestCount;
+
   bool isDarkMode = false; // Track theme mode
-  void toggleTheme() {
+
+  GeneralProvider() {
+    loadThemePreference(); // Load theme preference on initialization
+  }
+
+  // Toggle theme and save the preference
+  void toggleTheme() async {
     isDarkMode = !isDarkMode;
     notifyListeners();
+
+    // Save the current theme preference to SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isDarkMode', isDarkMode);
   }
-  // FunSnackBarPage(String hint, BuildContext context) {
-  //   final snackBar = SnackBar(
-  //     content: Text(
-  //       hint,
-  //       style: const TextStyle(
-  //         color: kPrimaryColor,
-  //       ),
-  //     ),
-  //     action: SnackBarAction(
-  //       label: 'Undo',
-  //       onPressed: () {
-  //         // Some code to undo the change.
-  //       },
-  //     ),
-  //   );
-  //
-  //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  // }
+
+  // Load theme preference from SharedPreferences
+  void loadThemePreference() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    isDarkMode = prefs.getBool('isDarkMode') ?? false; // Default to light mode
+    notifyListeners();
+  }
 
   Future getUer() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
@@ -132,63 +132,10 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     notifyListeners();
   }
 
-  // void checkNewChatRequests(BuildContext context) {
-  //   String? id = FirebaseAuth.instance.currentUser?.uid;
-  //   if (id != null) {
-  //     DatabaseReference refChatRequest =
-  //     FirebaseDatabase.instance.ref("App/PrivateChatRequest").child(id);
-  //
-  //     refChatRequest.onChildAdded.listen((DatabaseEvent event) {
-  //       if (event.snapshot.exists) {
-  //         _chatRequestCount++;
-  //         notifyListeners();
-  //         _showNewChatRequestDialog(context);
-  //       }
-  //     });
-  //
-  //     refChatRequest.onChildRemoved.listen((DatabaseEvent event) {
-  //       if (event.snapshot.exists) {
-  //         _chatRequestCount--;
-  //         notifyListeners();
-  //       }
-  //     });
-  //   }
-  // }
-
-  // void _showNewChatRequestDialog(BuildContext context) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: Text("New Chat Request"),
-  //         content: Text("You have received a new chat request."),
-  //         actions: <Widget>[
-  //           TextButton(
-  //             child: Text("Cancel"),
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //           ),
-  //           TextButton(
-  //             child: Text("View"),
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //               Navigator.of(context).push(MaterialPageRoute(
-  //                   builder: (context) => const PrivateChatRequest()));
-  //             },
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-
-  // Check if the user has chat access for a specific estate
   bool hasChatAccessForEstate(String estateId) {
     return _chatAccessPerEstate[estateId] ?? false;
   }
 
-  // Update chat access for a specific estate
   void updateChatAccessForEstate(String estateId, bool access) {
     _chatAccessPerEstate[estateId] = access;
     notifyListeners();
