@@ -121,59 +121,50 @@ showSnackBar(String content, BuildContext context) {
   );
 }
 
-// void _showLanguageDialog(BuildContext context) {
-//   showDialog(
-//     context: context,
-//     builder: (BuildContext context) {
-//       return AlertDialog(
-//         title: Text(
-//           getTranslated(context, "Select Language"),
-//           style: TextStyle(
-//             color: kPrimaryColor,
-//           ),
-//         ),
-//         content: Column(
-//           mainAxisSize: MainAxisSize.min,
-//           children: [
-//             ListTile(
-//               title: Text(
-//                 getTranslated(context, 'English'),
-//                 style: TextStyle(
-//                   color: kPrimaryColor,
-//                 ),
-//               ),
-//               onTap: () async {
-//                 SharedPreferences sharedPreferences =
-//                     await SharedPreferences.getInstance();
-//                 sharedPreferences.setString("Language", "en");
-//                 Locale newLocale = const Locale("en", "SA");
-//                 MyApp.setLocale(context, newLocale);
-//                 Provider.of<GeneralProvider>(context, listen: false)
-//                     .updateLanguage(true);
-//                 Navigator.of(context).pop();
-//               },
-//             ),
-//             ListTile(
-//               title: Text(
-//                 getTranslated(context, 'Arabic'),
-//                 style: TextStyle(
-//                   color: kPrimaryColor,
-//                 ),
-//               ),
-//               onTap: () async {
-//                 SharedPreferences sharedPreferences =
-//                     await SharedPreferences.getInstance();
-//                 sharedPreferences.setString("Language", "ar");
-//                 Locale newLocale = const Locale("ar", "SA");
-//                 MyApp.setLocale(context, newLocale);
-//                 Provider.of<GeneralProvider>(context, listen: false)
-//                     .updateLanguage(false);
-//                 Navigator.of(context).pop();
-//               },
-//             ),
-//           ],
-//         ),
-//       );
-//     },
-//   );
-// }
+void showCustomLoadingDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: false, // Prevent closing by tapping outside
+    builder: (BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        elevation: 0,
+        backgroundColor: Colors.transparent, // Makes the background transparent
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Provider.of<GeneralProvider>(context).isDarkMode
+                  ? Colors.black
+                  : Colors.white,
+              // Customize your background color
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 10,
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(kDeepPurpleColor),
+                  strokeWidth: 6.0, // Thicker stroke for uniqueness
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  getTranslated(context, 'Loading, please wait...'),
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}

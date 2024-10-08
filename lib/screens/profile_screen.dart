@@ -14,6 +14,11 @@ import '../widgets/profile_info_text_field.dart';
 import '../widgets/reused_elevated_button.dart';
 import 'edit_profile_screen.dart';
 
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
+import 'dart:typed_data';
+
 class ProfileScreenUser extends StatefulWidget {
   const ProfileScreenUser({super.key});
 
@@ -30,7 +35,9 @@ class _ProfileScreenUserState extends State<ProfileScreenUser> {
   final TextEditingController _countryController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
   Uint8List? _image;
-  bool _isLoading = false;
+  String? _profileImageUrl; // Store the profile image URL
+  File? _cachedImageFile; // Cache image file location
+
   final ProfilePictureService _profilePictureService = ProfilePictureService();
   final UserInfoService _userInfoService = UserInfoService();
 
@@ -43,7 +50,6 @@ class _ProfileScreenUserState extends State<ProfileScreenUser> {
 
   @override
   void dispose() {
-    super.dispose();
     _firstNameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
@@ -51,6 +57,7 @@ class _ProfileScreenUserState extends State<ProfileScreenUser> {
     _cityController.dispose();
     _secondNameController.dispose();
     _lastNameController.dispose();
+    super.dispose();
   }
 
   void selectImage() async {
@@ -71,7 +78,47 @@ class _ProfileScreenUserState extends State<ProfileScreenUser> {
     }
   }
 
+  Future<String> _getLocalFilePath(String fileName) async {
+    final directory = await getApplicationDocumentsDirectory();
+    return '${directory.path}/$fileName';
+  }
+
+  Future<File> _downloadAndCacheImage(String url, String fileName) async {
+    final response = await http.get(Uri.parse(url));
+    final filePath = await _getLocalFilePath(fileName);
+    final file = File(filePath);
+    return await file.writeAsBytes(response.bodyBytes);
+  }
+
+  Future<void> _loadProfileImage() async {
+    final userInfo = await _userInfoService.fetchUserInfo();
+    final profileImageUrl = userInfo['ProfileImageUrl'];
+    final fileName =
+        'profile_image_${FirebaseAuth.instance.currentUser?.uid}.png';
+
+    if (profileImageUrl != null && profileImageUrl.isNotEmpty) {
+      final cachedFilePath = await _getLocalFilePath(fileName);
+      final cachedFile = File(cachedFilePath);
+
+      if (cachedFile.existsSync()) {
+        // Load from cache if available
+        setState(() {
+          _cachedImageFile = cachedFile;
+        });
+      } else {
+        // Download and cache the image if not already cached
+        final downloadedFile =
+            await _downloadAndCacheImage(profileImageUrl, fileName);
+        setState(() {
+          _cachedImageFile = downloadedFile;
+        });
+      }
+    }
+  }
+
   void afterLayoutWidgetBuild() async {
+    showCustomLoadingDialog(context); // Show loading dialog
+    await _loadProfileImage();
     Map<String, String?> userInfo = await _userInfoService.fetchUserInfo();
     setState(() {
       _firstNameController.text = userInfo['FirstName'] ?? '';
@@ -81,32 +128,8 @@ class _ProfileScreenUserState extends State<ProfileScreenUser> {
       _phoneController.text = userInfo['PhoneNumber'] ?? '';
       _countryController.text = userInfo['Country'] ?? '';
       _cityController.text = userInfo['City'] ?? '';
-      if (userInfo['ProfileImageUrl'] != null &&
-          userInfo['ProfileImageUrl']!.isNotEmpty) {
-        loadImageFromUrl(userInfo['ProfileImageUrl']!);
-      }
     });
-  }
-
-  void loadImageFromUrl(String imageUrl) async {
-    try {
-      final http.Response response = await http.get(Uri.parse(imageUrl));
-      if (response.statusCode == 200) {
-        setState(() {
-          _image = response.bodyBytes;
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      print('Error loading image: $e');
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    Navigator.of(context).pop(); // Dismiss loading dialog after loading
   }
 
   @override
@@ -132,16 +155,18 @@ class _ProfileScreenUserState extends State<ProfileScreenUser> {
               children: [
                 Stack(
                   children: [
-                    CircleAvatar(
-                      radius: 64,
-                      backgroundImage: _image != null
-                          ? MemoryImage(_image!)
-                          : const AssetImage('assets/images/man.png')
-                              as ImageProvider,
-                      backgroundColor: Colors.transparent,
-                      child:
-                          _isLoading ? const CircularProgressIndicator() : null,
-                    ),
+                    _cachedImageFile != null
+                        ? CircleAvatar(
+                            radius: 64,
+                            backgroundImage: FileImage(_cachedImageFile!),
+                            backgroundColor: Colors.transparent,
+                          )
+                        : CircleAvatar(
+                            radius: 64,
+                            backgroundImage:
+                                const AssetImage('assets/images/man.png'),
+                            backgroundColor: Colors.transparent,
+                          ),
                     Positioned(
                       bottom: -10,
                       left: 80,

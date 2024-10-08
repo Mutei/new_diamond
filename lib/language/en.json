@@ -39,5 +39,6 @@
   "Second Name": "Second Name",
   "Second name must not be empty": "Second name must not be empty",
   "Last Name": "Last Name",
-  "Last name must not be empty": "Last name must not be empty"
+  "Last name must not be empty": "Last name must not be empty",
+  "Loading, please wait...": "Loading, please wait..."
 }

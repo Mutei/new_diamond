@@ -39,5 +39,6 @@
   "Second Name": "الاسم الثاني",
   "Second name must not be empty": "يجب ألا يكون الاسم الثاني فارغًا",
   "Last Name": "اسم العائلة",
-  "Last name must not be empty": "يجب ألا يكون اسم العائلة فارغًا"
+  "Last name must not be empty": "يجب ألا يكون اسم العائلة فارغًا",
+  "Loading, please wait...": "جارٍ التحميل، يرجى الانتظار..."
 }
