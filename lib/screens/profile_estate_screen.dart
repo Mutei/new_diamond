@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:diamond_host_admin/constants/colors.dart';
+import 'package:diamond_host_admin/constants/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
@@ -52,9 +54,13 @@ class ProfileEstateScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(estateName),
-        backgroundColor:
-            Colors.orange, // Use a color similar to the reference image
+        title: Text(
+          estateName,
+          style: kTeritary,
+        ),
+        centerTitle: true,
+        iconTheme: kIconTheme,
+        // Use a color similar to the reference image
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -105,10 +111,7 @@ class ProfileEstateScreen extends StatelessWidget {
               // Estate Name and Location
               Text(
                 estateName,
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: kTeritary,
               ),
               const SizedBox(height: 8),
               Text(
