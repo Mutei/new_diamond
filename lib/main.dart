@@ -1,3 +1,4 @@
+import 'package:diamond_host_admin/screens/splash_screen.dart';
 import 'package:diamond_host_admin/state_management/general_provider.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -155,7 +156,7 @@ class _MyAppState extends State<MyApp> {
                   navigatorObservers: [
                     FirebaseAnalyticsObserver(analytics: analytics),
                   ],
-                  home: const AuthHandler(),
+                  home: const SplashScreen(),
                 );
               },
             ),
