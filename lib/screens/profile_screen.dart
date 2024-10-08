@@ -1,11 +1,11 @@
 import 'dart:typed_data';
 import 'package:diamond_host_admin/extension/sized_box_extension.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import '../backend/profile_picture_services.dart';
+import '../backend/profile_user_info_services.dart';
 import '../constants/colors.dart';
 import '../constants/styles.dart';
 import '../localization/language_constants.dart';
@@ -31,8 +31,8 @@ class _ProfileScreenUserState extends State<ProfileScreenUser> {
   final TextEditingController _cityController = TextEditingController();
   Uint8List? _image;
   bool _isLoading = false;
-  final databaseRef =
-      FirebaseDatabase.instance.ref().child('App').child('User');
+  final ProfilePictureService _profilePictureService = ProfilePictureService();
+  final UserInfoService _userInfoService = UserInfoService();
 
   @override
   void initState() {
@@ -53,31 +53,6 @@ class _ProfileScreenUserState extends State<ProfileScreenUser> {
     _lastNameController.dispose();
   }
 
-  Future<String> uploadImageToStorage(Uint8List image, String userId) async {
-    try {
-      Reference storageRef = FirebaseStorage.instance
-          .ref()
-          .child('profile_pictures')
-          .child('$userId.jpg');
-      UploadTask uploadTask = storageRef.putData(image);
-      TaskSnapshot taskSnapshot = await uploadTask;
-      String downloadUrl = await taskSnapshot.ref.getDownloadURL();
-      return downloadUrl;
-    } catch (e) {
-      print(e.toString());
-      return '';
-    }
-  }
-
-  Future<void> saveImageUrlToDatabase(String userId, String imageUrl) async {
-    DatabaseReference userRef = FirebaseDatabase.instance
-        .ref()
-        .child('App')
-        .child('User')
-        .child(userId);
-    await userRef.update({'ProfileImageUrl': imageUrl});
-  }
-
   void selectImage() async {
     Uint8List im = await pickImage(ImageSource.gallery);
     setState(() {
@@ -86,82 +61,31 @@ class _ProfileScreenUserState extends State<ProfileScreenUser> {
 
     String? userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId != null) {
-      String imageUrl = await uploadImageToStorage(im, userId);
+      String imageUrl =
+          await _profilePictureService.uploadImageToStorage(im, userId);
       if (imageUrl.isNotEmpty) {
-        await saveImageUrlToDatabase(userId, imageUrl);
-        await _updateProfilePicture(
-            userId, imageUrl); // Added to update profile picture in posts
+        await _profilePictureService.saveImageUrlToDatabase(userId, imageUrl);
+        await _profilePictureService.updateProfilePictureInPosts(
+            userId, imageUrl);
       }
-    }
-  }
-
-  Future<void> _updateProfilePicture(
-      String userId, String newProfileImageUrl) async {
-    try {
-      // Update the profile picture URL in all posts made by this user
-      await _updateProfilePictureInPosts(userId, newProfileImageUrl);
-      print('Profile picture updated successfully');
-    } catch (e) {
-      print('Error updating profile picture: $e');
-    }
-  }
-
-  Future<void> _updateProfilePictureInPosts(
-      String userId, String newProfileImageUrl) async {
-    try {
-      DatabaseReference postsRef =
-          FirebaseDatabase.instance.ref("App").child("AllPosts");
-      DatabaseEvent event = await postsRef.once();
-      Map<dynamic, dynamic>? postsData =
-          event.snapshot.value as Map<dynamic, dynamic>?;
-
-      if (postsData != null) {
-        for (var key in postsData.keys) {
-          if (postsData[key]['userId'] == userId) {
-            await postsRef.child(key).update({
-              'ProfileImageUrl': newProfileImageUrl,
-            });
-          }
-        }
-        print('Profile picture updated in all posts');
-      }
-    } catch (e) {
-      print('Error updating profile picture in posts: $e');
     }
   }
 
   void afterLayoutWidgetBuild() async {
-    String? id = FirebaseAuth.instance.currentUser?.uid;
-    if (id != null) {
-      setState(() {
-        _isLoading = true;
-      });
-      databaseRef.child(id).once().then((DatabaseEvent event) {
-        if (event.snapshot.exists) {
-          final Map<dynamic, dynamic> data =
-              event.snapshot.value as Map<dynamic, dynamic>;
-          setState(() {
-            _firstNameController.text = data['FirstName'] ?? '';
-            _secondNameController.text = data['SecondName'] ?? '';
-            _lastNameController.text = data['LastName'] ?? '';
-            _emailController.text = data['Email'] ?? '';
-            _phoneController.text = data['PhoneNumber'] ?? '';
-            _countryController.text = data['Country'] ?? '';
-            _cityController.text = data['City'] ?? '';
-            if (data['ProfileImageUrl'] != null &&
-                data['ProfileImageUrl'].isNotEmpty) {
-              loadImageFromUrl(data['ProfileImageUrl']);
-            } else {
-              _isLoading = false;
-            }
-          });
-        } else {
-          setState(() {
-            _isLoading = false;
-          });
-        }
-      });
-    }
+    Map<String, String?> userInfo = await _userInfoService.fetchUserInfo();
+    setState(() {
+      _firstNameController.text = userInfo['FirstName'] ?? '';
+      _secondNameController.text = userInfo['SecondName'] ?? '';
+      _lastNameController.text = userInfo['LastName'] ?? '';
+      _emailController.text = userInfo['Email'] ?? '';
+      _phoneController.text = userInfo['PhoneNumber'] ?? '';
+      _countryController.text = userInfo['Country'] ?? '';
+      _cityController.text = userInfo['City'] ?? '';
+      if (userInfo['ProfileImageUrl'] != null &&
+          userInfo['ProfileImageUrl']!.isNotEmpty) {
+        loadImageFromUrl(userInfo['ProfileImageUrl']!);
+      }
+    });
   }
 
   void loadImageFromUrl(String imageUrl) async {
@@ -250,37 +174,7 @@ class _ProfileScreenUserState extends State<ProfileScreenUser> {
                         afterLayoutWidgetBuild();
                       }
                     }),
-
                 32.kH,
-                // Temporary Button to Navigate to PersonalInfoScreen
-                // ElevatedButton(
-                //   style: ElevatedButton.styleFrom(
-                //     minimumSize: const Size(double.infinity, 36),
-                //     backgroundColor: Colors.red, // Different color to identify
-                //   ),
-                //   onPressed: () {
-                //     Navigator.push(
-                //       context,
-                //       MaterialPageRoute(
-                //         builder: (context) => PersonalInfoScreen(
-                //           email: _emailController.text,
-                //           phoneNumber: _phoneController.text,
-                //           password:
-                //               'samplePassword', // Replace with actual password
-                //           typeUser: '1', // Replace with actual typeUser
-                //           typeAccount: '3', // Replace with actual typeAccount
-                //         ),
-                //       ),
-                //     );
-                //   },
-                //   child: const Text(
-                //     "Go to Personal Info Screen",
-                //     style: TextStyle(
-                //       color: Colors.white,
-                //     ),
-                //   ),
-                // ),
-                // The rest of your profile fields and widgets
                 ProfileInfoTextField(
                   textEditingController: _firstNameController,
                   textInputType: TextInputType.text,
