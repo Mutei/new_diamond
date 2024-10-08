@@ -31,5 +31,13 @@
   "From here you can upgrade account to Vip": "من هنا يمكنك ترقية الحساب إلى VIP",
   "Logout": "تسجيل الخروج",
   "Dark Mode": "الوضع الداكن",
-  "Light Mode": "الوضع الفاتح"
+  "Light Mode": "الوضع الفاتح",
+  "Edit Profile": "تعديل الملف الشخصي",
+  "Save": "حفظ",
+  "First Name": "الاسم الأول",
+  "First name must not be empty": "يجب ألا يكون الاسم الأول فارغًا",
+  "Second Name": "الاسم الثاني",
+  "Second name must not be empty": "يجب ألا يكون الاسم الثاني فارغًا",
+  "Last Name": "اسم العائلة",
+  "Last name must not be empty": "يجب ألا يكون اسم العائلة فارغًا"
 }

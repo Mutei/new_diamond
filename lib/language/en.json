@@ -31,5 +31,13 @@
   "From here you can upgrade account to Vip": "From here you can upgrade account to Vip",
   "Logout": "Logout",
   "Dark Mode": "Dark Mode",
-  "Light Mode": "Light Mode"
+  "Light Mode": "Light Mode",
+  "Edit Profile": "Edit Profile",
+  "Save": "Save",
+  "First Name": "First Name",
+  "First name must not be empty": "Name must not be empty",
+  "Second Name": "Second Name",
+  "Second name must not be empty": "Second name must not be empty",
+  "Last Name": "Last Name",
+  "Last name must not be empty": "Last name must not be empty"
 }

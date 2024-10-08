@@ -1,6 +1,8 @@
 import 'package:diamond_host_admin/extension/sized_box_extension.dart';
 import 'package:diamond_host_admin/localization/language_constants.dart';
+import 'package:diamond_host_admin/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:icons_plus/icons_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
@@ -37,11 +39,14 @@ class CustomDrawer extends StatelessWidget {
             DrawerItem(
                 text: getTranslated(context, "Profile"),
                 icon: Icon(Icons.person, color: kDeepPurpleColor),
-                onTap: () {},
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const ProfileScreenUser()));
+                },
                 hint: getTranslated(context, "You can view your data here")),
             DrawerItem(
               text: getTranslated(context, "Posts"),
-              icon: Icon(Icons.person, color: kDeepPurpleColor),
+              icon: Icon(Bootstrap.file_text, color: kDeepPurpleColor),
               onTap: () {},
               hint: getTranslated(context, "Show the Post"),
             ),
