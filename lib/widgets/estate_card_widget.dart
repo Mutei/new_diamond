@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:diamond_host_admin/extension/sized_box_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
@@ -7,31 +6,33 @@ import 'package:firebase_storage/firebase_storage.dart';
 import '../constants/styles.dart';
 
 class EstateCard extends StatelessWidget {
-  final String name;
+  final String nameEn;
+  final String nameAr;
   final String estateId;
 
   const EstateCard({
     super.key,
-    required this.name,
+    required this.nameEn,
+    required this.nameAr,
     required this.estateId,
   });
 
   Future<File> _getCachedImage(String estateId) async {
-// Get the directory where images are stored
+    // Get the directory where images are stored
     final directory = await getTemporaryDirectory();
     final filePath = '${directory.path}/$estateId.jpg';
 
-// Check if the image is already cached
+    // Check if the image is already cached
     final cachedImage = File(filePath);
     if (await cachedImage.exists()) {
       return cachedImage;
     }
 
-// If not cached, download the image from Firebase Storage
+    // If not cached, download the image from Firebase Storage
     final storageRef = FirebaseStorage.instance.ref().child('$estateId/0.jpg');
     final imageUrl = await storageRef.getDownloadURL();
 
-// Download the image and save it locally
+    // Download the image and save it locally
     final response = await http.get(Uri.parse(imageUrl));
     if (response.statusCode == 200) {
       await cachedImage.writeAsBytes(response.bodyBytes);
@@ -42,6 +43,10 @@ class EstateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Check the current language and use the appropriate name
+    final String displayName =
+        Localizations.localeOf(context).languageCode == 'ar' ? nameAr : nameEn;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Card(
@@ -50,7 +55,7 @@ class EstateCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-// Estate Image
+            // Estate Image
             FutureBuilder<File>(
               future: _getCachedImage(estateId),
               builder: (context, snapshot) {
@@ -102,40 +107,40 @@ class EstateCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-// Estate Name
+                  // Display estate name based on the current language
                   Text(
-                    name,
+                    displayName,
                     style: kSecondaryStyle,
                   ),
-                  8.kH,
-// Example: Rating, Fee, and Time info
+                  const SizedBox(height: 8),
+                  // Rating, Fee, and Time info
                   Row(
                     children: [
                       const Icon(Icons.star, color: Colors.orange, size: 16),
-                      4.kW,
+                      const SizedBox(width: 4),
                       const Text(
-                        "4.7",
+                        "4.7", // You can replace this with dynamic rating data
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      10.kW,
+                      const SizedBox(width: 10),
                       const Icon(Icons.monetization_on,
                           color: Colors.grey, size: 16),
-                      4.kW,
+                      const SizedBox(width: 4),
                       const Text(
-                        "Free",
+                        "Free", // You can replace this with dynamic fee data
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey,
                         ),
                       ),
-                      10.kW,
+                      const SizedBox(width: 10),
                       const Icon(Icons.timer, color: Colors.grey, size: 16),
-                      4.kW,
+                      const SizedBox(width: 4),
                       const Text(
-                        "20 min",
+                        "20 min", // You can replace this with dynamic time data
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey,

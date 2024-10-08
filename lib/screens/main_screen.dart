@@ -41,6 +41,7 @@ class _MainScreenState extends State<MainScreen> {
         estateList.add({
           'id': estateID,
           'nameEn': estateData['NameEn'] ?? 'Unknown',
+          'nameAr': estateData['NameAr'] ?? 'غير معروف', // Arabic fallback
           'imageUrl': estateData['FacilityImageUrl'] ?? '',
         });
       });
@@ -131,8 +132,9 @@ class _MainScreenState extends State<MainScreen> {
                     itemBuilder: (context, index) {
                       final estate = estates[index];
                       return EstateCard(
-                        name: estate['nameEn'],
+                        nameEn: estate['nameEn'],
                         estateId: estate['id'],
+                        nameAr: estate['nameAr'],
                       );
                     },
                   ),
