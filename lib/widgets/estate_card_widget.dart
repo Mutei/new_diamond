@@ -119,7 +119,7 @@ class EstateCard extends StatelessWidget {
                       const Icon(Icons.star, color: Colors.orange, size: 16),
                       const SizedBox(width: 4),
                       const Text(
-                        "4.7", // You can replace this with dynamic rating data
+                        "4.7", // Replace with dynamic rating data
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -130,7 +130,7 @@ class EstateCard extends StatelessWidget {
                           color: Colors.grey, size: 16),
                       const SizedBox(width: 4),
                       const Text(
-                        "Free", // You can replace this with dynamic fee data
+                        "Free", // Replace with dynamic fee data
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey,
@@ -140,7 +140,7 @@ class EstateCard extends StatelessWidget {
                       const Icon(Icons.timer, color: Colors.grey, size: 16),
                       const SizedBox(width: 4),
                       const Text(
-                        "20 min", // You can replace this with dynamic time data
+                        "20 min", // Replace with dynamic time data
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey,

@@ -4,6 +4,7 @@ import '../localization/language_constants.dart';
 import '../widgets/estate_card_widget.dart';
 import '../widgets/reused_appbar.dart';
 import 'custom_drawer.dart';
+import 'profile_estate_screen.dart'; // Import ProfileEstateScreen
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -42,7 +43,9 @@ class _MainScreenState extends State<MainScreen> {
           'id': estateID,
           'nameEn': estateData['NameEn'] ?? 'Unknown',
           'nameAr': estateData['NameAr'] ?? 'غير معروف', // Arabic fallback
-          'imageUrl': estateData['FacilityImageUrl'] ?? '',
+          'rating': estateData['Rating'] ?? 4.5,
+          'fee': estateData['Fee'] ?? 'Free',
+          'time': estateData['Time'] ?? '20 min',
         });
       });
     });
@@ -131,10 +134,31 @@ class _MainScreenState extends State<MainScreen> {
                     itemCount: estates.length,
                     itemBuilder: (context, index) {
                       final estate = estates[index];
-                      return EstateCard(
-                        nameEn: estate['nameEn'],
-                        estateId: estate['id'],
-                        nameAr: estate['nameAr'],
+                      return GestureDetector(
+                        onTap: () {
+                          // Navigate to Profile Estate Screen on tap
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProfileEstateScreen(
+                                estateName: estate['nameEn'],
+                                estateId: estate['id'], // Pass estateId
+                                location:
+                                    "Rose Garden", // Dummy location, replace as needed
+                                rating: estate['rating'],
+                                fee: estate['fee'],
+                                deliveryTime: estate['time'],
+                                price:
+                                    32.0, // Replace with dynamic price if needed
+                              ),
+                            ),
+                          );
+                        },
+                        child: EstateCard(
+                          nameEn: estate['nameEn'],
+                          estateId: estate['id'],
+                          nameAr: estate['nameAr'],
+                        ),
                       );
                     },
                   ),
