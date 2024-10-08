@@ -22,6 +22,7 @@ class _ProfileInfoTextFieldState extends State<ProfileInfoTextField> {
   Widget build(BuildContext context) {
     final inputBorder = OutlineInputBorder(
       borderSide: Divider.createBorderSide(context),
+      borderRadius: BorderRadius.circular(16),
     );
 
     return TextField(
