@@ -1,23 +1,50 @@
+import 'package:diamond_host_admin/constants/colors.dart';
 import 'package:flutter/material.dart';
-import '../constants/colors.dart'; // Import your color constants
 
 class IngredientTag extends StatelessWidget {
   final IconData icon;
   final String label;
 
   const IngredientTag({
-    super.key,
+    Key? key,
     required this.icon,
     required this.label,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Chip(
-      avatar: Icon(icon, color: Colors.white),
-      label: Text(label),
-      backgroundColor: kPurpleColor, // Use your custom color
-      labelStyle: const TextStyle(color: Colors.white),
+    return Container(
+      padding: const EdgeInsets.symmetric(
+          horizontal: 16, vertical: 10), // Increased padding
+      margin: const EdgeInsets.only(
+          bottom: 8), // Add margin for spacing between chips
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(30), // Rounded corners
+        gradient: kPrimaryGradient,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.4),
+            spreadRadius: 2,
+            blurRadius: 10,
+            offset: const Offset(0, 4), // Adjusted shadow for more depth
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: Colors.white, size: 20), // Adjust icon size
+          const SizedBox(width: 8), // Adjusted spacing between icon and text
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14, // Slightly larger font size
+              fontWeight: FontWeight.w600, // Increased font weight
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
