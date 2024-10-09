@@ -74,7 +74,7 @@ class _SplashScreenState extends State<SplashScreen>
               gradient: LinearGradient(
                 colors: Provider.of<GeneralProvider>(context).isDarkMode
                     ? [Colors.black, Colors.purple[600]!]
-                    : [Colors.black, Colors.purple[600]!],
+                    : [Colors.white, Colors.purple[300]!, Colors.purple[600]!],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
