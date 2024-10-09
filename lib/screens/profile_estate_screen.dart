@@ -160,15 +160,15 @@ class ProfileEstateScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               // Size Selector (You can modify this section as needed)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildSizeOption("10\""),
-                  _buildSizeOption("14\""),
-                  _buildSizeOption("16\""),
-                ],
-              ),
-              const SizedBox(height: 16),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+              //   children: [
+              //     _buildSizeOption("10\""),
+              //     _buildSizeOption("14\""),
+              //     _buildSizeOption("16\""),
+              //   ],
+              // ),
+              // const SizedBox(height: 16),
               // Ingredients Section (icons or tags)
               Wrap(
                 spacing: 10.0,
