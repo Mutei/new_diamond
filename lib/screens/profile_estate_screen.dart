@@ -3,17 +3,16 @@ import 'package:diamond_host_admin/constants/colors.dart';
 import 'package:diamond_host_admin/constants/styles.dart';
 import 'package:diamond_host_admin/extension/sized_box_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter_cache_manager/flutter_cache_manager.dart'; // Cache manager
+import 'package:cached_network_image/cached_network_image.dart'; // Cached image package
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../localization/language_constants.dart';
 import '../widgets/chip_widget.dart'; // Import for translations
 
-class ProfileEstateScreen extends StatelessWidget {
+class ProfileEstateScreen extends StatefulWidget {
   final String nameEn;
   final String nameAr;
-  final String estateId; // Use estateId to fetch image
+  final String estateId;
   final String location;
   final double rating;
   final String fee;
@@ -23,7 +22,7 @@ class ProfileEstateScreen extends StatelessWidget {
   final String sessions;
   final String menuLink;
   final String entry;
-  final String music; // Add MenuLink field
+  final String music;
 
   const ProfileEstateScreen({
     Key? key,
@@ -39,47 +38,65 @@ class ProfileEstateScreen extends StatelessWidget {
     required this.sessions,
     required this.menuLink,
     required this.entry,
-    required this.music, // Add required field
+    required this.music,
   }) : super(key: key);
 
-  Future<File> _getCachedImage(String estateId) async {
-    final directory = await getTemporaryDirectory();
-    final filePath = '${directory.path}/$estateId.jpg';
-    final cachedImage = File(filePath);
+  @override
+  _ProfileEstateScreenState createState() => _ProfileEstateScreenState();
+}
 
-    if (await cachedImage.exists()) {
-      return cachedImage;
-    }
+class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
+  List<String> _imageUrls = [];
+  int _currentImageIndex = 0; // To track the current image index
+  final _cacheManager = CacheManager(Config(
+    'customCacheKey', // Custom key for cache management
+    stalePeriod: const Duration(days: 7), // Cache images for 7 days
+  ));
 
-    final storageRef = FirebaseStorage.instance.ref().child('$estateId/0.jpg');
-    final imageUrl = await storageRef.getDownloadURL();
-    final response = await http.get(Uri.parse(imageUrl));
-
-    if (response.statusCode == 200) {
-      await cachedImage.writeAsBytes(response.bodyBytes);
-    }
-
-    return cachedImage;
+  @override
+  void initState() {
+    super.initState();
+    _fetchImageUrls();
   }
 
-  Future<void> _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
+  // Fetch multiple images URLs from Firebase Storage
+  Future<void> _fetchImageUrls() async {
+    int index = 0;
+    bool hasMoreImages = true;
+    List<String> imageUrls = [];
+
+    while (hasMoreImages) {
+      try {
+        final storageRef = FirebaseStorage.instance
+            .ref()
+            .child('${widget.estateId}/$index.jpg');
+        final imageUrl = await storageRef.getDownloadURL();
+        imageUrls.add(imageUrl);
+
+        // Preload image to ensure it's cached before use
+        await _cacheManager.getSingleFile(imageUrl);
+      } catch (e) {
+        hasMoreImages = false; // No more images available
+      }
+      index++;
     }
+
+    setState(() {
+      _imageUrls = imageUrls;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Check the current language and use the appropriate name
     final String displayName =
-        Localizations.localeOf(context).languageCode == 'ar' ? nameAr : nameEn;
+        Localizations.localeOf(context).languageCode == 'ar'
+            ? widget.nameAr
+            : widget.nameEn;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          displayName, // Use the translated name here
+          displayName,
           style: kTeritary,
         ),
         centerTitle: true,
@@ -91,91 +108,88 @@ class ProfileEstateScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Estate Image
-              FutureBuilder<File>(
-                future: _getCachedImage(estateId),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Container(
+              // Image Carousel with PageView
+              _imageUrls.isEmpty
+                  ? Container(
                       height: 200,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(15),
                         color: Colors.grey[200],
                       ),
                       child: const Center(child: CircularProgressIndicator()),
-                    );
-                  } else if (snapshot.hasError || !snapshot.hasData) {
-                    return Container(
-                      height: 200,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        color: Colors.grey[200],
-                      ),
-                      child: const Center(
-                        child: Icon(Icons.error, color: Colors.red),
-                      ),
-                    );
-                  } else {
-                    return Container(
-                      height: 200,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        image: DecorationImage(
-                          image: FileImage(snapshot.data!),
-                          fit: BoxFit.cover,
+                    )
+                  : Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: [
+                        SizedBox(
+                          height: 200,
+                          child: PageView.builder(
+                            itemCount: _imageUrls.length,
+                            onPageChanged: (index) {
+                              setState(() {
+                                _currentImageIndex = index;
+                              });
+                            },
+                            itemBuilder: (context, index) {
+                              return ClipRRect(
+                                borderRadius: BorderRadius.circular(15),
+                                child: CachedNetworkImage(
+                                  imageUrl: _imageUrls[index],
+                                  cacheManager:
+                                      _cacheManager, // Use the cache manager
+                                  placeholder: (context, url) =>
+                                      Container(color: Colors.grey[300]),
+                                  errorWidget: (context, url, error) =>
+                                      const Icon(Icons.error),
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                ),
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                    );
-                  }
-                },
-              ),
+                        // Display image indicator at the bottom
+                        Positioned(
+                          bottom: 10,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.5),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              '${_currentImageIndex + 1} / ${_imageUrls.length}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
               16.kH,
               // Estate Name and Location
               Text(
-                displayName, // Display the estate name based on language
+                displayName,
                 style: kTeritary,
               ),
               8.kH,
               Text(
-                location,
+                widget.location,
                 style: const TextStyle(
                   fontSize: 16,
                   color: Colors.grey,
                 ),
               ),
               16.kH,
-              // ListTile(
-              //   title: const Text(
-              //     "Menu Link",
-              //     style: TextStyle(fontWeight: FontWeight.bold),
-              //   ),
-              //   subtitle: InkWell(
-              //     onTap: () async {
-              //       final url = menuLink;
-              //       try {
-              //         await _launchURL(url);
-              //       } catch (e) {
-              //         ScaffoldMessenger.of(context).showSnackBar(
-              //           SnackBar(content: Text('Could not launch $menuLink')),
-              //         );
-              //       }
-              //     },
-              //     child: Text(
-              //       menuLink,
-              //       style: const TextStyle(
-              //         color: Colors.blue,
-              //         decoration: TextDecoration.underline,
-              //       ),
-              //     ),
-              //   ),
-              // ),
-              // Rating, Fee, and Time
               Row(
                 children: [
                   const Icon(Icons.star, color: Colors.orange, size: 16),
                   4.kW,
                   Text(
-                    "$rating", // Dynamic rating
+                    "${widget.rating}",
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -186,7 +200,7 @@ class ProfileEstateScreen extends StatelessWidget {
                       color: Colors.grey, size: 16),
                   4.kW,
                   Text(
-                    fee, // Dynamic fee
+                    widget.fee,
                     style: const TextStyle(
                       fontSize: 14,
                       color: Colors.grey,
@@ -196,7 +210,7 @@ class ProfileEstateScreen extends StatelessWidget {
                   const Icon(Icons.timer, color: Colors.grey, size: 16),
                   4.kW,
                   Text(
-                    deliveryTime, // Dynamic delivery time
+                    widget.deliveryTime,
                     style: const TextStyle(
                       fontSize: 14,
                       color: Colors.grey,
@@ -205,23 +219,22 @@ class ProfileEstateScreen extends StatelessWidget {
                 ],
               ),
               16.kH,
-              // Restaurant Type Section
               Wrap(
                 spacing: 10.0,
                 children: [
-                  IngredientTag(icon: Icons.fastfood, label: typeOfRestaurant),
-                  IngredientTag(icon: Icons.home, label: sessions),
-                  IngredientTag(icon: Icons.grain, label: entry),
-                  IngredientTag(icon: Icons.music_note, label: music),
+                  IngredientTag(
+                      icon: Icons.fastfood, label: widget.typeOfRestaurant),
+                  IngredientTag(icon: Icons.home, label: widget.sessions),
+                  IngredientTag(icon: Icons.grain, label: widget.entry),
+                  IngredientTag(icon: Icons.music_note, label: widget.music),
                 ],
               ),
               24.kH,
-              // Price and Add to Cart Button
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "\$$price", // Dynamic price
+                    "\$${widget.price}",
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -232,8 +245,7 @@ class ProfileEstateScreen extends StatelessWidget {
                       // Add to cart functionality
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          kDeepPurpleColor, // Adjust to match the design
+                      backgroundColor: kDeepPurpleColor,
                       padding: const EdgeInsets.symmetric(
                         vertical: 14,
                         horizontal: 32,
@@ -254,7 +266,6 @@ class ProfileEstateScreen extends StatelessWidget {
                 ],
               ),
               16.kH,
-              // Menu Link
             ],
           ),
         ),
