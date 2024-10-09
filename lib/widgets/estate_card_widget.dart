@@ -9,41 +9,35 @@ class EstateCard extends StatelessWidget {
   final String nameEn;
   final String nameAr;
   final String estateId;
+  final double rating; // Add rating parameter
 
   const EstateCard({
     super.key,
     required this.nameEn,
     required this.nameAr,
     required this.estateId,
+    required this.rating, // Pass rating to the constructor
   });
 
   Future<File> _getCachedImage(String estateId) async {
-    // Get the directory where images are stored
     final directory = await getTemporaryDirectory();
     final filePath = '${directory.path}/$estateId.jpg';
-
-    // Check if the image is already cached
     final cachedImage = File(filePath);
     if (await cachedImage.exists()) {
       return cachedImage;
     }
 
-    // If not cached, download the image from Firebase Storage
     final storageRef = FirebaseStorage.instance.ref().child('$estateId/0.jpg');
     final imageUrl = await storageRef.getDownloadURL();
-
-    // Download the image and save it locally
     final response = await http.get(Uri.parse(imageUrl));
     if (response.statusCode == 200) {
       await cachedImage.writeAsBytes(response.bodyBytes);
     }
-
     return cachedImage;
   }
 
   @override
   Widget build(BuildContext context) {
-    // Check the current language and use the appropriate name
     final String displayName =
         Localizations.localeOf(context).languageCode == 'ar' ? nameAr : nameEn;
 
@@ -118,9 +112,9 @@ class EstateCard extends StatelessWidget {
                     children: [
                       const Icon(Icons.star, color: Colors.orange, size: 16),
                       const SizedBox(width: 4),
-                      const Text(
-                        "4.7", // Replace with dynamic rating data
-                        style: TextStyle(
+                      Text(
+                        rating.toStringAsFixed(1), // Display dynamic rating
+                        style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),

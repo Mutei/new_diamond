@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import '../backend/customer_rate_services.dart';
 import '../backend/estate_services.dart';
 import '../localization/language_constants.dart';
 import '../widgets/estate_card_widget.dart';
 import '../widgets/reused_appbar.dart';
 import '../widgets/custom_drawer.dart';
-import 'profile_estate_screen.dart'; // Import ProfileEstateScreen
+import 'profile_estate_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -15,6 +16,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   EstateServices estateServices = EstateServices();
+  CustomerRateServices customerRateServices = CustomerRateServices();
   List<Map<String, dynamic>> estates = [];
   final List<String> categories = ['Hotel', 'Restaurant', 'Coffee'];
 
@@ -27,8 +29,19 @@ class _MainScreenState extends State<MainScreen> {
   Future<void> _fetchEstates() async {
     try {
       final data = await estateServices.fetchEstates();
+      List<Map<String, dynamic>> parsedEstates = _parseEstates(data);
+
+      // Fetch ratings for each estate
+      for (var estate in parsedEstates) {
+        final rating =
+            await customerRateServices.fetchEstateRating(estate['id']);
+        setState(() {
+          estate['rating'] = rating; // Update estate with actual rating
+        });
+      }
+
       setState(() {
-        estates = _parseEstates(data);
+        estates = parsedEstates;
       });
     } catch (e) {
       print("Error fetching estates: $e");
@@ -43,15 +56,14 @@ class _MainScreenState extends State<MainScreen> {
           'id': estateID,
           'nameEn': estateData['NameEn'] ?? 'Unknown',
           'nameAr': estateData['NameAr'] ?? 'غير معروف', // Arabic fallback
-          'rating': estateData['Rating'] ?? 4.5,
+          'rating': 0.0, // Will be updated with actual rating later
           'fee': estateData['Fee'] ?? 'Free',
           'time': estateData['Time'] ?? '20 min',
-          'TypeofRestaurant': estateData['TypeofRestaurant'] ??
-              'Unknown Type', // Fetch TypeofRestaurant
+          'TypeofRestaurant': estateData['TypeofRestaurant'] ?? 'Unknown Type',
           'Sessions': estateData['Sessions'] ?? 'Unknown Session Type',
           'MenuLink': estateData['MenuLink'] ?? 'No Menu',
           'Entry': estateData['Entry'] ?? 'Empty',
-          'Lstmusic': estateData['Lstmusic'] ?? 'No music', // Fetch MenuLink
+          'Lstmusic': estateData['Lstmusic'] ?? 'No music',
         });
       });
     });
@@ -115,7 +127,7 @@ class _MainScreenState extends State<MainScreen> {
                           child: Icon(
                             iconData,
                             size: 40,
-                            color: Colors.deepPurple, // Adjust the icon color
+                            color: Colors.deepPurple,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -142,26 +154,23 @@ class _MainScreenState extends State<MainScreen> {
                       final estate = estates[index];
                       return GestureDetector(
                         onTap: () {
-                          // Navigate to Profile Estate Screen on tap
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => ProfileEstateScreen(
                                 nameEn: estate['nameEn'],
                                 nameAr: estate['nameAr'],
-                                estateId: estate['id'], // Pass estateId
-                                location:
-                                    "Rose Garden", // Dummy location, replace as needed
+                                estateId: estate['id'],
+                                location: "Rose Garden",
                                 rating: estate['rating'],
                                 fee: estate['fee'],
                                 deliveryTime: estate['time'],
-                                price:
-                                    32.0, // Replace with dynamic price if needed
+                                price: 32.0,
                                 typeOfRestaurant: estate['TypeofRestaurant'],
                                 sessions: estate['Sessions'],
                                 menuLink: estate['MenuLink'],
                                 entry: estate['Entry'],
-                                music: estate['Lstmusic'], // Pass MenuLink
+                                music: estate['Lstmusic'],
                               ),
                             ),
                           );
@@ -170,6 +179,7 @@ class _MainScreenState extends State<MainScreen> {
                           nameEn: estate['nameEn'],
                           estateId: estate['id'],
                           nameAr: estate['nameAr'],
+                          rating: estate['rating'], // Pass dynamic rating
                         ),
                       );
                     },

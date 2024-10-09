@@ -95,11 +95,6 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          displayName,
-          style: kTeritary,
-        ),
-        centerTitle: true,
         iconTheme: kIconTheme,
       ),
       body: SingleChildScrollView(
