@@ -7,6 +7,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart'; // Cache mana
 import 'package:cached_network_image/cached_network_image.dart'; // Cached image package
 import 'package:firebase_storage/firebase_storage.dart';
 import '../localization/language_constants.dart';
+import '../backend/customer_rate_services.dart';
 import '../widgets/chip_widget.dart'; // Import for translations
 
 class ProfileEstateScreen extends StatefulWidget {
@@ -47,6 +48,9 @@ class ProfileEstateScreen extends StatefulWidget {
 
 class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
   List<String> _imageUrls = [];
+  List<Map<String, dynamic>> _userRatings =
+      []; // To store users and their ratings
+  double _overallRating = 0.0; // Overall rating as double
   int _currentImageIndex = 0; // To track the current image index
   final _cacheManager = CacheManager(Config(
     'customCacheKey', // Custom key for cache management
@@ -57,6 +61,7 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
   void initState() {
     super.initState();
     _fetchImageUrls();
+    _fetchUserRatings(); // Fetch user ratings for the estate
   }
 
   // Fetch multiple images URLs from Firebase Storage
@@ -83,6 +88,24 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
 
     setState(() {
       _imageUrls = imageUrls;
+    });
+  }
+
+  // Fetch ratings with user names
+  Future<void> _fetchUserRatings() async {
+    CustomerRateServices rateServices = CustomerRateServices();
+    final ratings =
+        await rateServices.fetchEstateRatingWithUsers(widget.estateId);
+    double totalRating = 0.0;
+    for (var rating in ratings) {
+      totalRating += rating['rating']; // Sum all ratings
+    }
+
+    setState(() {
+      _userRatings = ratings; // Update the list with fetched user ratings
+      _overallRating = ratings.isNotEmpty
+          ? totalRating / ratings.length
+          : 0.0; // Calculate average rating
     });
   }
 
@@ -179,12 +202,14 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                 ),
               ),
               16.kH,
+              // Overall Rating Section
               Row(
                 children: [
                   const Icon(Icons.star, color: Colors.orange, size: 16),
                   4.kW,
                   Text(
-                    "${widget.rating}",
+                    _overallRating.toStringAsFixed(
+                        1), // Display the overall rating as a double
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -213,6 +238,49 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                   ),
                 ],
               ),
+              16.kH,
+              // User Ratings Section
+              _userRatings.isEmpty
+                  ? const Center(child: Text("No ratings yet"))
+                  : SizedBox(
+                      height: 120,
+                      child: PageView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _userRatings.length,
+                        itemBuilder: (context, index) {
+                          final userRating = _userRatings[index];
+                          return Card(
+                            margin: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    userRating['userName'],
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: List.generate(
+                                      5,
+                                      (starIndex) => Icon(
+                                        starIndex < userRating['rating']
+                                            ? Icons.star
+                                            : Icons.star_border,
+                                        color: Colors.orange,
+                                        size: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
               16.kH,
               Wrap(
                 spacing: 10.0,

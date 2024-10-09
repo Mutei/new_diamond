@@ -4,9 +4,10 @@ class CustomerRateServices {
   final DatabaseReference databaseRef =
       FirebaseDatabase.instance.ref().child('App').child('CustomerFeedback');
 
-  Future<double> fetchEstateRating(String estateId) async {
-    double totalRating = 0.0;
-    int count = 0;
+  // Fetch estate rating along with the user who rated
+  Future<List<Map<String, dynamic>>> fetchEstateRatingWithUsers(
+      String estateId) async {
+    List<Map<String, dynamic>> feedbackList = [];
 
     final snapshot = await databaseRef.get();
     if (snapshot.exists) {
@@ -14,16 +15,14 @@ class CustomerRateServices {
 
       feedbacks.forEach((key, feedback) {
         if (feedback['EstateID'] == estateId) {
-          totalRating += (feedback['rating'] as num).toDouble();
-          count++;
+          feedbackList.add({
+            'userName': feedback['userName'],
+            'rating': (feedback['rating'] as num).toDouble(),
+          });
         }
       });
-
-      if (count > 0) {
-        return totalRating / count; // Calculate average rating
-      }
     }
 
-    return 0.0; // Default rating if no feedback is found
+    return feedbackList; // Return the list of ratings and usernames
   }
 }

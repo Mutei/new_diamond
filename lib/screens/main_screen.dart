@@ -33,10 +33,22 @@ class _MainScreenState extends State<MainScreen> {
 
       // Fetch ratings for each estate
       for (var estate in parsedEstates) {
-        final rating =
-            await customerRateServices.fetchEstateRating(estate['id']);
+        final ratings =
+            await customerRateServices.fetchEstateRatingWithUsers(estate['id']);
+
+        // Calculate average rating
+        double totalRating = 0;
+        if (ratings.isNotEmpty) {
+          totalRating = ratings
+                  .map((e) => e['rating'] as double)
+                  .reduce((a, b) => a + b) /
+              ratings.length;
+        }
+
         setState(() {
-          estate['rating'] = rating; // Update estate with actual rating
+          estate['rating'] =
+              totalRating; // Update estate with the average rating
+          estate['ratingsList'] = ratings; // Save the list of ratings
         });
       }
 
