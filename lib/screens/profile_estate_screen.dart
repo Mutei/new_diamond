@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_storage/firebase_storage.dart';
+import '../localization/language_constants.dart'; // Import for translations
 
 class ProfileEstateScreen extends StatelessWidget {
-  final String estateName;
+  final String nameEn;
+  final String nameAr;
   final String estateId; // Use estateId to fetch image
   final String location;
   final double rating;
@@ -17,7 +19,8 @@ class ProfileEstateScreen extends StatelessWidget {
 
   const ProfileEstateScreen({
     Key? key,
-    required this.estateName,
+    required this.nameEn,
+    required this.nameAr,
     required this.estateId,
     required this.location,
     required this.rating,
@@ -27,22 +30,18 @@ class ProfileEstateScreen extends StatelessWidget {
   }) : super(key: key);
 
   Future<File> _getCachedImage(String estateId) async {
-    // Get the directory where images are stored
     final directory = await getTemporaryDirectory();
     final filePath = '${directory.path}/$estateId.jpg';
-
-    // Check if the image is already cached
     final cachedImage = File(filePath);
+
     if (await cachedImage.exists()) {
       return cachedImage;
     }
 
-    // If not cached, download the image from Firebase Storage
     final storageRef = FirebaseStorage.instance.ref().child('$estateId/0.jpg');
     final imageUrl = await storageRef.getDownloadURL();
-
-    // Download the image and save it locally
     final response = await http.get(Uri.parse(imageUrl));
+
     if (response.statusCode == 200) {
       await cachedImage.writeAsBytes(response.bodyBytes);
     }
@@ -52,15 +51,18 @@ class ProfileEstateScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Check the current language and use the appropriate name
+    final String displayName =
+        Localizations.localeOf(context).languageCode == 'ar' ? nameAr : nameEn;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          estateName,
+          displayName, // Use the translated name here
           style: kTeritary,
         ),
         centerTitle: true,
         iconTheme: kIconTheme,
-        // Use a color similar to the reference image
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -70,8 +72,7 @@ class ProfileEstateScreen extends StatelessWidget {
             children: [
               // Estate Image
               FutureBuilder<File>(
-                future:
-                    _getCachedImage(estateId), // Fetch image based on estateId
+                future: _getCachedImage(estateId),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Container(
@@ -110,7 +111,7 @@ class ProfileEstateScreen extends StatelessWidget {
               const SizedBox(height: 16),
               // Estate Name and Location
               Text(
-                estateName,
+                displayName, // Display the estate name based on language
                 style: kTeritary,
               ),
               const SizedBox(height: 8),
@@ -158,7 +159,7 @@ class ProfileEstateScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
-              // Size Selector
+              // Size Selector (You can modify this section as needed)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -179,7 +180,7 @@ class ProfileEstateScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 24),
-              // Price and Add to Cart
+              // Price and Add to Cart Button
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -196,7 +197,7 @@ class ProfileEstateScreen extends StatelessWidget {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
-                          Colors.orange, // Adjust to match the design
+                          kDeepPurpleColor, // Adjust to match the design
                       padding: const EdgeInsets.symmetric(
                         vertical: 14,
                         horizontal: 32,
@@ -229,7 +230,7 @@ class ProfileEstateScreen extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 30,
-          backgroundColor: Colors.orangeAccent,
+          backgroundColor: kDeepPurpleColor,
           child: Text(
             size,
             style: const TextStyle(
@@ -253,7 +254,7 @@ class ProfileEstateScreen extends StatelessWidget {
     return Chip(
       avatar: Icon(icon, color: Colors.white),
       label: Text(label),
-      backgroundColor: Colors.orangeAccent,
+      backgroundColor: kDeepPurpleColor,
       labelStyle: const TextStyle(color: Colors.white),
     );
   }

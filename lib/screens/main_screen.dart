@@ -141,7 +141,8 @@ class _MainScreenState extends State<MainScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => ProfileEstateScreen(
-                                estateName: estate['nameEn'],
+                                nameEn: estate['nameEn'],
+                                nameAr: estate['nameAr'],
                                 estateId: estate['id'], // Pass estateId
                                 location:
                                     "Rose Garden", // Dummy location, replace as needed
