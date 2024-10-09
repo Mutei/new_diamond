@@ -3,7 +3,7 @@ import '../backend/estate_services.dart';
 import '../localization/language_constants.dart';
 import '../widgets/estate_card_widget.dart';
 import '../widgets/reused_appbar.dart';
-import 'custom_drawer.dart';
+import '../widgets/custom_drawer.dart';
 import 'profile_estate_screen.dart'; // Import ProfileEstateScreen
 
 class MainScreen extends StatefulWidget {
@@ -46,6 +46,12 @@ class _MainScreenState extends State<MainScreen> {
           'rating': estateData['Rating'] ?? 4.5,
           'fee': estateData['Fee'] ?? 'Free',
           'time': estateData['Time'] ?? '20 min',
+          'TypeofRestaurant': estateData['TypeofRestaurant'] ??
+              'Unknown Type', // Fetch TypeofRestaurant
+          'Sessions': estateData['Sessions'] ?? 'Unknown Session Type',
+          'MenuLink': estateData['MenuLink'] ?? 'No Menu',
+          'Entry': estateData['Entry'] ?? 'Empty',
+          'Lstmusic': estateData['Lstmusic'] ?? 'No music', // Fetch MenuLink
         });
       });
     });
@@ -151,6 +157,11 @@ class _MainScreenState extends State<MainScreen> {
                                 deliveryTime: estate['time'],
                                 price:
                                     32.0, // Replace with dynamic price if needed
+                                typeOfRestaurant: estate['TypeofRestaurant'],
+                                sessions: estate['Sessions'],
+                                menuLink: estate['MenuLink'],
+                                entry: estate['Entry'],
+                                music: estate['Lstmusic'], // Pass MenuLink
                               ),
                             ),
                           );

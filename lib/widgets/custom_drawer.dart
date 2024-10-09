@@ -11,7 +11,7 @@ import '../constants/colors.dart';
 import '../main.dart';
 import '../state_management/general_provider.dart';
 import '../utils/global_methods.dart';
-import '../widgets/item_drawer.dart';
+import 'item_drawer.dart';
 import 'package:badges/badges.dart' as badges;
 
 class CustomDrawer extends StatelessWidget {

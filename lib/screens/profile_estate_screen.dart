@@ -1,11 +1,14 @@
 import 'dart:io';
 import 'package:diamond_host_admin/constants/colors.dart';
 import 'package:diamond_host_admin/constants/styles.dart';
+import 'package:diamond_host_admin/extension/sized_box_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_storage/firebase_storage.dart';
-import '../localization/language_constants.dart'; // Import for translations
+import 'package:url_launcher/url_launcher.dart';
+import '../localization/language_constants.dart';
+import '../widgets/chip_widget.dart'; // Import for translations
 
 class ProfileEstateScreen extends StatelessWidget {
   final String nameEn;
@@ -16,6 +19,11 @@ class ProfileEstateScreen extends StatelessWidget {
   final String fee;
   final String deliveryTime;
   final double price;
+  final String typeOfRestaurant;
+  final String sessions;
+  final String menuLink;
+  final String entry;
+  final String music; // Add MenuLink field
 
   const ProfileEstateScreen({
     Key? key,
@@ -27,6 +35,11 @@ class ProfileEstateScreen extends StatelessWidget {
     required this.fee,
     required this.deliveryTime,
     required this.price,
+    required this.typeOfRestaurant,
+    required this.sessions,
+    required this.menuLink,
+    required this.entry,
+    required this.music, // Add required field
   }) : super(key: key);
 
   Future<File> _getCachedImage(String estateId) async {
@@ -47,6 +60,14 @@ class ProfileEstateScreen extends StatelessWidget {
     }
 
     return cachedImage;
+  }
+
+  Future<void> _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 
   @override
@@ -108,13 +129,13 @@ class ProfileEstateScreen extends StatelessWidget {
                   }
                 },
               ),
-              const SizedBox(height: 16),
+              16.kH,
               // Estate Name and Location
               Text(
                 displayName, // Display the estate name based on language
                 style: kTeritary,
               ),
-              const SizedBox(height: 8),
+              8.kH,
               Text(
                 location,
                 style: const TextStyle(
@@ -122,12 +143,37 @@ class ProfileEstateScreen extends StatelessWidget {
                   color: Colors.grey,
                 ),
               ),
-              const SizedBox(height: 16),
+              16.kH,
+              // ListTile(
+              //   title: const Text(
+              //     "Menu Link",
+              //     style: TextStyle(fontWeight: FontWeight.bold),
+              //   ),
+              //   subtitle: InkWell(
+              //     onTap: () async {
+              //       final url = menuLink;
+              //       try {
+              //         await _launchURL(url);
+              //       } catch (e) {
+              //         ScaffoldMessenger.of(context).showSnackBar(
+              //           SnackBar(content: Text('Could not launch $menuLink')),
+              //         );
+              //       }
+              //     },
+              //     child: Text(
+              //       menuLink,
+              //       style: const TextStyle(
+              //         color: Colors.blue,
+              //         decoration: TextDecoration.underline,
+              //       ),
+              //     ),
+              //   ),
+              // ),
               // Rating, Fee, and Time
               Row(
                 children: [
                   const Icon(Icons.star, color: Colors.orange, size: 16),
-                  const SizedBox(width: 4),
+                  4.kW,
                   Text(
                     "$rating", // Dynamic rating
                     style: const TextStyle(
@@ -135,10 +181,10 @@ class ProfileEstateScreen extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  10.kW,
                   const Icon(Icons.monetization_on,
                       color: Colors.grey, size: 16),
-                  const SizedBox(width: 4),
+                  4.kW,
                   Text(
                     fee, // Dynamic fee
                     style: const TextStyle(
@@ -146,9 +192,9 @@ class ProfileEstateScreen extends StatelessWidget {
                       color: Colors.grey,
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  10.kW,
                   const Icon(Icons.timer, color: Colors.grey, size: 16),
-                  const SizedBox(width: 4),
+                  4.kW,
                   Text(
                     deliveryTime, // Dynamic delivery time
                     style: const TextStyle(
@@ -158,28 +204,18 @@ class ProfileEstateScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              // Size Selector (You can modify this section as needed)
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-              //   children: [
-              //     _buildSizeOption("10\""),
-              //     _buildSizeOption("14\""),
-              //     _buildSizeOption("16\""),
-              //   ],
-              // ),
-              // const SizedBox(height: 16),
-              // Ingredients Section (icons or tags)
+              16.kH,
+              // Restaurant Type Section
               Wrap(
                 spacing: 10.0,
                 children: [
-                  _buildIngredientTag(Icons.fastfood, "Cheese"),
-                  _buildIngredientTag(Icons.local_pizza, "Pepperoni"),
-                  _buildIngredientTag(Icons.grain, "Lettuce"),
-                  _buildIngredientTag(Icons.whatshot, "Hot Sauce"),
+                  IngredientTag(icon: Icons.fastfood, label: typeOfRestaurant),
+                  IngredientTag(icon: Icons.home, label: sessions),
+                  IngredientTag(icon: Icons.grain, label: entry),
+                  IngredientTag(icon: Icons.music_note, label: music),
                 ],
               ),
-              const SizedBox(height: 24),
+              24.kH,
               // Price and Add to Cart Button
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -217,45 +253,12 @@ class ProfileEstateScreen extends StatelessWidget {
                   ),
                 ],
               ),
+              16.kH,
+              // Menu Link
             ],
           ),
         ),
       ),
-    );
-  }
-
-  // Helper widget for size options
-  Widget _buildSizeOption(String size) {
-    return Column(
-      children: [
-        CircleAvatar(
-          radius: 30,
-          backgroundColor: kDeepPurpleColor,
-          child: Text(
-            size,
-            style: const TextStyle(
-              fontSize: 18,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          size,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-      ],
-    );
-  }
-
-  // Helper widget for ingredient tags
-  Widget _buildIngredientTag(IconData icon, String label) {
-    return Chip(
-      avatar: Icon(icon, color: Colors.white),
-      label: Text(label),
-      backgroundColor: kDeepPurpleColor,
-      labelStyle: const TextStyle(color: Colors.white),
     );
   }
 }
