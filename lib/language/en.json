@@ -49,5 +49,9 @@
   "Confirm Booking": "Confirm Booking",
   "Are you sure you want to book?": "Are you sure you want to book?",
   "Cancel": "Cancel",
-  "Confirm": "Confirm"
+  "Confirm": "Confirm",
+  "Booking Confirmed!": "Booking Confirmed!",
+  "Your booking is under progress.": "Your booking is under progress.",
+  "OK": "OK",
+  "Booking Status": "Booking Status"
 }

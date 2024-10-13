@@ -46,5 +46,9 @@
   "Confirm Booking": "تأكيد الحجز",
   "Are you sure you want to book?": "هل أنت متأكد أنك تريد الحجز؟",
   "Cancel": "إلغاء",
-  "Confirm": "تأكيد"
+  "Confirm": "تأكيد",
+  "Booking Confirmed!": "تم تأكيد الحجز!",
+  "Your booking is under progress.": "الحجز الخاص بك قيد التنفيذ.",
+  "OK": "حسنًا",
+  "Booking Status": "حالة الحجز"
 }

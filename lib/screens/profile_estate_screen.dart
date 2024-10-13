@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import '../backend/booking_services.dart';
 import '../localization/language_constants.dart';
 import '../backend/customer_rate_services.dart';
+import '../utils/success_dialogue.dart';
 import '../widgets/chip_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -130,6 +131,7 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
       context: context,
       initialTime: TimeOfDay.now(),
     );
+
     if (pickedTime != null) {
       setState(() {
         selectedTime = pickedTime;
@@ -144,23 +146,43 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(getTranslated(context, 'Confirm Booking')),
+          title: Text(
+            getTranslated(context, 'Confirm Booking'),
+            style: TextStyle(
+              color: kPurpleColor,
+            ),
+          ),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text(getTranslated(context, 'Are you sure you want to book?')),
+                Text(
+                  getTranslated(context, 'Are you sure you want to book?'),
+                  style: TextStyle(
+                    color: kDeepPurpleColor,
+                  ),
+                ),
               ],
             ),
           ),
           actions: <Widget>[
             TextButton(
-              child: Text(getTranslated(context, 'Cancel')),
+              child: Text(
+                getTranslated(context, 'Cancel'),
+                style: const TextStyle(
+                  color: kErrorColor,
+                ),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text(getTranslated(context, 'Confirm')),
+              child: Text(
+                getTranslated(context, 'Confirm'),
+                style: const TextStyle(
+                  color: kConfirmColor,
+                ),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
                 _createBooking(); // Call booking method
@@ -168,6 +190,18 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
             ),
           ],
         );
+      },
+    );
+  }
+
+  // Show success dialog after booking confirmation
+  Future<void> _showBookingInProgressDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible:
+          false, // Prevent the dialog from closing if tapped outside
+      builder: (BuildContext context) {
+        return SuccessDialog(); // Use the custom SuccessDialog
       },
     );
   }
@@ -184,6 +218,9 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
         selectedTime: selectedTime!,
         context: context,
       );
+
+      // Show booking in progress dialog after successful booking
+      _showBookingInProgressDialog();
     }
   }
 
