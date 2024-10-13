@@ -1,3 +1,4 @@
+import 'package:diamond_host_admin/constants/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:diamond_host_admin/constants/colors.dart';
@@ -76,8 +77,12 @@ class _NotificationScreenState extends State<NotificationScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(getTranslated(context, 'Notifications')),
+        title: Text(
+          "Booking Status",
+          style: kTeritary,
+        ),
         centerTitle: true,
+        iconTheme: kIconTheme,
       ),
       body: isLoading
           ? Center(
