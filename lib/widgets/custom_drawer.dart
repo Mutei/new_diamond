@@ -1,5 +1,6 @@
 import 'package:diamond_host_admin/extension/sized_box_extension.dart';
 import 'package:diamond_host_admin/localization/language_constants.dart';
+import 'package:diamond_host_admin/screens/notification_screen.dart';
 import 'package:diamond_host_admin/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
@@ -67,7 +68,10 @@ class CustomDrawer extends StatelessWidget {
             DrawerItem(
               text: getTranslated(context, "Notification"),
               icon: Icon(Icons.notification_add, color: kDeepPurpleColor),
-              onTap: () {},
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const NotificationScreen()));
+              },
               hint: getTranslated(context,
                   "You can see the notifications that come to you, such as booking confirmation"),
             ),

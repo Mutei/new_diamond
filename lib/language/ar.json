@@ -50,5 +50,11 @@
   "Booking Confirmed!": "تم تأكيد الحجز!",
   "Your booking is under progress.": "الحجز الخاص بك قيد التنفيذ.",
   "OK": "حسنًا",
-  "Booking Status": "حالة الحجز"
+  "Booking Status": "حالة الحجز",
+  "Booking Accepted": "تم قبول الحجز",
+  "Booking Rejected": "تم رفض الحجز",
+  "Booking ID": "معرف الحجز",
+  "Name": "الاسم",
+  "Date": "التاريخ",
+  "Time": "الوقت"
 }

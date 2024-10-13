@@ -53,5 +53,11 @@
   "Booking Confirmed!": "Booking Confirmed!",
   "Your booking is under progress.": "Your booking is under progress.",
   "OK": "OK",
-  "Booking Status": "Booking Status"
+  "Booking Status": "Booking Status",
+  "Booking Accepted": "Booking Accepted",
+  "Booking Rejected": "Booking Rejected",
+  "Booking ID": "Booking ID",
+  "Name": "Name",
+  "Date": "Date",
+  "Time": "Time"
 }
