@@ -41,5 +41,10 @@
   "Last Name": "اسم العائلة",
   "Last name must not be empty": "يجب ألا يكون اسم العائلة فارغًا",
   "Loading, please wait...": "جارٍ التحميل، يرجى الانتظار...",
-  "All Categories": "جميع الفئات"
+  "All Categories": "جميع الفئات",
+  "Book": "إحجز",
+  "Confirm Booking": "تأكيد الحجز",
+  "Are you sure you want to book?": "هل أنت متأكد أنك تريد الحجز؟",
+  "Cancel": "إلغاء",
+  "Confirm": "تأكيد"
 }

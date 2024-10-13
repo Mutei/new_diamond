@@ -23,7 +23,7 @@ class IngredientTag extends StatelessWidget {
         gradient: kPrimaryGradient,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.4),
+            color: Colors.grey.withOpacity(0.1),
             spreadRadius: 2,
             blurRadius: 10,
             offset: const Offset(0, 4), // Adjusted shadow for more depth

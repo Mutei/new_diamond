@@ -44,5 +44,10 @@
   "All Categories": "All Categories",
   "Hotel": "Hotel",
   "Restaurant": "Restaurant",
-  "Coffee": "Coffee"
+  "Coffee": "Coffee",
+  "Book": "Book",
+  "Confirm Booking": "Confirm Booking",
+  "Are you sure you want to book?": "Are you sure you want to book?",
+  "Cancel": "Cancel",
+  "Confirm": "Confirm"
 }

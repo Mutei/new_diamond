@@ -1,14 +1,20 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:diamond_host_admin/constants/colors.dart';
 import 'package:diamond_host_admin/constants/styles.dart';
 import 'package:diamond_host_admin/extension/sized_box_extension.dart';
+import 'package:diamond_host_admin/widgets/reused_elevated_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart'; // Cache manager
 import 'package:cached_network_image/cached_network_image.dart'; // Cached image package
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:intl/intl.dart'; // For date formatting
 import '../localization/language_constants.dart';
 import '../backend/customer_rate_services.dart';
 import '../widgets/chip_widget.dart'; // Import for translations
+import 'package:provider/provider.dart';
 
 class ProfileEstateScreen extends StatefulWidget {
   final String nameEn;
@@ -48,6 +54,8 @@ class ProfileEstateScreen extends StatefulWidget {
 
 class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
   List<String> _imageUrls = [];
+  late final Map estate;
+  TimeOfDay? sTime = TimeOfDay.now();
   List<Map<String, dynamic>> _userRatings =
       []; // To store users and their ratings
   double _overallRating = 0.0; // Overall rating as double
@@ -57,11 +65,25 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
     stalePeriod: const Duration(days: 7), // Cache images for 7 days
   ));
 
+  DateTime? selectedDate;
+  TimeOfDay? selectedTime;
+
   @override
   void initState() {
     super.initState();
     _fetchImageUrls();
     _fetchUserRatings(); // Fetch user ratings for the estate
+  }
+
+  Future<double?> fetchUserRating(String userId) async {
+    DatabaseReference ratingRef = FirebaseDatabase.instance
+        .ref("App/TotalProviderFeedbackToCustomer/$userId/AverageRating");
+
+    DataSnapshot snapshot = await ratingRef.get();
+    if (snapshot.exists) {
+      return double.parse(snapshot.value.toString());
+    }
+    return null; // Return null if no ratings found
   }
 
   // Fetch multiple images URLs from Firebase Storage
@@ -109,6 +131,197 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
     });
   }
 
+  // Function to pick a date
+  Future<void> _pickDate() async {
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2101),
+    );
+    if (pickedDate != null) {
+      setState(() {
+        selectedDate = pickedDate;
+      });
+    }
+  }
+
+  // Function to pick a time
+  Future<void> _pickTime() async {
+    final pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (pickedTime != null) {
+      setState(() {
+        selectedTime = pickedTime;
+      });
+    }
+  }
+
+  String generateUniqueID() {
+    var random = Random();
+    return (random.nextInt(90000) + 10000)
+        .toString(); // Generates a 5-digit number
+  }
+
+  // Show confirmation dialog
+  Future<void> _showConfirmationDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // User must confirm to close
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(getTranslated(context, 'Confirm Booking')),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(getTranslated(context, 'Are you sure you want to book?')),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(getTranslated(context, 'Cancel')),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text(getTranslated(context, 'Confirm')),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _createBooking(); // Call booking method
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Helper function to format the selected date and time
+  String _formatSelectedDate(DateTime date) {
+    return DateFormat('yyyy-MM-dd').format(date); // Only format the date
+  }
+
+  // Fetch the estate owner's ID based on estate type (Restaurant, Hotel, Coffee)
+  Future<String?> _fetchOwnerId() async {
+    String estateTypePath;
+    switch (widget.typeOfRestaurant.toLowerCase()) {
+      case 'restaurant':
+        estateTypePath = 'Restaurant';
+        break;
+      case 'hotel':
+        estateTypePath = 'Hotel';
+        break;
+      case 'coffee':
+        estateTypePath = 'Coffee';
+        break;
+      default:
+        estateTypePath = 'Restaurant'; // Default to Restaurant if unknown
+        break;
+    }
+
+    DatabaseReference estateRef = FirebaseDatabase.instance
+        .ref("App")
+        .child("Estate")
+        .child(estateTypePath)
+        .child(widget.estateId)
+        .child("IDUser");
+
+    DataSnapshot estateSnapshot = await estateRef.get();
+    if (estateSnapshot.exists) {
+      return estateSnapshot.value?.toString(); // Return the owner ID
+    }
+    return null;
+  }
+
+  // Create the booking (Firebase method)
+  Future<void> _createBooking() async {
+    if (selectedDate == null || selectedTime == null) {
+      // Handle error (e.g., show a Snackbar or error message)
+      return;
+    }
+
+    String uniqueID = generateUniqueID();
+    String IDBook = uniqueID;
+
+    DatabaseReference ref =
+        FirebaseDatabase.instance.ref("App").child("Booking").child("Book");
+    String? id = FirebaseAuth.instance.currentUser?.uid;
+
+    // Fetch user information
+    DatabaseReference userRef =
+        FirebaseDatabase.instance.ref("App").child("User").child(id!);
+    DataSnapshot snapshot = await userRef.get();
+    String firstName = snapshot.child("FirstName").value?.toString() ?? "";
+    String secondName = snapshot.child("SecondName").value?.toString() ?? "";
+    String lastName = snapshot.child("LastName").value?.toString() ?? "";
+    String smokerStatus = snapshot.child("IsSmoker").value?.toString() ?? "No";
+    String allergies = snapshot.child("Allergies").value?.toString() ?? "";
+    String city = snapshot.child("City").value?.toString() ?? "";
+    String country = snapshot.child("Country").value?.toString() ?? "";
+    String fullName = "$firstName $secondName $lastName";
+
+    // Fetch the estate owner ID
+    String? ownerId =
+        await _fetchOwnerId(); // Get owner ID based on estate type
+    if (ownerId == null) {
+      // Handle error if owner ID cannot be fetched
+      return;
+    }
+
+    // Format the selected date (only the date, no time)
+    String bookingDate = _formatSelectedDate(selectedDate!);
+
+    // Fetch user rating
+    double? userRating = await fetchUserRating(id);
+    String registrationDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
+    String? hour = sTime?.hour.toString().padLeft(2, '0');
+    String? minute = sTime?.minute.toString().padLeft(2, '0');
+
+    // Create booking in Firebase
+    await ref.child(IDBook.toString()).set({
+      "IDEstate": widget.estateId,
+      "IDBook": IDBook,
+      "NameEn": widget.nameEn,
+      "NameAr": widget.nameAr,
+      "Status": "1",
+      "IDUser": id,
+      "IDOwner":
+          ownerId, // Now using the owner's ID fetched based on estate type
+      "StartDate": bookingDate, // Only the date is saved
+      "EndDate": "",
+      "Type": widget.typeOfRestaurant,
+      "Country": country, // Modify as per data
+      "State": "State", // Modify as per data
+      "City": city, // Modify as per data
+      "NameUser": fullName,
+      "Smoker": smokerStatus,
+      "Allergies": allergies,
+      "Rating": userRating ?? 0.0,
+      "DateOfBooking": registrationDate,
+      "Clock": "${hour!}:${minute!}",
+    });
+
+    // Fetch provider's FCM token and send notification (if required)
+    DatabaseReference providerTokenRef =
+        FirebaseDatabase.instance.ref("App/User/$ownerId/Token");
+    DataSnapshot tokenSnapshot = await providerTokenRef.get();
+    String? providerToken = tokenSnapshot.value?.toString();
+
+    // if (providerToken != null && providerToken is notEmpty) {
+    //   await FirebaseServices().sendNotificationToProvider(
+    //     providerToken,
+    //     getTranslated(context, "New Booking Request"),
+    //     getTranslated(context, "You have a new booking request"),
+    //   );
+    // }
+
+    // Show success message or navigate to another screen
+  }
+
   @override
   Widget build(BuildContext context) {
     final String displayName =
@@ -153,8 +366,7 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                                 borderRadius: BorderRadius.circular(15),
                                 child: CachedNetworkImage(
                                   imageUrl: _imageUrls[index],
-                                  cacheManager:
-                                      _cacheManager, // Use the cache manager
+                                  cacheManager: _cacheManager,
                                   placeholder: (context, url) =>
                                       Container(color: Colors.grey[300]),
                                   errorWidget: (context, url, error) =>
@@ -166,7 +378,6 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                             },
                           ),
                         ),
-                        // Display image indicator at the bottom
                         Positioned(
                           bottom: 10,
                           child: Container(
@@ -208,8 +419,7 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                   const Icon(Icons.star, color: Colors.orange, size: 16),
                   4.kW,
                   Text(
-                    _overallRating.toStringAsFixed(
-                        1), // Display the overall rating as a double
+                    _overallRating.toStringAsFixed(1),
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -296,34 +506,18 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    "\$${widget.price}",
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Add to cart functionality
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: kDeepPurpleColor,
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 14,
-                        horizontal: 32,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                    child: const Text(
-                      "ADD TO CART",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                  Expanded(
+                    child: CustomButton(
+                      text: getTranslated(context, "Book"),
+                      onPressed: () async {
+                        await _pickDate(); // First select a date
+                        if (selectedDate != null) {
+                          await _pickTime(); // Then select a time
+                          if (selectedTime != null) {
+                            _showConfirmationDialog(); // Finally show confirmation dialog
+                          }
+                        }
+                      },
                     ),
                   ),
                 ],
