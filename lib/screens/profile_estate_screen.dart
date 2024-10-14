@@ -11,6 +11,7 @@ import '../backend/booking_services.dart';
 import '../localization/language_constants.dart';
 import '../backend/customer_rate_services.dart';
 import '../utils/success_dialogue.dart';
+import '../utils/failure_dialogue.dart'; // Import FailureDialog
 import '../widgets/chip_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -206,21 +207,37 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
     );
   }
 
+  // Show failure dialog if booking fails
+  Future<void> _showBookingFailureDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible:
+          false, // Prevent the dialog from closing if tapped outside
+      builder: (BuildContext context) {
+        return FailureDialog(); // Use the custom FailureDialog
+      },
+    );
+  }
+
   // Create the booking using the BookingServices class
   Future<void> _createBooking() async {
     if (selectedDate != null && selectedTime != null) {
-      await bookingServices.createBooking(
-        estateId: widget.estateId,
-        nameEn: widget.nameEn,
-        nameAr: widget.nameAr,
-        typeOfRestaurant: widget.typeOfRestaurant,
-        selectedDate: selectedDate!,
-        selectedTime: selectedTime!,
-        context: context,
-      );
-
-      // Show booking in progress dialog after successful booking
-      _showBookingInProgressDialog();
+      try {
+        await bookingServices.createBooking(
+          estateId: widget.estateId,
+          nameEn: widget.nameEn,
+          nameAr: widget.nameAr,
+          typeOfRestaurant: widget.typeOfRestaurant,
+          selectedDate: selectedDate!,
+          selectedTime: selectedTime!,
+          context: context,
+        );
+        // Show booking in progress dialog after successful booking
+        _showBookingInProgressDialog();
+      } catch (e) {
+        // If booking fails, show the failure dialog
+        _showBookingFailureDialog();
+      }
     }
   }
 

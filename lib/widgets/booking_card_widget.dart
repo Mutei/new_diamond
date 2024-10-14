@@ -1,3 +1,4 @@
+import 'package:diamond_host_admin/extension/sized_box_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:diamond_host_admin/constants/colors.dart';
 import 'package:diamond_host_admin/constants/styles.dart';
@@ -45,15 +46,15 @@ class BookingCardWidget extends StatelessWidget {
                     color: kPurpleColor,
                   ),
                 ),
-                const SizedBox(height: 12),
+                12.kH,
                 _buildStatusWidget(context, booking["status"]),
-                const SizedBox(height: 12),
+                12.kH,
                 _buildInfoRow(context, Icons.store,
                     '${getTranslated(context, 'Name')}: $estateName'), // Display the translated estate name
-                const SizedBox(height: 12),
+                12.kH,
                 _buildInfoRow(context, Icons.date_range,
                     '${getTranslated(context, 'Date')}: ${booking["startDate"]}'),
-                const SizedBox(height: 12),
+                12.kH,
                 _buildInfoRow(context, Icons.access_time,
                     '${getTranslated(context, 'Time')}: ${booking["clock"]}'),
               ],

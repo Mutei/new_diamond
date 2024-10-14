@@ -56,5 +56,6 @@
   "Booking ID": "معرف الحجز",
   "Name": "الاسم",
   "Date": "التاريخ",
-  "Time": "الوقت"
+  "Time": "الوقت",
+  "Your booking could not be performed. Try Again!": "لم يتم إجراء حجزك. حاول مرة أخرى!"
 }

@@ -59,5 +59,6 @@
   "Booking ID": "Booking ID",
   "Name": "Name",
   "Date": "Date",
-  "Time": "Time"
+  "Time": "Time",
+  "Your booking could not be performed. Try Again!": "Your booking could not be performed. Try Again!"
 }
