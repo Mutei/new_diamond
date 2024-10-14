@@ -26,35 +26,68 @@ class BookingServices {
     return null; // Return null if no ratings found
   }
 
-  // Function to fetch the estate owner's ID based on estate type (Restaurant, Hotel, Coffee)
-  Future<String?> fetchOwnerId(String estateId, String estateType) async {
-    String estateTypePath;
-    switch (estateType.toLowerCase()) {
-      case 'restaurant':
-        estateTypePath = 'Restaurant';
-        break;
-      case 'hotel':
-        estateTypePath = 'Hotel';
-        break;
-      case 'coffee':
-        estateTypePath = 'Coffee';
-        break;
-      default:
-        estateTypePath = 'Restaurant'; // Default to Restaurant if unknown
-        break;
-    }
+  // Function to fetch the estate owner's ID based on estate type stored in the database as a Type field (1, 2, 3)
+  Future<String?> fetchOwnerId(String estateId) async {
+    try {
+      // Try fetching the type from all possible estate categories (Hottel, Coffee, Restaurant)
+      List<String> estateCategories = ['Hottel', 'Coffee', 'Restaurant'];
+      String? estateTypePath;
 
-    DatabaseReference estateRef = _dbRef
-        .child("App")
-        .child("Estate")
-        .child(estateTypePath)
-        .child(estateId)
-        .child("IDUser");
-    DataSnapshot estateSnapshot = await estateRef.get();
-    if (estateSnapshot.exists) {
-      return estateSnapshot.value?.toString(); // Return the owner ID
+      for (String category in estateCategories) {
+        DatabaseReference estateTypeRef = _dbRef
+            .child("App")
+            .child("Estate")
+            .child(category)
+            .child(estateId)
+            .child("Type");
+
+        DataSnapshot typeSnapshot = await estateTypeRef.get();
+
+        if (typeSnapshot.exists) {
+          // If the type is found, determine the correct estateTypePath
+          int estateType = int.parse(typeSnapshot.value.toString());
+          switch (estateType) {
+            case 1:
+              estateTypePath = 'Hottel';
+              break;
+            case 2:
+              estateTypePath = 'Coffee';
+              break;
+            case 3:
+              estateTypePath = 'Restaurant';
+              break;
+            default:
+              print("Error: Unrecognized estate type.");
+              return null;
+          }
+          break;
+        }
+      }
+
+      if (estateTypePath == null) {
+        print("Error: Estate Type not found.");
+        return null;
+      }
+
+      // Now that we have the correct estateTypePath, fetch the owner ID
+      DatabaseReference estateRef = _dbRef
+          .child("App")
+          .child("Estate")
+          .child(estateTypePath)
+          .child(estateId)
+          .child("IDUser");
+
+      DataSnapshot estateSnapshot = await estateRef.get();
+      if (estateSnapshot.exists) {
+        return estateSnapshot.value?.toString(); // Return the owner ID
+      } else {
+        print("Error: Owner ID not found.");
+        return null;
+      }
+    } catch (e) {
+      print("Error in fetchOwnerId: $e");
+      return null;
     }
-    return null;
   }
 
   // Function to create a booking
@@ -90,7 +123,7 @@ class BookingServices {
     String fullName = "$firstName $secondName $lastName";
 
     // Fetch the estate owner ID
-    String? ownerId = await fetchOwnerId(estateId, typeOfRestaurant);
+    String? ownerId = await fetchOwnerId(estateId);
     if (ownerId == null) {
       // Handle error if owner ID cannot be fetched
       return;
