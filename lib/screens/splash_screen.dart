@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'package:diamond_host_admin/constants/colors.dart';
 import 'package:diamond_host_admin/localization/language_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:diamond_host_admin/state_management/general_provider.dart';
-import '../main.dart';
+import '../auth_handler.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

@@ -66,7 +66,7 @@ class CustomDrawer extends StatelessWidget {
               text: getTranslated(context, "Private Chat"),
             ),
             DrawerItem(
-              text: getTranslated(context, "Notification"),
+              text: getTranslated(context, "Booking Status"),
               icon: Icon(Icons.notification_add, color: kDeepPurpleColor),
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
