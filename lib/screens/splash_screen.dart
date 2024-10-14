@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:diamond_host_admin/constants/colors.dart';
+import 'package:diamond_host_admin/localization/language_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:diamond_host_admin/state_management/general_provider.dart';
@@ -106,7 +107,8 @@ class _SplashScreenState extends State<SplashScreen>
 
                     // App name or tagline
                     Text(
-                      'Diamond Host', // Replace with your app name
+                      getTranslated(
+                          context, 'Main Screen'), // Replace with your app name
                       style: TextStyle(
                         fontSize: 24.0,
                         fontWeight: FontWeight.bold,
@@ -116,7 +118,8 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                     const SizedBox(height: 8.0),
                     Text(
-                      'Experience the best service', // Optional tagline
+                      getTranslated(context,
+                          'Experience the best service'), // Optional tagline
                       style: TextStyle(
                         fontSize: 16.0,
                         color: Colors.white.withOpacity(0.8),
