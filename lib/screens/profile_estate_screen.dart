@@ -331,11 +331,11 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
               Wrap(
                 spacing: 10.0,
                 children: [
-                  IngredientTag(
+                  ChipWidget(
                       icon: Icons.fastfood, label: widget.typeOfRestaurant),
-                  IngredientTag(icon: Icons.home, label: widget.sessions),
-                  IngredientTag(icon: Icons.grain, label: widget.entry),
-                  IngredientTag(icon: Icons.music_note, label: widget.music),
+                  ChipWidget(icon: Icons.home, label: widget.sessions),
+                  ChipWidget(icon: Icons.grain, label: widget.entry),
+                  ChipWidget(icon: Icons.music_note, label: widget.music),
                 ],
               ),
               24.kH,

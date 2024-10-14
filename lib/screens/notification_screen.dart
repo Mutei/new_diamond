@@ -44,7 +44,8 @@ class _NotificationScreenState extends State<NotificationScreen>
         return {
           "bookingId": entry.key,
           "status": entry.value["Status"].toString(),
-          "name": entry.value["NameEn"], // Add other fields if needed
+          "nameEn": entry.value["NameEn"], // Fetch English name
+          "nameAr": entry.value["NameAr"], // Fetch Arabic name
           "startDate": entry.value["StartDate"].toString(),
           "clock": entry.value["Clock"].toString(),
           "type": entry.value["Type"].toString(),
@@ -78,7 +79,7 @@ class _NotificationScreenState extends State<NotificationScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Booking Status",
+          getTranslated(context, 'Booking Status'),
           style: kTeritary,
         ),
         centerTitle: true,
@@ -104,9 +105,15 @@ class _NotificationScreenState extends State<NotificationScreen>
                     // Ensure the index is within range
                     if (index < bookings.length) {
                       final booking = bookings[index];
+                      // Get the translated name
+                      final String displayName =
+                          Localizations.localeOf(context).languageCode == 'ar'
+                              ? booking['nameAr']
+                              : booking['nameEn'];
                       return BookingCardWidget(
                         booking: booking,
                         animation: animation,
+                        estateName: displayName, // Pass the translated name
                       );
                     } else {
                       // Return an empty widget if index is out of range

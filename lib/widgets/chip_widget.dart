@@ -1,11 +1,11 @@
 import 'package:diamond_host_admin/constants/colors.dart';
 import 'package:flutter/material.dart';
 
-class IngredientTag extends StatelessWidget {
+class ChipWidget extends StatelessWidget {
   final IconData icon;
   final String label;
 
-  const IngredientTag({
+  const ChipWidget({
     Key? key,
     required this.icon,
     required this.label,

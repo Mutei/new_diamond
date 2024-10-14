@@ -6,11 +6,13 @@ import 'package:diamond_host_admin/localization/language_constants.dart';
 class BookingCardWidget extends StatelessWidget {
   final Map<String, dynamic> booking;
   final Animation<double> animation;
+  final String estateName; // Add this to receive the translated name
 
   const BookingCardWidget({
     Key? key,
     required this.booking,
     required this.animation,
+    required this.estateName, // Add this to the constructor
   }) : super(key: key);
 
   @override
@@ -46,8 +48,8 @@ class BookingCardWidget extends StatelessWidget {
                 const SizedBox(height: 12),
                 _buildStatusWidget(context, booking["status"]),
                 const SizedBox(height: 12),
-                _buildInfoRow(context, Icons.person,
-                    '${getTranslated(context, 'Name')}: ${booking["name"]}'),
+                _buildInfoRow(context, Icons.store,
+                    '${getTranslated(context, 'Name')}: $estateName'), // Display the translated estate name
                 const SizedBox(height: 12),
                 _buildInfoRow(context, Icons.date_range,
                     '${getTranslated(context, 'Date')}: ${booking["startDate"]}'),
