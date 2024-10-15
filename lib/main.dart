@@ -121,7 +121,7 @@ class _MyAppState extends State<MyApp> {
                         ? const ColorScheme.dark()
                         : const ColorScheme.light(),
                     useMaterial3: true,
-                    textTheme: GoogleFonts.lailaTextTheme(
+                    textTheme: GoogleFonts.merriweatherTextTheme(
                       Theme.of(context).textTheme.apply(
                             bodyColor: provider.isDarkMode
                                 ? Colors.white

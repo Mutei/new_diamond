@@ -346,7 +346,9 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
               ),
               16.kH,
               Wrap(
-                spacing: 10.0,
+                spacing: 10.0, // Add space between chips
+                runSpacing:
+                    10.0, // Add space between rows of chips if they overflow
                 children: [
                   ChipWidget(
                       icon: Icons.fastfood, label: widget.typeOfRestaurant),

@@ -35,12 +35,16 @@ class ChipWidget extends StatelessWidget {
         children: [
           Icon(icon, color: Colors.white, size: 20), // Adjust icon size
           const SizedBox(width: 8), // Adjusted spacing between icon and text
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14, // Slightly larger font size
-              fontWeight: FontWeight.w600, // Increased font weight
+          Flexible(
+            child: Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 14, // Slightly larger font size
+                fontWeight: FontWeight.w600, // Increased font weight
+              ),
+              overflow:
+                  TextOverflow.ellipsis, // Truncate long text with ellipsis
             ),
           ),
         ],
