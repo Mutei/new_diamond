@@ -29,6 +29,7 @@ class ProfileEstateScreen extends StatefulWidget {
   final String menuLink;
   final String entry;
   final String music;
+  final String type;
 
   const ProfileEstateScreen({
     Key? key,
@@ -45,6 +46,7 @@ class ProfileEstateScreen extends StatefulWidget {
     required this.menuLink,
     required this.entry,
     required this.music,
+    required this.type,
   }) : super(key: key);
 
   @override

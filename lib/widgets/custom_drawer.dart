@@ -10,6 +10,7 @@ import 'package:sizer/sizer.dart';
 import '../backend/log_out_method.dart';
 import '../constants/colors.dart';
 import '../main.dart';
+import '../screens/all_posts_screen.dart';
 import '../state_management/general_provider.dart';
 import '../utils/global_methods.dart';
 import 'item_drawer.dart';
@@ -48,7 +49,10 @@ class CustomDrawer extends StatelessWidget {
             DrawerItem(
               text: getTranslated(context, "Posts"),
               icon: Icon(Bootstrap.file_text, color: kDeepPurpleColor),
-              onTap: () {},
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const AllPostsScreen()));
+              },
               hint: getTranslated(context, "Show the Post"),
             ),
             DrawerItem(

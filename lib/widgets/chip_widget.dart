@@ -1,4 +1,5 @@
 import 'package:diamond_host_admin/constants/colors.dart';
+import 'package:diamond_host_admin/extension/sized_box_extension.dart';
 import 'package:flutter/material.dart';
 
 class ChipWidget extends StatelessWidget {
@@ -6,10 +7,10 @@ class ChipWidget extends StatelessWidget {
   final String label;
 
   const ChipWidget({
-    Key? key,
+    super.key,
     required this.icon,
     required this.label,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +35,7 @@ class ChipWidget extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, color: Colors.white, size: 20), // Adjust icon size
-          const SizedBox(width: 8), // Adjusted spacing between icon and text
+          8.kW, // Adjusted spacing between icon and text
           Flexible(
             child: Text(
               label,

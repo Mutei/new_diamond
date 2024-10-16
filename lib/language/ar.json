@@ -58,5 +58,11 @@
   "Date": "التاريخ",
   "Time": "الوقت",
   "Your booking could not be performed. Try Again!": "لم يتم إجراء حجزك. حاول مرة أخرى!",
-  "Experience the best service": "استمتع بأفضل خدمة"
+  "Experience the best service": "استمتع بأفضل خدمة",
+  "All Posts": "كل المشاركات",
+  "Failed to delete post": "فشل في حذف المشاركة",
+  "Post deleted successfully": "تم حذف المشاركة بنجاح",
+  "Delete Post": "حذف المشاركة",
+  "Are you sure you want to delete this post?": "هل أنت متأكد أنك تريد حذف هذه المشاركة؟",
+  "Delete": "حذف"
 }
