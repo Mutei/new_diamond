@@ -69,5 +69,13 @@
   "Are you sure you want to delete this post?": "Are you sure you want to delete this post?",
   "Delete": "Delete",
   "The post has been deleted.": "The post has been deleted.",
-  "There was an error while trying to delete the post.": "There was an error while trying to delete the post."
+  "There was an error while trying to delete the post.": "There was an error while trying to delete the post.",
+  "Post": "Post",
+  "Edit Post": "Edit Post",
+  "Select Estate": "Select Estate",
+  "Please enter a title": "Please enter a title",
+  "No images selected.": "No images selected.",
+  "Pick Images": "Pick Images",
+  "Pick Videos": "Pick Videos",
+  "Title": "Title"
 }

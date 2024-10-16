@@ -31,7 +31,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
   final ImagePicker _picker = ImagePicker();
   String? _selectedEstate;
   List<Map<dynamic, dynamic>> _userEstates = [];
-  String userType = "2";
+  String userType = "1";
   String? typeAccount;
   bool _isLoading = false; // For managing the loading state
 
@@ -52,7 +52,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
   Future<void> _loadUserType() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      userType = prefs.getString("TypeUser") ?? "2";
+      userType = prefs.getString("TypeUser") ?? "1";
       print("Loaded User Type: $userType");
     });
   }

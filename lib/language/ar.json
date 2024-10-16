@@ -66,5 +66,13 @@
   "Are you sure you want to delete this post?": "هل أنت متأكد أنك تريد حذف هذه المشاركة؟",
   "Delete": "حذف",
   "The post has been deleted.": "تم حذف المشاركة.",
-  "There was an error while trying to delete the post.": "حدث خطأ أثناء محاولة حذف المشاركة."
+  "There was an error while trying to delete the post.": "حدث خطأ أثناء محاولة حذف المشاركة.",
+  "Post": "مشاركة",
+  "Edit Post": "تعديل المشاركة",
+  "Select Estate": "اختر العقار",
+  "Please enter a title": "يرجى إدخال عنوان",
+  "No images selected.": "لم يتم اختيار أي صور.",
+  "Pick Images": "اختر الصور",
+  "Pick Videos": "اختر مقاطع الفيديو",
+  "Title": "العنوان"
 }
