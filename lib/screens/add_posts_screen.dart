@@ -365,7 +365,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
         title: Text(
           widget.post == null ? getTranslated(context, "Post") : "Edit Post",
           style: TextStyle(
-            color: kDeepPurpleColor,
+            color: kPurpleColor,
           ),
         ),
       ),

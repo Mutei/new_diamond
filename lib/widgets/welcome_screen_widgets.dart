@@ -54,7 +54,7 @@ Widget buildIndicator(int currentIndex, int totalPages) {
           height: 10.0,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: currentIndex == index ? Colors.orange : Colors.grey,
+            color: currentIndex == index ? kPurpleColor : Colors.grey,
           ),
         );
       }),

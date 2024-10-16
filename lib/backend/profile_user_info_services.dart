@@ -27,6 +27,37 @@ class UserInfoService {
     return {};
   }
 
+  Future<bool> updateTypeUserAccount(String newAccountType) async {
+    String? id = FirebaseAuth.instance.currentUser?.uid;
+    if (id != null) {
+      try {
+        await databaseRef.child(id).update({
+          'TypeAccount': newAccountType,
+        });
+        return true;
+      } catch (e) {
+        print("Error updating TypeAccount: $e");
+        return false;
+      }
+    }
+    return false;
+  }
+
+  Future<Map<String, String?>> fetchTypeUserAccount() async {
+    String? id = FirebaseAuth.instance.currentUser?.uid;
+    if (id != null) {
+      DatabaseEvent event = await databaseRef.child(id).once();
+      if (event.snapshot.exists) {
+        final Map<dynamic, dynamic> data =
+            event.snapshot.value as Map<dynamic, dynamic>;
+        return {
+          'TypeAccount': data['TypeAccount'],
+        };
+      }
+    }
+    return {};
+  }
+
   Future<Map<String, String?>> firstName() async {
     String? id = FirebaseAuth.instance.currentUser?.uid;
     if (id != null) {

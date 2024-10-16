@@ -74,5 +74,9 @@
   "No images selected.": "لم يتم اختيار أي صور.",
   "Pick Images": "اختر الصور",
   "Pick Videos": "اختر مقاطع الفيديو",
-  "Title": "العنوان"
+  "Title": "العنوان",
+  "Account Upgrade": "ترقية الحساب",
+  "Your account has been successfully upgraded!": "تمت ترقية حسابك بنجاح!",
+  "Upgrade Failed": "فشلت الترقية",
+  "There was an error upgrading your account.": "حدث خطأ أثناء ترقية حسابك."
 }

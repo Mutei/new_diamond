@@ -2,6 +2,7 @@ import 'package:diamond_host_admin/extension/sized_box_extension.dart';
 import 'package:diamond_host_admin/localization/language_constants.dart';
 import 'package:diamond_host_admin/screens/notification_screen.dart';
 import 'package:diamond_host_admin/screens/profile_screen.dart';
+import 'package:diamond_host_admin/screens/upgrade_account_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:provider/provider.dart';
@@ -85,7 +86,10 @@ class CustomDrawer extends StatelessWidget {
                 Icons.update,
                 color: kDeepPurpleColor,
               ),
-              onTap: () {},
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => UpgradeAccountScreen()));
+              },
               hint: getTranslated(
                   context, "From here you can upgrade account to Vip"),
             ),

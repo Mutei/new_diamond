@@ -77,5 +77,9 @@
   "No images selected.": "No images selected.",
   "Pick Images": "Pick Images",
   "Pick Videos": "Pick Videos",
-  "Title": "Title"
+  "Title": "Title",
+  "Account Upgrade": "Account Upgrade",
+  "Your account has been successfully upgraded!": "Your account has been successfully upgraded!",
+  "Upgrade Failed": "Upgrade Failed",
+  "There was an error upgrading your account.": "There was an error upgrading your account."
 }
