@@ -2,14 +2,14 @@
 import 'package:flutter/material.dart';
 import 'package:diamond_host_admin/constants/styles.dart';
 
-class AccountOptionWidget extends StatelessWidget {
+class TypeAccountWidget extends StatelessWidget {
   final String accountType;
   final String selectedTypeAccount;
   final String title;
   final String subtitle;
   final Function(String) onSelected;
 
-  const AccountOptionWidget({
+  const TypeAccountWidget({
     Key? key,
     required this.accountType,
     required this.selectedTypeAccount,

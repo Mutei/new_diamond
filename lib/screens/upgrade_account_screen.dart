@@ -120,7 +120,7 @@ class _UpgradeAccountScreenState extends State<UpgradeAccountScreen> {
                     style: kSecondaryStyle,
                   ),
                   20.kH,
-                  AccountOptionWidget(
+                  TypeAccountWidget(
                     accountType: '1',
                     selectedTypeAccount: selectedTypeAccount,
                     title: 'Star Account',
@@ -132,7 +132,7 @@ class _UpgradeAccountScreenState extends State<UpgradeAccountScreen> {
                     },
                   ),
                   10.kH,
-                  AccountOptionWidget(
+                  TypeAccountWidget(
                     accountType: '2',
                     selectedTypeAccount: selectedTypeAccount,
                     title: 'Premium Account',
@@ -144,7 +144,7 @@ class _UpgradeAccountScreenState extends State<UpgradeAccountScreen> {
                     },
                   ),
                   10.kH,
-                  AccountOptionWidget(
+                  TypeAccountWidget(
                     accountType: '3',
                     selectedTypeAccount: selectedTypeAccount,
                     title: 'Premium+ Account',
