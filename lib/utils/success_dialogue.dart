@@ -5,7 +5,14 @@ import 'package:diamond_host_admin/localization/language_constants.dart';
 import 'package:flutter/material.dart';
 
 class SuccessDialog extends StatefulWidget {
-  const SuccessDialog({super.key});
+  final String text;
+  final String text1;
+
+  const SuccessDialog({
+    super.key,
+    required this.text,
+    required this.text1,
+  });
 
   @override
   _SuccessDialogState createState() => _SuccessDialogState();
@@ -59,12 +66,12 @@ class _SuccessDialogState extends State<SuccessDialog>
             ),
             20.kH,
             Text(
-              getTranslated(context, 'Booking Status'),
+              getTranslated(context, widget.text),
               style: kSecondaryStyle,
             ),
             10.kH,
             Text(
-              getTranslated(context, 'Your booking is under progress.'),
+              getTranslated(context, widget.text1),
               style: kSecondaryStyle,
               textAlign: TextAlign.center,
             ),

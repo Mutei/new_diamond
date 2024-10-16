@@ -5,7 +5,9 @@ import 'package:diamond_host_admin/localization/language_constants.dart';
 import 'package:flutter/material.dart';
 
 class FailureDialog extends StatefulWidget {
-  const FailureDialog({super.key});
+  final String text;
+  final String text1;
+  const FailureDialog({super.key, required this.text, required this.text1});
 
   @override
   _FailureDialogState createState() => _FailureDialogState();
@@ -59,13 +61,12 @@ class _FailureDialogState extends State<FailureDialog>
             ),
             20.kH,
             Text(
-              getTranslated(context, 'Booking Status'),
+              getTranslated(context, widget.text),
               style: kSecondaryStyle,
             ),
             10.kH,
             Text(
-              getTranslated(
-                  context, 'Your booking could not be performed. Try Again!'),
+              getTranslated(context, widget.text1),
               style: kSecondaryStyle,
               textAlign: TextAlign.center,
             ),

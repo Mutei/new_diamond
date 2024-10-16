@@ -204,7 +204,10 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
       barrierDismissible:
           false, // Prevent the dialog from closing if tapped outside
       builder: (BuildContext context) {
-        return SuccessDialog(); // Use the custom SuccessDialog
+        return SuccessDialog(
+          text: 'Booking Status',
+          text1: 'Your booking is under progress.',
+        ); // Use the custom SuccessDialog
       },
     );
   }
@@ -216,7 +219,10 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
       barrierDismissible:
           false, // Prevent the dialog from closing if tapped outside
       builder: (BuildContext context) {
-        return FailureDialog(); // Use the custom FailureDialog
+        return FailureDialog(
+          text: 'Booking Status',
+          text1: 'Your booking could not be performed. Try Again!',
+        ); // Use the custom FailureDialog
       },
     );
   }

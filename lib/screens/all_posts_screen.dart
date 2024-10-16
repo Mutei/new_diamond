@@ -1,4 +1,5 @@
 import 'package:diamond_host_admin/constants/colors.dart';
+import 'package:diamond_host_admin/utils/failure_dialogue.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../constants/styles.dart';
 import '../localization/language_constants.dart';
+import '../utils/success_dialogue.dart';
 import '../widgets/reused_all_posts_card.dart';
 import 'add_posts_screen.dart';
 
@@ -155,20 +157,24 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
       setState(() {
         _posts.removeWhere((post) => post['postId'] == postId);
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            getTranslated(context, 'Post deleted successfully'),
-          ),
+
+      // Show the SuccessDialog instead of a Snackbar
+      showDialog(
+        context: context,
+        builder: (context) => const SuccessDialog(
+          text: 'Post deleted successfully',
+          text1: 'The post has been deleted.',
         ),
       );
     } catch (e) {
       print('Error deleting post: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            getTranslated(context, 'Failed to delete post'),
-          ),
+
+      // Show a failure dialog in case of an error
+      showDialog(
+        context: context,
+        builder: (context) => const FailureDialog(
+          text: 'Failed to delete post',
+          text1: 'There was an error while trying to delete the post.',
         ),
       );
     }
