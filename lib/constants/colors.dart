@@ -17,9 +17,9 @@ const kConfirmColor = Colors.green;
 // Define the gradient as a reusable constant
 final LinearGradient kPrimaryGradient = LinearGradient(
   colors: [
-    kDeepPurpleColor,
     kPurpleColor,
+    Colors.purple[800]!,
   ],
-  begin: Alignment.topLeft,
+  begin: Alignment.topRight,
   end: Alignment.bottomRight,
 );
