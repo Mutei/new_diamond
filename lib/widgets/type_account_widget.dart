@@ -52,8 +52,7 @@ class TypeAccountWidget extends StatelessWidget {
           ],
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center, // Center vertically
-          crossAxisAlignment: CrossAxisAlignment.center, // Center horizontally
+          crossAxisAlignment: CrossAxisAlignment.center, // Center-align content
           children: [
             // Account Type Icon
             CircleAvatar(

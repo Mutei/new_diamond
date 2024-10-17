@@ -1,6 +1,6 @@
+import 'package:diamond_host_admin/constants/colors.dart';
 import 'package:diamond_host_admin/localization/language_constants.dart';
 import 'package:diamond_host_admin/widgets/reused_appbar.dart';
-import 'package:diamond_host_admin/widgets/reused_elevated_button.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -21,13 +21,24 @@ class _UpgradeAccountScreenState extends State<UpgradeAccountScreen> {
   String selectedTypeAccount = '1'; // Default to Star account
   bool isLoading = false;
   List<Map<String, String>> accountTypes = [
-    {'type': '1', 'title': 'Star', 'subtitle': 'Limited features and benefits'},
+    {
+      'type': '1',
+      'title': 'Star',
+      'subtitle':
+          'Book a Cafe, Restaurant, or Hotel where you can join a group chat to provide your full opinion about the service.'
+    },
     {
       'type': '2',
       'title': 'Premium',
-      'subtitle': 'Extended features with more access'
+      'subtitle':
+          'Book a Cafe, Restaurant or Hotel where you can join a group chat to provide your full opinion about the service. Add 4 Posts in a month and chat privately with the users.'
     },
-    {'type': '3', 'title': 'Premium+', 'subtitle': 'All features unlocked'},
+    {
+      'type': '3',
+      'title': 'Premium+',
+      'subtitle':
+          'Book a Cafe, Restaurant or Hotel where you can join a group chat to provide your full opinion about the service. Add 8 Posts in a month and chat privately with the users.'
+    },
   ];
 
   @override
@@ -87,6 +98,7 @@ class _UpgradeAccountScreenState extends State<UpgradeAccountScreen> {
             .update({'TypeAccount': newType});
         setState(() {
           selectedTypeAccount = newType;
+          _sortAccountTypes(); // Immediately sort after updating account type
           isLoading = false;
         });
         // Show success dialog
@@ -125,6 +137,46 @@ class _UpgradeAccountScreenState extends State<UpgradeAccountScreen> {
     );
   }
 
+  // Global method for showing upgrade confirmation dialog
+  void _showUpgradeConfirmationDialog(BuildContext context, String newType) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            "Confirm Upgrade",
+            style: kTeritary,
+          ),
+          content: Text(getTranslated(
+              context, "Are you sure you want to upgrade your account?")),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text(
+                getTranslated(context, "No"),
+                style:
+                    const TextStyle(color: kErrorColor), // Customize as needed
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog first
+                _updateAccountType(newType); // Trigger account update
+              },
+              child: Text(
+                getTranslated(context, "Yes"),
+                style: const TextStyle(
+                    color: kConfirmColor), // Customize as needed
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -150,7 +202,7 @@ class _UpgradeAccountScreenState extends State<UpgradeAccountScreen> {
                   // Horizontal Scrollable List of Account Types with Centered Content
                   Center(
                     child: SizedBox(
-                      height: 220, // Set height of the scrollable cards
+                      height: 550, // Set height of the scrollable cards
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         itemCount: accountTypes.length,
@@ -166,9 +218,8 @@ class _UpgradeAccountScreenState extends State<UpgradeAccountScreen> {
                                 title: accountType['title']!,
                                 subtitle: accountType['subtitle']!,
                                 onSelected: (String accountType) {
-                                  setState(() {
-                                    selectedTypeAccount = accountType;
-                                  });
+                                  _showUpgradeConfirmationDialog(context,
+                                      accountType); // Show confirmation dialog
                                 },
                               ),
                             ),
@@ -177,12 +228,6 @@ class _UpgradeAccountScreenState extends State<UpgradeAccountScreen> {
                       ),
                     ),
                   ),
-                  const Spacer(),
-                  CustomButton(
-                      text: getTranslated(context, "Upgrade account"),
-                      onPressed: () {
-                        _updateAccountType(selectedTypeAccount);
-                      })
                 ],
               ),
             ),

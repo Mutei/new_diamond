@@ -79,5 +79,9 @@
   "Your account has been successfully upgraded!": "تمت ترقية حسابك بنجاح!",
   "Upgrade Failed": "فشلت الترقية",
   "There was an error upgrading your account.": "حدث خطأ أثناء ترقية حسابك.",
-  "Select your account type:": "اختر نوع الحساب الخاص بك:"
+  "Select your account type:": "اختر نوع الحساب الخاص بك:",
+  "Yes": "نعم",
+  "No": "لا",
+  "Are you sure you want to upgrade your account?": "هل أنت متأكد أنك تريد ترقية حسابك؟",
+  "Confirm Upgrade": "تأكيد الترقية"
 }
