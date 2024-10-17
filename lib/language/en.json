@@ -81,5 +81,6 @@
   "Account Upgrade": "Account Upgrade",
   "Your account has been successfully upgraded!": "Your account has been successfully upgraded!",
   "Upgrade Failed": "Upgrade Failed",
-  "There was an error upgrading your account.": "There was an error upgrading your account."
+  "There was an error upgrading your account.": "There was an error upgrading your account.",
+  "Select your account type:": "Select your account type:"
 }

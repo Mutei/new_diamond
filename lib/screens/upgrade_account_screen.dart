@@ -20,6 +20,15 @@ class UpgradeAccountScreen extends StatefulWidget {
 class _UpgradeAccountScreenState extends State<UpgradeAccountScreen> {
   String selectedTypeAccount = '1'; // Default to Star account
   bool isLoading = false;
+  List<Map<String, String>> accountTypes = [
+    {'type': '1', 'title': 'Star', 'subtitle': 'Limited features and benefits'},
+    {
+      'type': '2',
+      'title': 'Premium',
+      'subtitle': 'Extended features with more access'
+    },
+    {'type': '3', 'title': 'Premium+', 'subtitle': 'All features unlocked'},
+  ];
 
   @override
   void initState() {
@@ -41,11 +50,25 @@ class _UpgradeAccountScreenState extends State<UpgradeAccountScreen> {
         final data = event.snapshot.value as Map<dynamic, dynamic>;
         setState(() {
           selectedTypeAccount = data['TypeAccount'] ?? '1';
+          _sortAccountTypes(); // Sort account types based on the current selection
         });
       }
     }
     setState(() {
       isLoading = false;
+    });
+  }
+
+  void _sortAccountTypes() {
+    // Sort the accountTypes list to move the user's current account type to the first position
+    accountTypes.sort((a, b) {
+      if (a['type'] == selectedTypeAccount) {
+        return -1;
+      } else if (b['type'] == selectedTypeAccount) {
+        return 1;
+      } else {
+        return 0;
+      }
     });
   }
 
@@ -113,49 +136,48 @@ class _UpgradeAccountScreenState extends State<UpgradeAccountScreen> {
           : Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    'Select your account type:',
-                    style: kSecondaryStyle,
+                    getTranslated(context, 'Select your account type:'),
+                    style: kSecondaryStyle.copyWith(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.purple[600], // Refine the color
+                    ),
                   ),
                   20.kH,
-                  TypeAccountWidget(
-                    accountType: '1',
-                    selectedTypeAccount: selectedTypeAccount,
-                    title: 'Star Account',
-                    subtitle: 'Limited features and benefits',
-                    onSelected: (String accountType) {
-                      setState(() {
-                        selectedTypeAccount = accountType;
-                      });
-                    },
+                  // Horizontal Scrollable List of Account Types with Centered Content
+                  Center(
+                    child: SizedBox(
+                      height: 220, // Set height of the scrollable cards
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: accountTypes.length,
+                        itemBuilder: (context, index) {
+                          final accountType = accountTypes[index];
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: TypeAccountWidget(
+                                accountType: accountType['type']!,
+                                selectedTypeAccount: selectedTypeAccount,
+                                title: accountType['title']!,
+                                subtitle: accountType['subtitle']!,
+                                onSelected: (String accountType) {
+                                  setState(() {
+                                    selectedTypeAccount = accountType;
+                                  });
+                                },
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   ),
-                  10.kH,
-                  TypeAccountWidget(
-                    accountType: '2',
-                    selectedTypeAccount: selectedTypeAccount,
-                    title: 'Premium Account',
-                    subtitle: 'Extended features with more access',
-                    onSelected: (String accountType) {
-                      setState(() {
-                        selectedTypeAccount = accountType;
-                      });
-                    },
-                  ),
-                  10.kH,
-                  TypeAccountWidget(
-                    accountType: '3',
-                    selectedTypeAccount: selectedTypeAccount,
-                    title: 'Premium+ Account',
-                    subtitle: 'All features unlocked',
-                    onSelected: (String accountType) {
-                      setState(() {
-                        selectedTypeAccount = accountType;
-                      });
-                    },
-                  ),
-                  Spacer(),
+                  const Spacer(),
                   CustomButton(
                       text: getTranslated(context, "Upgrade account"),
                       onPressed: () {

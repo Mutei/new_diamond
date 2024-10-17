@@ -27,8 +27,8 @@ class TypeAccountWidget extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-        padding: const EdgeInsets.all(18),
-        margin: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.all(20),
+        width: 250, // Set width for each card
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           gradient: isSelected
@@ -45,14 +45,17 @@ class TypeAccountWidget extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.15),
+              color: Colors.grey.withOpacity(0.2),
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),
           ],
         ),
-        child: Row(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center, // Center vertically
+          crossAxisAlignment: CrossAxisAlignment.center, // Center horizontally
           children: [
+            // Account Type Icon
             CircleAvatar(
               backgroundColor: isSelected ? Colors.deepPurple : Colors.grey,
               radius: 30,
@@ -62,37 +65,26 @@ class TypeAccountWidget extends StatelessWidget {
                 size: 30,
               ),
             ),
-            const SizedBox(width: 20),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: isSelected ? Colors.white : Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: isSelected ? Colors.white70 : Colors.grey.shade600,
-                    ),
-                  ),
-                ],
+            const SizedBox(height: 15), // Adjusted spacing
+            // Account Title
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: isSelected ? Colors.white : Colors.black87,
               ),
             ),
-            const SizedBox(width: 10),
-            Icon(
-              isSelected
-                  ? Icons.radio_button_checked
-                  : Icons.radio_button_unchecked,
-              color: isSelected ? Colors.white : Colors.grey,
-              size: 25,
+            const SizedBox(height: 8),
+            // Account Subtitle
+            Text(
+              subtitle,
+              textAlign: TextAlign.center, // Center-align subtitle
+              style: TextStyle(
+                fontSize: 14,
+                color: isSelected ? Colors.white70 : Colors.grey.shade600,
+              ),
             ),
           ],
         ),
