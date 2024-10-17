@@ -32,7 +32,7 @@ class TypeAccountWidget extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           gradient: isSelected
-              ? LinearGradient(
+              ? const LinearGradient(
                   colors: [Colors.deepPurpleAccent, Colors.purpleAccent],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
