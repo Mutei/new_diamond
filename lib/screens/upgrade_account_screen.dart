@@ -185,50 +185,53 @@ class _UpgradeAccountScreenState extends State<UpgradeAccountScreen> {
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    getTranslated(context, 'Select your account type:'),
-                    style: kSecondaryStyle.copyWith(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.purple[600], // Refine the color
-                    ),
-                  ),
-                  20.kH,
-                  // Horizontal Scrollable List of Account Types with Centered Content
-                  Center(
-                    child: SizedBox(
-                      height: 550, // Set height of the scrollable cards
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: accountTypes.length,
-                        itemBuilder: (context, index) {
-                          final accountType = accountTypes[index];
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: TypeAccountWidget(
-                                accountType: accountType['type']!,
-                                selectedTypeAccount: selectedTypeAccount,
-                                title: accountType['title']!,
-                                subtitle: accountType['subtitle']!,
-                                onSelected: (String accountType) {
-                                  _showUpgradeConfirmationDialog(context,
-                                      accountType); // Show confirmation dialog
-                                },
-                              ),
-                            ),
-                          );
-                        },
+          : SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      getTranslated(context, 'Select your account type:'),
+                      style: kSecondaryStyle.copyWith(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.purple[600], // Refine the color
                       ),
                     ),
-                  ),
-                ],
+                    20.kH,
+                    // Horizontal Scrollable List of Account Types with Centered Content
+                    Center(
+                      child: SizedBox(
+                        height: 550, // Set height of the scrollable cards
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: accountTypes.length,
+                          itemBuilder: (context, index) {
+                            final accountType = accountTypes[index];
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: TypeAccountWidget(
+                                  accountType: accountType['type']!,
+                                  selectedTypeAccount: selectedTypeAccount,
+                                  title: accountType['title']!,
+                                  subtitle: accountType['subtitle']!,
+                                  onSelected: (String accountType) {
+                                    _showUpgradeConfirmationDialog(context,
+                                        accountType); // Show confirmation dialog
+                                  },
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
     );

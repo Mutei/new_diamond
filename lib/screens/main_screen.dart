@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:icons_plus/icons_plus.dart';
 import '../backend/customer_rate_services.dart';
 import '../backend/estate_services.dart';
 import '../localization/language_constants.dart';
@@ -122,16 +123,16 @@ class _MainScreenState extends State<MainScreen> {
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            icon: Icon(Bootstrap.house_down),
             label: 'Main Screen',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.upgrade),
+            icon: Icon(Icons.update),
             label: 'Upgrade Account',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: 'Notifications',
+            icon: Icon(TeenyIcons.book),
+            label: 'Booking Status',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.post_add),
