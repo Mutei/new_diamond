@@ -1,12 +1,10 @@
 import 'package:diamond_host_admin/constants/colors.dart';
-import 'package:diamond_host_admin/extension/sized_box_extension.dart';
-import 'package:diamond_host_admin/widgets/reused_appbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-
-import '../constants/styles.dart';
+import 'package:provider/provider.dart';
 import '../localization/language_constants.dart';
+import '../state_management/general_provider.dart';
 
 class CustomerPoints extends StatefulWidget {
   const CustomerPoints({super.key});
@@ -38,6 +36,7 @@ class _CustomerPointsState extends State<CustomerPoints> {
   final DatabaseReference _databaseReference =
       FirebaseDatabase.instance.ref().child('App/CustomerPoints');
   double _totalPoints = 0.0;
+  final double _maxPoints = 1000000.0; // Setting the max points to 1 million
 
   @override
   void initState() {
@@ -70,14 +69,15 @@ class _CustomerPointsState extends State<CustomerPoints> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final progressToNextReward = _totalPoints / 1500;
-    final nextRewardPoints = _totalPoints >= 1500 ? 3000 : 1500;
+    final progressToNextReward = _totalPoints / _maxPoints;
 
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF673AB7), Color(0xFFE040FB)],
+            colors: Provider.of<GeneralProvider>(context).isDarkMode
+                ? [Colors.black, Colors.purple[600]!]
+                : [Color(0xFF673AB7), Color(0xFFE040FB)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -133,7 +133,7 @@ class _CustomerPointsState extends State<CustomerPoints> {
                   ),
                   SizedBox(height: screenHeight * 0.02), // Spacing
                   Text(
-                    '$_totalPoints / $nextRewardPoints ${getTranslated(context, "points")}',
+                    '$_totalPoints / $_maxPoints ${getTranslated(context, "points")}',
                     style: TextStyle(
                       fontSize: screenWidth * 0.045, // Responsive font size
                       color: Colors.white70,
@@ -156,9 +156,11 @@ class _CustomerPointsState extends State<CustomerPoints> {
                       ],
                     ),
                     child: Text(
-                      _totalPoints >= 1500
-                          ? getTranslated(context, '10 SR off with 3000 points')
-                          : getTranslated(context, '5 SR off with 1500 points'),
+                      _totalPoints >= 500000
+                          ? getTranslated(
+                              context, '50 SR off with 1 million points')
+                          : getTranslated(
+                              context, '25 SR off with 500,000 points'),
                       style: TextStyle(
                         fontSize: screenWidth * 0.045, // Responsive font size
                         color: const Color(0xFF673AB7),
@@ -180,7 +182,7 @@ class _CustomerPointsState extends State<CustomerPoints> {
             SizedBox(height: screenHeight * 0.01), // Spacing
             Text(
               getTranslated(context,
-                  'Earn points by rating and giving feedback to providers. Reach 1500 points to get 5 SR off, and 3000 points to get 10 SR off.'),
+                  'Earn points by rating and giving feedback to providers. Reach 500,000 points to get 25 SR off, and 1 million points to get 50 SR off.'),
               style: TextStyle(
                 fontSize: screenWidth * 0.04, // Responsive font size
                 color: Colors.white60,
