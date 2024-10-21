@@ -37,7 +37,8 @@ class LoginMethod {
           (Route<dynamic> route) => false,
         );
       } else {
-        // If TypeUser is not '1', show an alert dialog
+        // If TypeUser is not '1', sign the user out and show an alert dialog
+        await _auth.signOut(); // Sign out the unauthorized user
         showLoginErrorDialog(context, "You are not allowed to log in.");
       }
     } on FirebaseAuthException catch (e) {
