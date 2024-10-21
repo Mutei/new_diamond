@@ -98,5 +98,11 @@
   "The email address is not valid.":"The email address is not valid.",
   "Login failed. Please try again.":"Login failed. Please try again.",
   "An unexpected error occurred. Please try again.":"An unexpected error occurred. Please try again.",
-  "Login Failed": "Login Failed"
+  "Login Failed": "Login Failed",
+  "Earn points by rating and giving feedback to providers. Reach 1500 points to get 5 SR off, and 3000 points to get 10 SR off.": "Earn points by rating and giving feedback to providers. Reach 1500 points to get 5 SR off, and 3000 points to get 10 SR off.",
+  "How it works?": "How it works?",
+  "5 SR off with 1500 points": "5 SR off with 1500 points",
+  "10 SR off with 3000 points":"10 SR off with 3000 points",
+  "points":"points",
+  "Total Points":"Total Points"
 }

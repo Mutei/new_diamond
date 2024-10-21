@@ -1,4 +1,5 @@
 import 'package:diamond_host_admin/constants/styles.dart';
+import 'package:diamond_host_admin/widgets/reused_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:diamond_host_admin/constants/colors.dart';
@@ -77,13 +78,11 @@ class _NotificationScreenState extends State<NotificationScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          getTranslated(context, 'Booking Status'),
-          style: kTeritary,
+      appBar: ReusedAppBar(
+        title: getTranslated(
+          context,
+          "Booking Status",
         ),
-        centerTitle: true,
-        iconTheme: kIconTheme,
       ),
       body: isLoading
           ? Center(
