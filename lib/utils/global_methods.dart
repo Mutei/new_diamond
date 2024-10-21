@@ -15,13 +15,13 @@ void showErrorDialog(BuildContext context, String message) {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: const Text(
-          "Login Failed",
-          style: TextStyle(
+        title: Text(
+          getTranslated(context, "Login Failed"),
+          style: const TextStyle(
             color: kErrorColor,
           ),
         ),
-        content: Text(message),
+        content: Text(getTranslated(context, message)),
         actions: [
           TextButton(
             onPressed: () {
@@ -29,7 +29,7 @@ void showErrorDialog(BuildContext context, String message) {
             },
             child: Text(
               "OK",
-              style: kSecondaryStyle,
+              style: TextStyle(color: kConfirmColor),
             ),
           ),
         ],
@@ -43,21 +43,23 @@ void showLoginErrorDialog(BuildContext context, String message) {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: const Text(
-          "Access Denied",
-          style: TextStyle(
+        title: Text(
+          getTranslated(context, "Access Denied"),
+          style: const TextStyle(
             color: kErrorColor,
           ),
         ),
-        content: Text(message),
+        content: Text(getTranslated(context, message)),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
             },
             child: Text(
-              "OK",
-              style: kSecondaryStyle,
+              getTranslated(context, "OK"),
+              style: const TextStyle(
+                color: kConfirmColor,
+              ),
             ),
           ),
         ],
@@ -71,21 +73,20 @@ void showLogoutConfirmationDialog(BuildContext context, Function onConfirm) {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: const Text(
-          "Confirm Logout",
-          style: TextStyle(
-            color: kConfirmColor, // Customize as needed
-          ),
+        title: Text(
+          getTranslated(context, "Confirm Logout"),
+          style: kTeritary,
         ),
-        content: const Text("Are you sure you want to log out?"),
+        content:
+            Text(getTranslated(context, "Are you sure you want to log out?")),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(); // Close the dialog
             },
-            child: const Text(
-              "Cancel",
-              style: TextStyle(color: Colors.grey), // Customize as needed
+            child: Text(
+              getTranslated(context, "Cancel"),
+              style: TextStyle(color: kErrorColor), // Customize as needed
             ),
           ),
           TextButton(
@@ -93,8 +94,8 @@ void showLogoutConfirmationDialog(BuildContext context, Function onConfirm) {
               Navigator.of(context).pop(); // Close the dialog first
               onConfirm(); // Then trigger the logout
             },
-            child: const Text(
-              "Logout",
+            child: Text(
+              getTranslated(context, "Logout"),
               style: TextStyle(color: kConfirmColor), // Customize as needed
             ),
           ),

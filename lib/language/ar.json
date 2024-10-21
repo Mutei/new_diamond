@@ -16,7 +16,7 @@
   "Phone Number": "رقم الهاتف",
   "Email & Password": "البريد الإلكتروني وكلمة المرور",
   "Are you new here? ": "هل أنت جديد هنا؟",
-  "Main Screen": "لإستضافة الماسية",
+  "Main Screen": "الإستضافة الماسية",
   "Profile": "الملف الشخصي",
   "Posts": "المنشورات",
   "You can view your data here": "يمكنك عرض بياناتك هنا",
@@ -83,5 +83,17 @@
   "Yes": "نعم",
   "No": "لا",
   "Are you sure you want to upgrade your account?": "هل أنت متأكد أنك تريد ترقية حسابك؟",
-  "Confirm Upgrade": "تأكيد الترقية"
+  "Confirm Upgrade": "تأكيد الترقية",
+  "Upgrade Account": "ترقية الحساب",
+  "Main Screens": "الشاشة الرئيسية",
+  "Confirm Logout": "تأكيد تسجيل الخروج",
+  "Are you sure you want to log out?": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+  "Access Denied": "تم رفض الوصول",
+  "You are not allowed to log in.": "غير مسموح لك بتسجيل الدخول.",
+  "No user found for that email.": "لم يتم العثور على مستخدم لهذا البريد الإلكتروني.",
+  "Wrong password provided for that email.": "تم تقديم كلمة مرور خاطئة لهذا البريد الإلكتروني.",
+  "The email address is not valid.": "عنوان البريد الإلكتروني غير صالح.",
+  "Login failed. Please try again.": "فشل تسجيل الدخول. الرجاء المحاولة مرة أخرى.",
+  "An unexpected error occurred. Please try again.": "حدث خطأ غير متوقع. الرجاء المحاولة مرة أخرى.",
+  "Login Failed": "فشل تسجيل الدخول"
 }

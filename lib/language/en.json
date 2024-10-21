@@ -86,5 +86,17 @@
   "Yes": "Yes",
   "No": "No",
   "Are you sure you want to upgrade your account?": "Are you sure you want to upgrade your account?",
-  "Confirm Upgrade": "Confirm Upgrade"
+  "Confirm Upgrade": "Confirm Upgrade",
+  "Upgrade Account": "Upgrade Account",
+  "Main Screens": "Main Screen",
+  "Confirm Logout":"Confirm Logout",
+  "Are you sure you want to log out?":"Are you sure you want to log out?",
+  "Access Denied":"Access Denied",
+  "You are not allowed to log in.":"You are not allowed to log in.",
+  "No user found for that email.":"No user found for that email.",
+  "Wrong password provided for that email.":"Wrong password provided for that email.",
+  "The email address is not valid.":"The email address is not valid.",
+  "Login failed. Please try again.":"Login failed. Please try again.",
+  "An unexpected error occurred. Please try again.":"An unexpected error occurred. Please try again.",
+  "Login Failed": "Login Failed"
 }

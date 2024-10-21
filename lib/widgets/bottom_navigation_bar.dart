@@ -1,3 +1,4 @@
+import 'package:diamond_host_admin/localization/language_constants.dart';
 import 'package:flutter/material.dart';
 
 class BottomNavBar extends StatelessWidget {
@@ -5,10 +6,10 @@ class BottomNavBar extends StatelessWidget {
   final Function(int) onItemTapped;
 
   const BottomNavBar({
-    Key? key,
+    super.key,
     required this.currentIndex,
     required this.onItemTapped,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,22 +18,22 @@ class BottomNavBar extends StatelessWidget {
       onTap: onItemTapped,
       selectedItemColor: Colors.deepPurple,
       unselectedItemColor: Colors.grey,
-      items: const [
+      items: [
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
-          label: 'Main Screen',
+          label: getTranslated(context, 'Main Screens'),
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.upgrade),
-          label: 'Upgrade Account',
+          label: getTranslated(context, 'Upgrade Account'),
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.notifications),
-          label: 'Notifications',
+          icon: Icon(Icons.book_online),
+          label: getTranslated(context, 'Booking Status'),
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.post_add),
-          label: 'All Posts',
+          label: getTranslated(context, 'All Posts'),
         ),
       ],
     );
