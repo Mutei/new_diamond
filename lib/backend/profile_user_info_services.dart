@@ -21,6 +21,9 @@ class UserInfoService {
           'Country': data['Country'],
           'City': data['City'],
           'ProfileImageUrl': data['ProfileImageUrl'],
+          'Gender': data['Gender'],
+          'IsSmoker': data['IsSmoker'],
+          'Allergies': data['Allergies'],
         };
       }
     }

@@ -66,6 +66,7 @@ dependencies:
   video_player: ^2.9.2
   fluttertoast: ^8.2.8
   glassmorphism: ^3.0.0
+  font_awesome_flutter: ^10.7.0
   
 dev_dependencies:
   flutter_test:

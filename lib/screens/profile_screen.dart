@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:diamond_host_admin/extension/sized_box_extension.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import '../backend/profile_picture_services.dart';
@@ -31,6 +32,9 @@ class _ProfileScreenUserState extends State<ProfileScreenUser> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _countryController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
+  final TextEditingController _genderController = TextEditingController();
+  final TextEditingController _isSmokerController = TextEditingController();
+  final TextEditingController _allergiesController = TextEditingController();
   Uint8List? _image;
   String? _profileImageUrl; // Store the profile image URL
   File? _cachedImageFile; // Cache image file location
@@ -54,6 +58,9 @@ class _ProfileScreenUserState extends State<ProfileScreenUser> {
     _cityController.dispose();
     _secondNameController.dispose();
     _lastNameController.dispose();
+    _genderController.dispose();
+    _isSmokerController.dispose();
+    _allergiesController.dispose();
     super.dispose();
   }
 
@@ -125,6 +132,9 @@ class _ProfileScreenUserState extends State<ProfileScreenUser> {
       _phoneController.text = userInfo['PhoneNumber'] ?? '';
       _countryController.text = userInfo['Country'] ?? '';
       _cityController.text = userInfo['City'] ?? '';
+      _genderController.text = userInfo['Gender'] ?? '';
+      _isSmokerController.text = userInfo['IsSmoker'] ?? '';
+      _allergiesController.text = userInfo['Allergies'] ?? '';
     });
     Navigator.of(context).pop(); // Dismiss loading dialog after loading
   }
@@ -222,6 +232,31 @@ class _ProfileScreenUserState extends State<ProfileScreenUser> {
                   textEditingController: _emailController,
                   textInputType: TextInputType.text,
                   iconData: Icons.email,
+                  iconColor: kDeepPurpleColor,
+                ),
+                24.kH,
+                ProfileInfoTextField(
+                  textEditingController: _genderController,
+                  textInputType: TextInputType.text,
+                  iconData: _genderController.text == "Male"
+                      ? Icons.male
+                      : Icons.female,
+                  iconColor: kDeepPurpleColor,
+                ),
+                24.kH,
+                ProfileInfoTextField(
+                  textEditingController: _isSmokerController,
+                  textInputType: TextInputType.text,
+                  iconData: _isSmokerController.text == "Yes"
+                      ? Icons.smoking_rooms
+                      : Icons.smoke_free_rounded,
+                  iconColor: kDeepPurpleColor,
+                ),
+                24.kH,
+                ProfileInfoTextField(
+                  textEditingController: _allergiesController,
+                  textInputType: TextInputType.text,
+                  iconData: FontAwesomeIcons.handDots,
                   iconColor: kDeepPurpleColor,
                 ),
                 24.kH,
