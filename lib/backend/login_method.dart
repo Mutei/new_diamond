@@ -15,6 +15,9 @@ class LoginMethod {
     required BuildContext context,
   }) async {
     try {
+      // Show the custom loading dialog while processing the login
+      showCustomLoadingDialog(context);
+
       // Sign in the user with email and password
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
@@ -29,6 +32,9 @@ class LoginMethod {
           _databaseRef.child('App/User/$uid/TypeUser');
       DataSnapshot snapshot = await typeUserRef.get();
 
+      // Dismiss the loading dialog after getting the result from Firebase
+      Navigator.of(context, rootNavigator: true).pop();
+
       // Check if TypeUser exists and if it's '1'
       if (snapshot.exists && snapshot.value == '1') {
         // If TypeUser is '1', navigate to the MainScreen
@@ -42,6 +48,10 @@ class LoginMethod {
         showLoginErrorDialog(context, "You are not allowed to log in.");
       }
     } on FirebaseAuthException catch (e) {
+      // Dismiss the loading dialog in case of an error
+      Navigator.of(context, rootNavigator: true).pop();
+
+      // Handle Firebase authentication errors
       if (e.code == 'user-not-found') {
         showErrorDialog(context, "No user found for that email.");
       } else if (e.code == 'wrong-password') {
@@ -53,6 +63,10 @@ class LoginMethod {
             context, e.message ?? "Login failed. Please try again.");
       }
     } catch (e) {
+      // Dismiss the loading dialog in case of an unexpected error
+      Navigator.of(context, rootNavigator: true).pop();
+
+      // Show a generic error message
       showErrorDialog(
           context, "An unexpected error occurred. Please try again.");
     }

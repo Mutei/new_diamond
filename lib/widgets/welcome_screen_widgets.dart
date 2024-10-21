@@ -33,7 +33,7 @@ Widget buildPage({
             onPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => SignInScreen()),
+                MaterialPageRoute(builder: (context) => LoginScreen()),
               );
             },
           ),

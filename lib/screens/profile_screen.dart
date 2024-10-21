@@ -13,11 +13,8 @@ import '../utils/global_methods.dart';
 import '../widgets/profile_info_text_field.dart';
 import '../widgets/reused_elevated_button.dart';
 import 'edit_profile_screen.dart';
-
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'package:http/http.dart' as http;
-import 'dart:typed_data';
 
 class ProfileScreenUser extends StatefulWidget {
   const ProfileScreenUser({super.key});
