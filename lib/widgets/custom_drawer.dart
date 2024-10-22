@@ -94,6 +94,8 @@ class CustomDrawer extends StatelessWidget {
                     )
                   : null, // Show badge only if there's a count
               onTap: () {
+                // Reset the approval count when navigating to the NotificationScreen
+                provider.resetApprovalCount();
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => const NotificationScreen()));
               },

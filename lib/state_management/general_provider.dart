@@ -138,19 +138,20 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
       if (event.snapshot.value != null) {
         Map bookings = event.snapshot.value as Map;
         bookings.forEach((key, value) {
-          print(
-              "Booking ID: $key, Status: ${value['Status']}"); // Debug the bookings
           if (value["Status"] == "2" || value["Status"] == "3") {
             count++; // Count both accepted and rejected bookings
           }
         });
-      } else {
-        print("No bookings found."); // Add this to debug
       }
       _approvalCount = count;
-      print("Total approval count: $_approvalCount");
       notifyListeners();
     });
+  }
+
+  // Reset the approval count when the page is opened
+  void resetApprovalCount() {
+    _approvalCount = 0;
+    notifyListeners();
   }
 
   void resetNewRequestCount() {
