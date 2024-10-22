@@ -13,16 +13,19 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
   int _chatRequestCount = 0;
   Map<String, bool> _chatAccessPerEstate =
       {}; // Map to track chat access per estate
-  int _approvalCount = 0; // Added variable to track approvals/rejections
+  int _approvalCount = 0; // Tracks new approval/rejection changes for the badge
+  int _lastSeenApprovalCount = 0; // Tracks the last known booking status count
 
   int get newRequestCount => _newRequestCount;
   int get chatRequestCount => _chatRequestCount;
-  int get approvalCount => _approvalCount; // Getter for approval count
+  int get approvalCount => _approvalCount; // Getter for current approval count
 
   bool isDarkMode = false; // Track theme mode
 
   GeneralProvider() {
     loadThemePreference(); // Load theme preference on initialization
+    loadLastSeenApprovalCount(); // Load last seen status count on initialization
+    fetchApprovalCount(); // Start fetching approval/rejection changes in real-time
   }
 
   // Toggle theme and save the preference
@@ -39,6 +42,70 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
   void loadThemePreference() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     isDarkMode = prefs.getBool('isDarkMode') ?? false; // Default to light mode
+    notifyListeners();
+  }
+
+  // Load the last seen approval count from SharedPreferences
+  void loadLastSeenApprovalCount() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _lastSeenApprovalCount =
+        prefs.getInt('lastSeenApprovalCount') ?? 0; // Default to 0
+  }
+
+  // Save the current approval count in SharedPreferences
+  void saveLastSeenApprovalCount(int count) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('lastSeenApprovalCount', count);
+  }
+
+  // Fetch approval count from Firebase in real-time and track new approvals/rejections
+  void fetchApprovalCount() {
+    FirebaseDatabase.instance
+        .ref("App/Booking/Book")
+        .onValue
+        .listen((DatabaseEvent event) async {
+      int totalApprovals = 0;
+      if (event.snapshot.value != null) {
+        Map bookings = event.snapshot.value as Map;
+        bookings.forEach((key, value) {
+          if (value["Status"] == "2" || value["Status"] == "3") {
+            totalApprovals++; // Count both accepted and rejected bookings
+          }
+        });
+      }
+
+      // Compare the total approval count with the last seen count
+      _approvalCount = totalApprovals - _lastSeenApprovalCount;
+      if (_approvalCount < 0)
+        _approvalCount = 0; // Ensure it never goes negative
+
+      notifyListeners();
+    });
+  }
+
+  // Reset the approval count to 0 when the page is opened and save the last seen count
+  void resetApprovalCount() async {
+    _lastSeenApprovalCount += _approvalCount; // Mark current approvals as seen
+    _approvalCount = 0; // Reset the badge count
+
+    // Save the updated last seen approval count to SharedPreferences
+    saveLastSeenApprovalCount(_lastSeenApprovalCount);
+
+    notifyListeners();
+  }
+
+  // Reset the new request count
+  void resetNewRequestCount() {
+    _newRequestCount = 0;
+    notifyListeners();
+  }
+
+  bool hasChatAccessForEstate(String estateId) {
+    return _chatAccessPerEstate[estateId] ?? false;
+  }
+
+  void updateChatAccessForEstate(String estateId, bool access) {
+    _chatAccessPerEstate[estateId] = access;
     notifyListeners();
   }
 
@@ -127,45 +194,6 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
         notifyListeners();
       });
     }
-  }
-
-  void fetchApprovalCount() {
-    FirebaseDatabase.instance
-        .ref("App/Booking/Book")
-        .onValue
-        .listen((DatabaseEvent event) {
-      int count = 0;
-      if (event.snapshot.value != null) {
-        Map bookings = event.snapshot.value as Map;
-        bookings.forEach((key, value) {
-          if (value["Status"] == "2" || value["Status"] == "3") {
-            count++; // Count both accepted and rejected bookings
-          }
-        });
-      }
-      _approvalCount = count;
-      notifyListeners();
-    });
-  }
-
-  // Reset the approval count when the page is opened
-  void resetApprovalCount() {
-    _approvalCount = 0;
-    notifyListeners();
-  }
-
-  void resetNewRequestCount() {
-    _newRequestCount = 0;
-    notifyListeners();
-  }
-
-  bool hasChatAccessForEstate(String estateId) {
-    return _chatAccessPerEstate[estateId] ?? false;
-  }
-
-  void updateChatAccessForEstate(String estateId, bool access) {
-    _chatAccessPerEstate[estateId] = access;
-    notifyListeners();
   }
 }
 
