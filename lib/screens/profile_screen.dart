@@ -199,6 +199,8 @@ class _ProfileScreenUserState extends State<ProfileScreenUser> {
                             phone: _phoneController.text,
                             country: _countryController.text,
                             city: _cityController.text,
+                            isSmoker: _isSmokerController.text,
+                            allergies: _allergiesController.text,
                           ),
                         ),
                       );

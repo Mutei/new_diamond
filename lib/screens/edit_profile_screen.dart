@@ -14,6 +14,8 @@ class EditProfileScreen extends StatefulWidget {
   final String city;
   final String secondName;
   final String lastName;
+  final String isSmoker; // Add this
+  final String allergies; // Add this
 
   const EditProfileScreen({
     super.key,
@@ -24,6 +26,8 @@ class EditProfileScreen extends StatefulWidget {
     required this.city,
     required this.lastName,
     required this.secondName,
+    required this.isSmoker, // Add this
+    required this.allergies, // Add this
   });
 
   @override
@@ -38,15 +42,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _phoneController;
   late TextEditingController _countryController;
   late TextEditingController _cityController;
+  late TextEditingController _allergiesController; // Add this
+
+  String _isSmoker = ""; // Add this
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isChanged = false;
-  late String firstName;
-  late String secondName;
-  late String lastName;
-  late String email;
-  late String phoneNumber;
-  late String country;
-  late String city;
 
   @override
   void initState() {
@@ -58,6 +58,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _phoneController = TextEditingController(text: widget.phone);
     _countryController = TextEditingController(text: widget.country);
     _cityController = TextEditingController(text: widget.city);
+    _allergiesController = TextEditingController(
+        text: widget.allergies); // Initialize allergies controller
+
+    _isSmoker = widget.isSmoker; // Initialize smoker status
 
     _firstNameController.addListener(_onTextChanged);
     _secondNameController.addListener(_onTextChanged);
@@ -66,6 +70,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _phoneController.addListener(_onTextChanged);
     _countryController.addListener(_onTextChanged);
     _cityController.addListener(_onTextChanged);
+    _allergiesController
+        .addListener(_onTextChanged); // Listen to allergies text change
   }
 
   @override
@@ -77,6 +83,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _phoneController.dispose();
     _countryController.dispose();
     _cityController.dispose();
+    _allergiesController.dispose(); // Dispose allergies controller
     super.dispose();
   }
 
@@ -88,7 +95,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           _countryController.text != widget.country ||
           _cityController.text != widget.city ||
           _secondNameController.text != widget.secondName ||
-          _lastNameController.text != widget.lastName;
+          _lastNameController.text != widget.lastName ||
+          _allergiesController.text !=
+              widget.allergies || // Check for changes in allergies
+          _isSmoker != widget.isSmoker; // Check for smoker status changes
     });
   }
 
@@ -110,6 +120,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           'PhoneNumber': _phoneController.text,
           'Country': _countryController.text,
           'City': _cityController.text,
+          'IsSmoker': _isSmoker, // Update smoker status
+          'Allergies': _allergiesController.text, // Update allergies
         });
 
         Navigator.pop(context, true);
@@ -151,11 +163,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           child: SingleChildScrollView(
             child: Column(
               children: [
+                // First Name
                 EditScreenTextFormField(
                   controller: _firstNameController,
                   labelText: getTranslated(context, "First Name"),
                   onChanged: (value) {
-                    firstName = value;
+                    setState(() {});
                   },
                   validator: (value) {
                     if (value!.isEmpty) {
@@ -167,11 +180,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     return null;
                   },
                 ),
+
+                // Second Name
                 EditScreenTextFormField(
                   controller: _secondNameController,
                   labelText: getTranslated(context, "Second Name"),
                   onChanged: (value) {
-                    secondName = value;
+                    setState(() {});
                   },
                   validator: (value) {
                     if (value!.isEmpty) {
@@ -183,11 +198,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     return null;
                   },
                 ),
+
+                // Last Name
                 EditScreenTextFormField(
                   controller: _lastNameController,
                   labelText: getTranslated(context, "Last Name"),
                   onChanged: (value) {
-                    lastName = value;
+                    setState(() {});
                   },
                   validator: (value) {
                     if (value!.isEmpty) {
@@ -199,11 +216,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     return null;
                   },
                 ),
+
+                // Email
                 EditScreenTextFormField(
                   controller: _emailController,
                   labelText: getTranslated(context, "Email"),
                   onChanged: (value) {
-                    email = value;
+                    setState(() {});
                   },
                   validator: (value) {
                     if (value!.isEmpty) {
@@ -215,54 +234,52 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     return null;
                   },
                 ),
-                // EditScreenTextFormField(
-                //   controller: _phoneController,
-                //   labelText: getTranslated(context, "Phone"),
-                //   onChanged: (value) {
-                //     phoneNumber = value;
-                //   },
-                //   validator: (value) {
-                //     if (value!.isEmpty) {
-                //       return getTranslated(
-                //         context,
-                //         "Phone Number must not be empty",
-                //       );
-                //     }
-                //     return null;
-                //   },
-                // ),
-                // EditScreenTextFormField(
-                //   controller: _countryController,
-                //   labelText: getTranslated(context, "*Country"),
-                //   onChanged: (value) {
-                //     country = value;
-                //   },
-                //   validator: (value) {
-                //     if (value!.isEmpty) {
-                //       return getTranslated(
-                //         context,
-                //         "Country must not be empty",
-                //       );
-                //     }
-                //     return null;
-                //   },
-                // ),
-                // EditScreenTextFormField(
-                //   controller: _cityController,
-                //   labelText: getTranslated(context, "*City"),
-                //   onChanged: (value) {
-                //     city = value;
-                //   },
-                //   validator: (value) {
-                //     if (value!.isEmpty) {
-                //       return getTranslated(
-                //         context,
-                //         "City must not be empty",
-                //       );
-                //     }
-                //     return null;
-                //   },
-                // ),
+
+                // Phone Number
+
+                // Smoker dropdown
+                DropdownButtonFormField<String>(
+                  value: _isSmoker,
+                  items: [
+                    DropdownMenuItem(
+                      child: Text(getTranslated(context, "Yes")),
+                      value: "Yes",
+                    ),
+                    DropdownMenuItem(
+                      child: Text(getTranslated(context, "No")),
+                      value: "No",
+                    ),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _isSmoker = value!;
+                      _onTextChanged();
+                    });
+                  },
+                  decoration: InputDecoration(
+                    labelText: getTranslated(context, "Smoker"),
+                  ),
+                ),
+
+                // Allergies input with character limit
+                EditScreenTextFormField(
+                  controller: _allergiesController,
+                  labelText: getTranslated(context, "Allergies"),
+                  onChanged: (value) {
+                    if (value.length <= 75) {
+                      _onTextChanged();
+                    }
+                  },
+                  validator: (value) {
+                    if (value!.length > 75) {
+                      return getTranslated(
+                        context,
+                        "Allergies must not exceed 75 characters",
+                      );
+                    }
+                    return null;
+                  },
+                ),
               ],
             ),
           ),
