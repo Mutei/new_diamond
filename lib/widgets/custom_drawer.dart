@@ -82,17 +82,17 @@ class CustomDrawer extends StatelessWidget {
             ),
             DrawerItem(
               text: getTranslated(context, "Booking Status"),
-              icon: Icon(Icons.notification_add, color: kDeepPurpleColor),
-              badge: provider.approvalCount > 0 // Show badge only if count > 0
+              icon: Icon(Icons.notification_add, color: Colors.deepPurple),
+              badge: provider.approvalCount > 0
                   ? badges.Badge(
                       badgeContent: Text(
                         provider.approvalCount.toString(),
                         style: const TextStyle(color: Colors.white),
                       ),
-                      child:
-                          Icon(Icons.notification_add, color: kDeepPurpleColor),
+                      child: Icon(Icons.notification_add,
+                          color: Colors.deepPurple),
                     )
-                  : null, // Show badge only if there's a count
+                  : null,
               onTap: () {
                 // Reset the approval count when navigating to the NotificationScreen
                 provider.resetApprovalCount();
