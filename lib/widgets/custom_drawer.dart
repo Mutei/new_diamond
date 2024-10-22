@@ -23,6 +23,8 @@ class CustomDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<GeneralProvider>(context);
+
     return Drawer(
       child: SafeArea(
         child: ListView(
@@ -41,13 +43,14 @@ class CustomDrawer extends StatelessWidget {
               ),
             ),
             DrawerItem(
-                text: getTranslated(context, "Profile"),
-                icon: Icon(Icons.person, color: kDeepPurpleColor),
-                onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => const ProfileScreenUser()));
-                },
-                hint: getTranslated(context, "You can view your data here")),
+              text: getTranslated(context, "Profile"),
+              icon: Icon(Icons.person, color: kDeepPurpleColor),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const ProfileScreenUser()));
+              },
+              hint: getTranslated(context, "You can view your data here"),
+            ),
             DrawerItem(
               text: getTranslated(context, "Posts"),
               icon: Icon(Bootstrap.file_text, color: kDeepPurpleColor),
@@ -80,6 +83,16 @@ class CustomDrawer extends StatelessWidget {
             DrawerItem(
               text: getTranslated(context, "Booking Status"),
               icon: Icon(Icons.notification_add, color: kDeepPurpleColor),
+              badge: provider.approvalCount > 0 // Show badge only if count > 0
+                  ? badges.Badge(
+                      badgeContent: Text(
+                        provider.approvalCount.toString(),
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      child:
+                          Icon(Icons.notification_add, color: kDeepPurpleColor),
+                    )
+                  : null, // Show badge only if there's a count
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => const NotificationScreen()));

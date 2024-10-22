@@ -13,9 +13,11 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
   int _chatRequestCount = 0;
   Map<String, bool> _chatAccessPerEstate =
       {}; // Map to track chat access per estate
+  int _approvalCount = 0; // Added variable to track approvals/rejections
 
   int get newRequestCount => _newRequestCount;
   int get chatRequestCount => _chatRequestCount;
+  int get approvalCount => _approvalCount; // Getter for approval count
 
   bool isDarkMode = false; // Track theme mode
 
@@ -125,6 +127,30 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
         notifyListeners();
       });
     }
+  }
+
+  void fetchApprovalCount() {
+    FirebaseDatabase.instance
+        .ref("App/Booking/Book")
+        .onValue
+        .listen((DatabaseEvent event) {
+      int count = 0;
+      if (event.snapshot.value != null) {
+        Map bookings = event.snapshot.value as Map;
+        bookings.forEach((key, value) {
+          print(
+              "Booking ID: $key, Status: ${value['Status']}"); // Debug the bookings
+          if (value["Status"] == "2" || value["Status"] == "3") {
+            count++; // Count both accepted and rejected bookings
+          }
+        });
+      } else {
+        print("No bookings found."); // Add this to debug
+      }
+      _approvalCount = count;
+      print("Total approval count: $_approvalCount");
+      notifyListeners();
+    });
   }
 
   void resetNewRequestCount() {

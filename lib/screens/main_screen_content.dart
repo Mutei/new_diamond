@@ -1,9 +1,11 @@
 import 'package:diamond_host_admin/widgets/reused_appbar.dart';
 import 'package:diamond_host_admin/widgets/estate_card_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../backend/customer_rate_services.dart';
 import '../backend/estate_services.dart';
 import '../localization/language_constants.dart';
+import '../state_management/general_provider.dart';
 import '../widgets/custom_drawer.dart';
 import 'profile_estate_screen.dart';
 
@@ -24,6 +26,10 @@ class _MainScreenContentState extends State<MainScreenContent> {
   void initState() {
     super.initState();
     _fetchEstates();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Fetch approval count when the widget tree is loaded
+      Provider.of<GeneralProvider>(context, listen: false).fetchApprovalCount();
+    });
   }
 
   Future<void> _fetchEstates() async {
