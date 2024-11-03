@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart'; // Import provider for state management
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'localization/demo_localization.dart';
 import 'screens/welcome_screen.dart';
@@ -19,9 +19,9 @@ void main() async {
   await Firebase.initializeApp();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown
-  ]); // Initialize Firebase
-  print('Firebase Initialized'); // Debug: Log for Firebase initialization
+    DeviceOrientation.portraitDown,
+  ]);
+  print('Firebase Initialized');
   runApp(
     MultiProvider(
       providers: [
@@ -39,12 +39,11 @@ class MyApp extends StatefulWidget {
     _MyAppState? state = context.findAncestorStateOfType<_MyAppState>();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String? language = sharedPreferences.getString("Language");
-    print("Language from SharedPreferences: $language"); // Debug: Log language
+    print("Language from SharedPreferences: $language");
     if (language == null || language.isEmpty) {
       state?.setLocale(newLocale);
-      // Save the newLocale to SharedPreferences
       await sharedPreferences.setString("Language", newLocale.languageCode);
-      print('New locale saved: ${newLocale.languageCode}'); // Debug
+      print('New locale saved: ${newLocale.languageCode}');
     } else {
       Locale newLocale = Locale(language, "SA");
       state?.setLocale(newLocale);
@@ -66,13 +65,11 @@ class _MyAppState extends State<MyApp> {
     loadLocale();
   }
 
-  // Initialize Firebase Analytics
   void initializeFirebaseAnalytics() async {
     analytics = FirebaseAnalytics.instance;
     print('Firebase Analytics Initialized');
   }
 
-  // Load Locale from SharedPreferences
   void loadLocale() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String? language = sharedPreferences.getString("Language");
@@ -113,25 +110,7 @@ class _MyAppState extends State<MyApp> {
                 return MaterialApp(
                   debugShowCheckedModeBanner: false,
                   title: "Flutter Localization Demo",
-                  theme: ThemeData(
-                    brightness: provider.isDarkMode
-                        ? Brightness.dark
-                        : Brightness.light,
-                    colorScheme: provider.isDarkMode
-                        ? const ColorScheme.dark()
-                        : const ColorScheme.light(),
-                    useMaterial3: true,
-                    textTheme: GoogleFonts.openSansTextTheme(
-                      Theme.of(context).textTheme.apply(
-                            bodyColor: provider.isDarkMode
-                                ? Colors.white
-                                : Colors.black,
-                            displayColor: provider.isDarkMode
-                                ? Colors.white
-                                : Colors.black,
-                          ),
-                    ),
-                  ),
+                  theme: provider.getTheme(context),
                   locale: _locale,
                   supportedLocales: const [
                     Locale("en", "US"),

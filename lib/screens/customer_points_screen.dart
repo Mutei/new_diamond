@@ -75,7 +75,7 @@ class _CustomerPointsState extends State<CustomerPoints> {
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: Provider.of<GeneralProvider>(context).isDarkMode
+            colors: Theme.of(context).brightness == Brightness.dark
                 ? [Colors.black, Colors.purple[600]!]
                 : [Color(0xFF673AB7), Color(0xFFE040FB)],
             begin: Alignment.topLeft,

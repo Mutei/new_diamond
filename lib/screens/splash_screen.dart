@@ -72,7 +72,7 @@ class _SplashScreenState extends State<SplashScreen>
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: Provider.of<GeneralProvider>(context).isDarkMode
+                colors: Theme.of(context).brightness == Brightness.dark
                     ? [Colors.black, Colors.purple[600]!]
                     : [Colors.white, Colors.purple[300]!, Colors.purple[600]!],
                 begin: Alignment.topLeft,

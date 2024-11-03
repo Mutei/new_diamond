@@ -55,21 +55,21 @@ class _LoginScreenState extends State<LoginScreen> {
             },
           ),
           // Dark/Light mode toggle button
-          Consumer<GeneralProvider>(
-            builder: (context, generalProvider, child) {
-              return IconButton(
-                icon: Icon(
-                  generalProvider.isDarkMode
-                      ? Icons.dark_mode
-                      : Icons.light_mode,
-                  color: kPurpleColor,
-                ),
-                onPressed: () {
-                  generalProvider.toggleTheme(); // Toggle theme
-                },
-              );
-            },
-          ),
+          // Consumer<GeneralProvider>(
+          //   builder: (context, generalProvider, child) {
+          //     return IconButton(
+          //       icon: Icon(
+          //         generalProvider.isDarkMode
+          //             ? Icons.dark_mode
+          //             : Icons.light_mode,
+          //         color: kPurpleColor,
+          //       ),
+          //       onPressed: () {
+          //         generalProvider.toggleTheme(); // Toggle theme
+          //       },
+          //     );
+          //   },
+          // ),
         ],
       ),
       body: SingleChildScrollView(

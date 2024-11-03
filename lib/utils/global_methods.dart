@@ -137,7 +137,7 @@ void showCustomLoadingDialog(BuildContext context) {
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Provider.of<GeneralProvider>(context).isDarkMode
+              color: Theme.of(context).brightness == Brightness.dark
                   ? Colors.black
                   : Colors.white,
               // Customize your background color

@@ -13,6 +13,7 @@ import '../constants/colors.dart';
 import '../main.dart';
 import '../screens/all_posts_screen.dart';
 import '../screens/customer_points_screen.dart';
+import '../screens/theme_settings_screen.dart';
 import '../state_management/general_provider.dart';
 import '../utils/global_methods.dart';
 import 'item_drawer.dart';
@@ -41,6 +42,15 @@ class CustomDrawer extends StatelessWidget {
                   fit: BoxFit.cover, // Make the image cover the area
                 ),
               ),
+            ),
+            DrawerItem(
+              text: getTranslated(context, "Theme Settings"),
+              icon: Icon(Icons.settings, color: kDeepPurpleColor),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => ThemeSettingsScreen()));
+              },
+              hint: '',
             ),
             DrawerItem(
               text: getTranslated(context, "Profile"),
@@ -143,21 +153,21 @@ class CustomDrawer extends StatelessWidget {
               },
               hint: '',
             ),
-            DrawerItem(
-                text: Provider.of<GeneralProvider>(context).isDarkMode
-                    ? getTranslated(context, "Light Mode")
-                    : getTranslated(context, "Dark Mode"), // Text for dark mode
-                icon: Icon(
-                  Provider.of<GeneralProvider>(context).isDarkMode
-                      ? Icons.light_mode
-                      : Icons.dark_mode,
-                  color: kDeepPurpleColor,
-                ),
-                onTap: () {
-                  Provider.of<GeneralProvider>(context, listen: false)
-                      .toggleTheme();
-                },
-                hint: ''),
+            // DrawerItem(
+            //     text: Provider.of<GeneralProvider>(context).isDarkMode
+            //         ? getTranslated(context, "Light Mode")
+            //         : getTranslated(context, "Dark Mode"), // Text for dark mode
+            //     icon: Icon(
+            //       Provider.of<GeneralProvider>(context).isDarkMode
+            //           ? Icons.light_mode
+            //           : Icons.dark_mode,
+            //       color: kDeepPurpleColor,
+            //     ),
+            //     onTap: () {
+            //       Provider.of<GeneralProvider>(context, listen: false)
+            //           .toggleTheme();
+            //     },
+            //     hint: ''),
             DrawerItem(
               text: getTranslated(context, "Logout"),
               icon: Icon(Icons.logout, color: kDeepPurpleColor),
