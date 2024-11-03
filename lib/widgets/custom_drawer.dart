@@ -1,5 +1,6 @@
 import 'package:diamond_host_admin/extension/sized_box_extension.dart';
 import 'package:diamond_host_admin/localization/language_constants.dart';
+import 'package:diamond_host_admin/screens/language_settings_screen.dart';
 import 'package:diamond_host_admin/screens/notification_screen.dart';
 import 'package:diamond_host_admin/screens/profile_screen.dart';
 import 'package:diamond_host_admin/screens/upgrade_account_screen.dart';
@@ -13,6 +14,7 @@ import '../constants/colors.dart';
 import '../main.dart';
 import '../screens/all_posts_screen.dart';
 import '../screens/customer_points_screen.dart';
+import '../screens/settings_screen.dart';
 import '../screens/theme_settings_screen.dart';
 import '../state_management/general_provider.dart';
 import '../utils/global_methods.dart';
@@ -44,14 +46,33 @@ class CustomDrawer extends StatelessWidget {
               ),
             ),
             DrawerItem(
-              text: getTranslated(context, "Theme Settings"),
+              text: getTranslated(context, "Settings"),
               icon: Icon(Icons.settings, color: kDeepPurpleColor),
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => ThemeSettingsScreen()));
+                    builder: (context) => const SettingsScreen()));
               },
               hint: '',
             ),
+
+            // DrawerItem(
+            //   text: getTranslated(context, "Theme Settings"),
+            //   icon: Icon(Icons.settings, color: kDeepPurpleColor),
+            //   onTap: () {
+            //     Navigator.of(context).push(MaterialPageRoute(
+            //         builder: (context) => ThemeSettingsScreen()));
+            //   },
+            //   hint: '',
+            // ),
+            // DrawerItem(
+            //   text: getTranslated(context, "Language Settings"),
+            //   icon: Icon(Icons.language, color: kDeepPurpleColor),
+            //   onTap: () {
+            //     Navigator.of(context).push(MaterialPageRoute(
+            //         builder: (context) => LanguageSettings()));
+            //   },
+            //   hint: '',
+            // ),
             DrawerItem(
               text: getTranslated(context, "Profile"),
               icon: Icon(Icons.person, color: kDeepPurpleColor),
@@ -125,34 +146,34 @@ class CustomDrawer extends StatelessWidget {
               hint: getTranslated(
                   context, "From here you can upgrade account to Vip"),
             ),
-            DrawerItem(
-              text: getTranslated(context, "Arabic"),
-              icon: Icon(Icons.language, color: kDeepPurpleColor),
-              onTap: () async {
-                SharedPreferences sharedPreferences =
-                    await SharedPreferences.getInstance();
-                sharedPreferences.setString("Language", "ar");
-                Locale newLocale = const Locale("ar", "SA");
-                MyApp.setLocale(context, newLocale);
-                Provider.of<GeneralProvider>(context, listen: false)
-                    .updateLanguage(false);
-              },
-              hint: "",
-            ),
-            DrawerItem(
-              text: getTranslated(context, "English"),
-              icon: Icon(Icons.language, color: kDeepPurpleColor),
-              onTap: () async {
-                SharedPreferences sharedPreferences =
-                    await SharedPreferences.getInstance();
-                sharedPreferences.setString("Language", "en");
-                Locale newLocale = const Locale("en", "SA");
-                MyApp.setLocale(context, newLocale);
-                Provider.of<GeneralProvider>(context, listen: false)
-                    .updateLanguage(true);
-              },
-              hint: '',
-            ),
+            // DrawerItem(
+            //   text: getTranslated(context, "Arabic"),
+            //   icon: Icon(Icons.language, color: kDeepPurpleColor),
+            //   onTap: () async {
+            //     SharedPreferences sharedPreferences =
+            //         await SharedPreferences.getInstance();
+            //     sharedPreferences.setString("Language", "ar");
+            //     Locale newLocale = const Locale("ar", "SA");
+            //     MyApp.setLocale(context, newLocale);
+            //     Provider.of<GeneralProvider>(context, listen: false)
+            //         .updateLanguage(false);
+            //   },
+            //   hint: "",
+            // ),
+            // DrawerItem(
+            //   text: getTranslated(context, "English"),
+            //   icon: Icon(Icons.language, color: kDeepPurpleColor),
+            //   onTap: () async {
+            //     SharedPreferences sharedPreferences =
+            //         await SharedPreferences.getInstance();
+            //     sharedPreferences.setString("Language", "en");
+            //     Locale newLocale = const Locale("en", "SA");
+            //     MyApp.setLocale(context, newLocale);
+            //     Provider.of<GeneralProvider>(context, listen: false)
+            //         .updateLanguage(true);
+            //   },
+            //   hint: '',
+            // ),
             // DrawerItem(
             //     text: Provider.of<GeneralProvider>(context).isDarkMode
             //         ? getTranslated(context, "Light Mode")

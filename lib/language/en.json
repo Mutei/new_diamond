@@ -112,5 +112,9 @@
   "Allergies": "Allergies",
   "Allergies must not exceed 75 characters": "Allergies must not exceed 75 characters",
   "Theme Settings":"Theme Settings",
-  "System Mode":"System Mode"
+  "System Mode":"System Mode",
+  "Language Settings":"Language Settings",
+  "Settings": "Settings",
+  "Call Center":"Support"
+
 }

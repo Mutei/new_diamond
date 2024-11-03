@@ -109,5 +109,8 @@
   "Allergies": "الحساسية",
   "Allergies must not exceed 75 characters": "يجب ألا تتجاوز الحساسية 75 حرفًا",
   "Theme Settings": "إعدادات المظهر",
-  "System Mode": "وضع النظام"
+  "System Mode": "وضع النظام",
+  "Language Settings": "إعدادات اللغة",
+  "Settings": "الإعدادات",
+  "Call Center": "الدعم الفني"
 }
