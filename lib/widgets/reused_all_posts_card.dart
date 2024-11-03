@@ -45,13 +45,11 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
     _loadUserType();
     _fetchUserEstates();
 
-    // Initialize video controller if the post contains videos
     if (widget.post['VideoUrls'] != null &&
         widget.post['VideoUrls'].isNotEmpty) {
       _initializeVideoController(widget.post['VideoUrls'][0]);
     }
 
-    // Listen to changes in likes and comments
     _listenToLikes();
     _listenToComments();
   }
@@ -97,7 +95,7 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
       ..initialize().then((_) {
         setState(() {});
         _videoController?.setLooping(true);
-        _videoController?.play(); // Automatically play the video
+        _videoController?.play();
       });
   }
 
@@ -138,7 +136,6 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
     super.dispose();
   }
 
-  // Method to handle like button press
   void _handleLike() async {
     String userId = widget.currentUserId ?? '';
     DatabaseReference postRef = FirebaseDatabase.instance
@@ -167,14 +164,38 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
     });
   }
 
-  // Method to add a comment to a post
   void _addComment(String postId, String commentText) async {
     String userId = widget.currentUserId ?? '';
-    String selectedEstate = widget.post['Username'] ??
-        'Unknown Estate'; // Ensure this is always set
 
-    // Fetch profile image from the post
-    String estateProfileImageUrl = widget.post['ProfileImageUrl'] ?? '';
+    // Check if the current user's display name and profile image are available
+    String? userName = FirebaseAuth.instance.currentUser?.displayName;
+    String userProfileImage = widget.currentUserProfileImage ?? '';
+
+    // If the display name is not available, attempt to fetch it from the database
+    if (userName == null || userName.isEmpty) {
+      DatabaseReference userRef =
+          FirebaseDatabase.instance.ref('App/User/$userId');
+      DatabaseEvent userEvent = await userRef.once();
+
+      if (userEvent.snapshot.exists) {
+        Map userData = userEvent.snapshot.value as Map;
+
+        // Fetch FirstName, SecondName, and LastName and concatenate them
+        String firstName = userData['FirstName'] ?? '';
+        String secondName = userData['SecondName'] ?? '';
+        String lastName = userData['LastName'] ?? '';
+
+        // Concatenate with spaces and fallback to 'Unknown User' if all are empty
+        userName = (firstName + ' ' + secondName + ' ' + lastName).trim();
+        if (userName.isEmpty) {
+          userName = 'Unknown User';
+        }
+
+        userProfileImage = userData['ProfileImageUrl'] ?? userProfileImage;
+      } else {
+        userName = 'Unknown User';
+      }
+    }
 
     DatabaseReference commentsRef =
         FirebaseDatabase.instance.ref('App/AllPosts/$postId/comments/list');
@@ -184,8 +205,8 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
       await commentsRef.child(commentId).set({
         'text': commentText,
         'userId': userId,
-        'userName': selectedEstate, // Make sure selectedEstate has a value here
-        'userProfileImage': estateProfileImageUrl,
+        'userName': userName,
+        'userProfileImage': userProfileImage,
         'timestamp': DateTime.now().millisecondsSinceEpoch,
       });
 
@@ -203,46 +224,6 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
     }
   }
 
-  // Future<String?> _selectEstate() async {
-  //   return await showDialog<String>(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       String? selectedEstate;
-  //       return AlertDialog(
-  //         title: Text(getTranslated(context, "Select Estate")),
-  //         content: DropdownButtonFormField<String>(
-  //           value: selectedEstate,
-  //           hint: Text(getTranslated(context, "Choose an Estate")),
-  //           items: _userEstates.map((estate) {
-  //             return DropdownMenuItem<String>(
-  //               value: estate['data']['NameEn'],
-  //               child: Text(estate['data']['NameEn']),
-  //             );
-  //           }).toList(),
-  //           onChanged: (value) {
-  //             selectedEstate = value;
-  //           },
-  //         ),
-  //         actions: [
-  //           TextButton(
-  //             child: Text(getTranslated(context, "Cancel")),
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //           ),
-  //           TextButton(
-  //             child: Text(getTranslated(context, "Confirm")),
-  //             onPressed: () {
-  //               Navigator.of(context).pop(selectedEstate);
-  //             },
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-
-  // Method to build the profile section at the top of each post
   Widget _buildProfileSection() {
     return ListTile(
       leading: CircleAvatar(
@@ -280,7 +261,6 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
     );
   }
 
-  // Method to build the action buttons (like, comment)
   Widget _buildActionButtons() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
@@ -304,9 +284,7 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
           const SizedBox(width: 16),
           IconButton(
             icon: const Icon(Icons.comment_outlined),
-            onPressed: () {
-              // Optionally, scroll to comment section or focus on comment field
-            },
+            onPressed: () {},
           ),
           Text(
             '${commentsList.length}',
@@ -317,7 +295,6 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
     );
   }
 
-  // Method to build the text content of the post
   Widget _buildTextContent() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
@@ -328,7 +305,6 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
     );
   }
 
-  // Method to build the images and videos in the post
   Widget _buildImageVideoContent() {
     List imageUrls = widget.post['ImageUrls'] ?? [];
     List videoUrls = widget.post['VideoUrls'] ?? [];
@@ -382,7 +358,6 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
     );
   }
 
-  // Method to build the comment section
   Widget _buildCommentSection() {
     if (commentsList.isNotEmpty) {
       Map<dynamic, dynamic> latestComment = commentsList.last;
@@ -392,7 +367,6 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
         child: Column(
           children: [
-            // Show the latest comment
             ListTile(
               leading: CircleAvatar(
                 radius: 20,
@@ -402,7 +376,7 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
                         as ImageProvider,
               ),
               title: Text(
-                latestComment['userName'] ?? 'Unknown Estate',
+                latestComment['userName'] ?? 'Unknown User',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               subtitle: Text(
@@ -500,7 +474,6 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
     }
   }
 
-  // Method to display all comments in a bottom sheet
   void _showAllCommentsBottomSheet(List<dynamic> commentsList) {
     showModalBottomSheet(
       context: context,
@@ -552,7 +525,7 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
                                       as ImageProvider,
                             ),
                             title: Text(
-                              comment['userName'] ?? 'Unknown Estate',
+                              comment['userName'] ?? 'Unknown User',
                               style:
                                   const TextStyle(fontWeight: FontWeight.bold),
                             ),
