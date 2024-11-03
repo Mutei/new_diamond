@@ -87,13 +87,13 @@ class _NotificationScreenState extends State<NotificationScreen>
       body: isLoading
           ? Center(
               child: CircularProgressIndicator(
-                color: kPrimaryColor,
+                color: kDeepPurpleColor,
               ),
             )
           : bookings.isEmpty
               ? Center(
                   child: Text(
-                    getTranslated(context, 'No bookings found.'),
+                    getTranslated(context, "No bookings found."),
                     style: const TextStyle(fontSize: 16),
                   ),
                 )

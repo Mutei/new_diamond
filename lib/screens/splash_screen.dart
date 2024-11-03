@@ -108,7 +108,7 @@ class _SplashScreenState extends State<SplashScreen>
                     Text(
                       getTranslated(
                           context, 'Main Screen'), // Replace with your app name
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 24.0,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -118,7 +118,7 @@ class _SplashScreenState extends State<SplashScreen>
                     const SizedBox(height: 8.0),
                     Text(
                       getTranslated(context,
-                          'Experience the best service'), // Optional tagline
+                          "You won't be alone anymore"), // Optional tagline
                       style: TextStyle(
                         fontSize: 16.0,
                         color: Colors.white.withOpacity(0.8),
