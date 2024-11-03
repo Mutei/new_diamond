@@ -117,6 +117,15 @@
   "Settings": "Settings",
   "Call Center":"Support",
   "You won't be alone anymore":"You won't be alone anymore",
-  "No bookings found.":"No bookings found."
-
+  "No bookings found.":"No bookings found.",
+  "No Posts Available":"No Posts Available",
+  "What's on your mind?":"What's on your mind?",
+  "No media selected.":"No media selected.",
+  "Success":"Success",
+  "Post added successfully":"Post added successfully",
+  "Error":"Error",
+  "Failed to add post":"Failed to add post",
+  "Failed to add comment":"Failed to add comment",
+  "View all comments":"View all ({count}) comments",
+  "Write a comment...": "Write a comment..."
 }

@@ -1,6 +1,7 @@
 import 'dart:io';
-
 import 'package:diamond_host_admin/constants/colors.dart';
+import 'package:diamond_host_admin/constants/styles.dart';
+import 'package:diamond_host_admin/localization/language_constants.dart';
 import 'package:diamond_host_admin/widgets/reused_elevated_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -8,9 +9,10 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../constants/styles.dart';
-import '../localization/language_constants.dart';
+import '../utils/failure_dialogue.dart';
+import '../utils/global_methods.dart';
+import '../utils/success_dialogue.dart';
+import '../widgets/custom_button_2.dart';
 
 class AddPostScreen extends StatefulWidget {
   final Map<dynamic, dynamic>? post;
@@ -27,33 +29,46 @@ class _AddPostScreenState extends State<AddPostScreen> {
   final _textController = TextEditingController();
   String _postId = '';
   List<File> _imageFiles = [];
-  List<File> _videoFiles = []; // New list to hold video files
+  List<File> _videoFiles = [];
   final ImagePicker _picker = ImagePicker();
   String? _selectedEstate;
   List<Map<dynamic, dynamic>> _userEstates = [];
   String userType = "1";
   String? typeAccount;
-  bool _isLoading = false; // For managing the loading state
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
+
+    // Show loading dialog
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showCustomLoadingDialog(context);
+    });
+
     if (widget.post != null) {
       _postId = widget.post!['postId'];
       _titleController.text = widget.post!['Description'];
       _textController.text = widget.post!['Text'];
       _selectedEstate = widget.post!['EstateType'];
     }
-    _fetchUserEstates();
-    _loadUserType();
-    _loadTypeAccount();
+    // Fetch data and close loading dialog when done
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+    await _fetchUserEstates();
+    await _loadUserType();
+    await _loadTypeAccount();
+
+    // Close the loading dialog once all data is loaded
+    Navigator.of(context).pop(); // Dismiss the loading dialog
   }
 
   Future<void> _loadUserType() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       userType = prefs.getString("TypeUser") ?? "1";
-      print("Loaded User Type: $userType");
     });
   }
 
@@ -69,10 +84,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
       if (snapshot.exists) {
         setState(() {
           typeAccount = snapshot.value.toString();
-          print("Loaded Type Account: $typeAccount");
         });
-      } else {
-        print("Type Account does not exist.");
       }
     }
   }
@@ -80,7 +92,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
   Future<void> _fetchUserEstates() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      print('User not authenticated');
       return;
     }
     String userId = user.uid;
@@ -93,42 +104,26 @@ class _AddPostScreenState extends State<AddPostScreen> {
 
     if (estatesData != null) {
       List<Map<dynamic, dynamic>> userEstates = [];
-      print('Fetched Estates Data: $estatesData');
-
       estatesData.forEach((estateType, estates) {
         if (estates is Map<dynamic, dynamic>) {
           estates.forEach((key, value) {
-            if (value != null && value['IDUser'] == userId) {
-              // Added null check here
-              print('Estate Key: $key, Value: $value');
+            // Check if the estate belongs to the user and if IsAccepted == "2"
+            if (value != null &&
+                value['IDUser'] == userId &&
+                value['IsAccepted'] == "2") {
               userEstates.add({'type': estateType, 'data': value, 'id': key});
             }
           });
-        } else if (estates is List) {
-          for (var value in estates) {
-            if (value != null && value['IDUser'] == userId) {
-              // Added null check here
-              print('Estate Value in List: $value');
-              userEstates.add(
-                  {'type': estateType, 'data': value, 'id': value['IDEstate']});
-            }
-          }
-        } else {
-          print('Unexpected type for estates: ${estates.runtimeType}');
         }
       });
 
       setState(() {
         _userEstates = userEstates;
-        print('User Estates: $_userEstates');
         if (_userEstates.isNotEmpty &&
             !_userEstates.any((estate) => estate['id'] == _selectedEstate)) {
           _selectedEstate = _userEstates.first['id'];
-          print('Default _selectedEstate set to: $_selectedEstate');
         }
       });
-    } else {
-      print('No estates data found.');
     }
   }
 
@@ -139,42 +134,40 @@ class _AddPostScreenState extends State<AddPostScreen> {
         _imageFiles =
             pickedFiles.map((pickedFile) => File(pickedFile.path)).toList();
       });
-      print('Picked Images: $_imageFiles');
-    } else {
-      print('No images picked.');
     }
   }
 
-  // New method to pick videos
   Future<void> _pickVideos() async {
     final pickedFile = await _picker.pickVideo(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _videoFiles.add(File(pickedFile.path));
       });
-      print('Picked Video: $_videoFiles');
-    } else {
-      print('No video picked.');
     }
   }
 
   Future<void> _savePost() async {
     if (_formKey.currentState!.validate() &&
-        (_selectedEstate != null || userType != "2")) {
+        (_selectedEstate != null || userType == "1")) {
       if (await _canAddMorePosts()) {
         setState(() {
           _isLoading = true;
-        }); // Show the CircularProgressIndicator
+        });
 
         try {
           User? user = FirebaseAuth.instance.currentUser;
           if (user == null) {
-            print('User not authenticated');
+            await showDialog(
+              context: context,
+              builder: (context) => FailureDialog(
+                text: "Error",
+                text1: "User not authenticated",
+              ),
+            );
             return;
           }
           String userId = user.uid;
 
-          // Fetch the user's profile image URL
           String? profileImageUrl;
           DataSnapshot userSnapshot = await FirebaseDatabase.instance
               .ref("App")
@@ -195,10 +188,12 @@ class _AddPostScreenState extends State<AddPostScreen> {
               : {};
 
           if (_selectedEstate != null && selectedEstate.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                  content: Text(
-                      "You don't have an estate of type $_selectedEstate")),
+            await showDialog(
+              context: context,
+              builder: (context) => FailureDialog(
+                text: "Error",
+                text1: "You don't have this estate",
+              ),
             );
             return;
           }
@@ -222,7 +217,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
             imageUrls.add(imageUrl);
           }
 
-          List<String> videoUrls = []; // New list to hold uploaded video URLs
+          List<String> videoUrls = [];
           for (File videoFile in _videoFiles) {
             UploadTask uploadTask = FirebaseStorage.instance
                 .ref()
@@ -251,46 +246,53 @@ class _AddPostScreenState extends State<AddPostScreen> {
           await postsRef.child(_postId).set({
             'Description': _titleController.text,
             'Date': DateTime.now().millisecondsSinceEpoch,
-            'EstateName': estateName,
+            'Username': estateName,
             'EstateType': selectedEstate['type'],
             'userId': userId,
             'userType': userType,
             'typeAccount': typeAccount,
             'ImageUrls': imageUrls,
-            'VideoUrls': videoUrls, // Save video URLs in the post
-            'ProfileImageUrl':
-                profileImageUrl, // Add ProfileImageUrl to the post
+            'VideoUrls': videoUrls,
+            'ProfileImageUrl': profileImageUrl,
+            'likes': {'count': 0, 'users': {}},
+            'comments': {'count': 0, 'list': {}},
           });
 
-          print('Post saved successfully');
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(getTranslated(context, 'Post added successfully')),
+          await showDialog(
+            context: context,
+            builder: (context) => SuccessDialog(
+              text: "Success",
+              text1: "Post added successfully",
             ),
           );
-          Navigator.pop(context);
+          Navigator.pop(context); // Navigate back after dialog is closed
         } catch (e) {
-          print('Error saving post: $e');
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(getTranslated(context, 'Failed to add post')),
+          await showDialog(
+            context: context,
+            builder: (context) => FailureDialog(
+              text: "Error",
+              text1: "Failed to add post",
             ),
           );
         } finally {
           setState(() {
             _isLoading = false;
-          }); // Hide the CircularProgressIndicator
+          });
         }
       }
-    } else {
-      print('Form is not valid or estate is not selected.');
     }
   }
 
   Future<bool> _canAddMorePosts() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      print('User not authenticated');
+      showDialog(
+        context: context,
+        builder: (context) => FailureDialog(
+          text: "Error",
+          text1: "User not authenticated",
+        ),
+      );
       return false;
     }
     String userId = user.uid;
@@ -340,19 +342,11 @@ class _AddPostScreenState extends State<AddPostScreen> {
   void _showPostLimitAlert(int allowedPosts) {
     showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Post Limit Reached'),
-          content: Text(
-              'You have added $allowedPosts posts in a month. You cannot add more.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
+      builder: (context) => FailureDialog(
+        text: "Post Limit Reached",
+        text1:
+            "You have added $allowedPosts posts in a month. You cannot add more.",
+      ),
     );
   }
 
@@ -365,7 +359,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
         title: Text(
           widget.post == null ? getTranslated(context, "Post") : "Edit Post",
           style: TextStyle(
-            color: kPurpleColor,
+            color: kDeepPurpleColor,
           ),
         ),
       ),
@@ -377,38 +371,57 @@ class _AddPostScreenState extends State<AddPostScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (userType == "2")
-                      DropdownButtonFormField<String>(
-                        value: _selectedEstate,
-                        hint: Text(getTranslated(context, "Select Estate")),
-                        items: _userEstates.map((estate) {
-                          return DropdownMenuItem<String>(
-                            value: estate['id'],
-                            child: Text(
-                                '${estate['data']['NameEn']} (${estate['type']})'),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedEstate = value;
-                          });
-                          print('Selected Estate: $_selectedEstate');
-                        },
-                        validator: (value) {
-                          if (value == null && userType == "2") {
-                            print('Estate not selected, validation failed.');
-                            return 'Please select an estate';
-                          }
-                          return null;
-                        },
-                      ),
+                      // DropdownButtonFormField<String>(
+                      //   value: _selectedEstate,
+                      //   decoration: InputDecoration(
+                      //     filled: true,
+                      //     fillColor:
+                      //         Theme.of(context).brightness == Brightness.dark
+                      //             ? Colors.black
+                      //             : Colors.grey[200],
+                      //     border: OutlineInputBorder(
+                      //       borderRadius: BorderRadius.circular(8.0),
+                      //     ),
+                      //   ),
+                      //   hint: Text(getTranslated(context, "Select Estate")),
+                      //   items: _userEstates.map((estate) {
+                      //     return DropdownMenuItem<String>(
+                      //       value: estate['id'],
+                      //       child: Text(
+                      //           '${estate['data']['NameEn']} (${estate['type']})'),
+                      //     );
+                      //   }).toList(),
+                      //   onChanged: (value) {
+                      //     setState(() {
+                      //       _selectedEstate = value;
+                      //     });
+                      //   },
+                      //   validator: (value) {
+                      //     if (value == null && userType == "2") {
+                      //       return 'Please select an estate';
+                      //     }
+                      //     return null;
+                      //   },
+                      // ),
+                      const SizedBox(height: 16),
                     TextFormField(
                       controller: _titleController,
                       maxLength: 120,
                       maxLines: null,
                       decoration: InputDecoration(
-                          labelText: getTranslated(context, "Title")),
+                        labelText: getTranslated(context, "Title"),
+                        filled: true,
+                        fillColor:
+                            Theme.of(context).brightness == Brightness.dark
+                                ? Colors.black
+                                : Colors.grey[200],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return getTranslated(context, 'Please enter a title');
@@ -416,39 +429,90 @@ class _AddPostScreenState extends State<AddPostScreen> {
                         return null;
                       },
                     ),
-                    SizedBox(height: 20),
-                    _imageFiles.isEmpty && _videoFiles.isEmpty
-                        ? Text(
-                            getTranslated(context, "No images selected."),
-                          )
-                        : Container(
-                            height: 100,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount:
-                                  _imageFiles.length + _videoFiles.length,
-                              itemBuilder: (context, index) {
-                                if (index < _imageFiles.length) {
-                                  return Image.file(_imageFiles[index]);
-                                } else {
-                                  return Icon(Icons.videocam, size: 100);
-                                }
-                              },
-                            ),
-                          ),
-                    CustomButton(
-                      text: getTranslated(context, "Pick Images"),
-                      onPressed: _pickImages,
-                    ),
-                    if (userType == "2" &&
-                        (typeAccount == "2" || typeAccount == "3"))
-                      ElevatedButton(
-                        onPressed: _pickVideos,
-                        child: Text(getTranslated(context, "Pick Videos")),
+                    const SizedBox(height: 16),
+                    if (_imageFiles.isEmpty && _videoFiles.isEmpty)
+                      Container(
+                        alignment: Alignment.center,
+                        height: 150,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8.0),
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.black
+                              : Colors.grey[200],
+                        ),
+                        child: Text(
+                          getTranslated(context, "No media selected."),
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                      )
+                    else
+                      SizedBox(
+                        height: 150,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _imageFiles.length + _videoFiles.length,
+                          itemBuilder: (context, index) {
+                            if (index < _imageFiles.length) {
+                              return Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  child: Image.file(_imageFiles[index]),
+                                ),
+                              );
+                            } else {
+                              return Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Container(
+                                  width: 150,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    color: Colors.grey[800],
+                                  ),
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.videocam,
+                                      color: Colors.white,
+                                      size: 60,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                        ),
                       ),
-                    CustomButton(
-                      text: getTranslated(context, "Save"),
-                      onPressed: _savePost,
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ReusableIconButton(
+                            onPressed: _pickImages,
+                            icon:
+                                Icon(Icons.photo_library, color: Colors.white),
+                            label: getTranslated(context, "Pick Images"),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        // if (userType == "2" &&
+                        //     (typeAccount == "2" || typeAccount == "3"))
+                        //   Expanded(
+                        //     child: ReusableIconButton(
+                        //       onPressed: _pickVideos,
+                        //       icon: Icon(Icons.video_library,
+                        //           color: Colors.white),
+                        //       label: getTranslated(context, "Pick Videos"),
+                        //     ),
+                        //   ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: CustomButton(
+                        text: getTranslated(context, "Save"),
+                        onPressed: _savePost,
+                      ),
                     ),
                   ],
                 ),
@@ -456,8 +520,11 @@ class _AddPostScreenState extends State<AddPostScreen> {
             ),
           ),
           if (_isLoading)
-            Center(
-              child: CircularProgressIndicator(),
+            Container(
+              color: Colors.black54,
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
             ),
         ],
       ),

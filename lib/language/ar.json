@@ -114,6 +114,16 @@
   "Settings": "الإعدادات",
   "Call Center": "الدعم الفني",
   "You won't be alone anymore": "لن تكون وحيدًا بعد الآن",
-  "No bookings found.": "لم يتم العثور على حجوزات."
+  "No bookings found.": "لم يتم العثور على حجوزات.",
+  "No Posts Available": "لا توجد منشورات متاحة",
+  "What's on your mind?": "بماذا تفكر؟",
+  "No media selected.": "لم يتم اختيار أي وسائط.",
+  "Success": "نجاح",
+  "Post added successfully": "تم إضافة المنشور بنجاح",
+  "Error": "خطأ",
+  "Failed to add post": "فشل في إضافة المنشور",
+  "Failed to add comment": "فشل في إضافة التعليق",
+  "View all comments": "عرض جميع التعليقات ({count})",
+  "Write a comment...": "أكتب تعليق..."
 
 }
