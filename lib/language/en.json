@@ -127,5 +127,11 @@
   "Failed to add post":"Failed to add post",
   "Failed to add comment":"Failed to add comment",
   "View all comments":"View all ({count}) comments",
-  "Write a comment...": "Write a comment..."
+  "Write a comment...": "Write a comment...",
+  "StarTitle": "Star",
+  "StarSubtitle": "Book a Cafe, Restaurant, or Hotel where you can join a group chat to provide your full opinion about the service.",
+  "PremiumTitle": "Premium",
+  "PremiumSubtitle": "Book a Cafe, Restaurant or Hotel where you can join a group chat to provide your full opinion about the service. Add 4 Posts in a month and chat privately with the users.",
+  "PremiumPlusTitle": "Premium Plus",
+  "PremiumPlusSubtitle": "Book a Cafe, Restaurant or Hotel where you can join a group chat to provide your full opinion about the service. Add 8 Posts in a month and chat privately with the users."
 }

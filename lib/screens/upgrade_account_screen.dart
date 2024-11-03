@@ -23,21 +23,18 @@ class _UpgradeAccountScreenState extends State<UpgradeAccountScreen> {
   List<Map<String, String>> accountTypes = [
     {
       'type': '1',
-      'title': 'Star',
-      'subtitle':
-          'Book a Cafe, Restaurant, or Hotel where you can join a group chat to provide your full opinion about the service.'
+      'titleKey': 'StarTitle', // Add a key for translation
+      'subtitleKey': 'StarSubtitle', // Add a key for translation
     },
     {
       'type': '2',
-      'title': 'Premium',
-      'subtitle':
-          'Book a Cafe, Restaurant or Hotel where you can join a group chat to provide your full opinion about the service. Add 4 Posts in a month and chat privately with the users.'
+      'titleKey': 'PremiumTitle',
+      'subtitleKey': 'PremiumSubtitle',
     },
     {
       'type': '3',
-      'title': 'Premium+',
-      'subtitle':
-          'Book a Cafe, Restaurant or Hotel where you can join a group chat to provide your full opinion about the service. Add 8 Posts in a month and chat privately with the users.'
+      'titleKey': 'PremiumPlusTitle',
+      'subtitleKey': 'PremiumPlusSubtitle',
     },
   ];
 
@@ -217,8 +214,10 @@ class _UpgradeAccountScreenState extends State<UpgradeAccountScreen> {
                                 child: TypeAccountWidget(
                                   accountType: accountType['type']!,
                                   selectedTypeAccount: selectedTypeAccount,
-                                  title: accountType['title']!,
-                                  subtitle: accountType['subtitle']!,
+                                  title: getTranslated(
+                                      context, accountType['titleKey']!),
+                                  subtitle: getTranslated(
+                                      context, accountType['subtitleKey']!),
                                   onSelected: (String accountType) {
                                     _showUpgradeConfirmationDialog(context,
                                         accountType); // Show confirmation dialog
