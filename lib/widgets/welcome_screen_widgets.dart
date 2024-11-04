@@ -1,4 +1,5 @@
 import 'package:diamond_host_admin/constants/styles.dart';
+import 'package:diamond_host_admin/localization/language_constants.dart';
 import 'package:diamond_host_admin/screens/sign_in_screen.dart';
 import 'package:diamond_host_admin/widgets/reused_elevated_button.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +30,7 @@ Widget buildPage({
         const SizedBox(height: 20),
         if (isLastPage)
           CustomButton(
-            text: 'Next', // Phone icon for the button
+            text: getTranslated(context, "Next"), // Phone icon for the button
             onPressed: () {
               Navigator.pushReplacement(
                 context,

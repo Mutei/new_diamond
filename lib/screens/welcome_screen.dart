@@ -1,3 +1,4 @@
+import 'package:diamond_host_admin/localization/language_constants.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/welcome_screen_widgets.dart'; // Import the new file
@@ -29,19 +30,26 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               children: [
                 buildPage(
                   image: 'assets/images/p1.png',
-                  text:
-                      'Show what distinguishes your facility with its finest services And with its special offers and exclusives',
+                  text: getTranslated(
+                    context,
+                    "Book a hotel, restaurant or cafe and experience our best services",
+                  ),
                   context: context,
                 ),
                 buildPage(
                   image: 'assets/images/p2.png',
-                  text:
-                      'Enjoy arranging your appointments and easy access for clients',
+                  text: getTranslated(
+                    context,
+                    "You can also book a table in a restaurant or adequate for you",
+                  ),
                   context: context,
                 ),
                 buildPage(
                   image: 'assets/images/p3.png',
-                  text: 'We also provide the finest and best services with VIP',
+                  text: getTranslated(
+                    context,
+                    "Enjoy the finest services with Premium and Premium Plus",
+                  ),
                   isLastPage: true,
                   context: context,
                 ),

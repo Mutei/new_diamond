@@ -267,7 +267,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           // ),
                           20.kH,
                           CustomButton(
-                            text: 'Login through phone number',
+                            text: getTranslated(
+                                context, 'Login through phone number'),
                             onPressed: () {
                               if (_formKey.currentState!.validate()) {
                                 // Proceed with phone number login logic
