@@ -1,9 +1,13 @@
 import 'package:diamond_host_admin/widgets/reused_appbar.dart';
 import 'package:diamond_host_admin/widgets/estate_card_widget.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import '../backend/customer_rate_services.dart';
 import '../backend/estate_services.dart';
+import '../backend/firebase_services.dart';
 import '../localization/language_constants.dart';
 import '../state_management/general_provider.dart';
 import '../widgets/custom_drawer.dart';
@@ -20,15 +24,126 @@ class _MainScreenContentState extends State<MainScreenContent> {
   EstateServices estateServices = EstateServices();
   CustomerRateServices customerRateServices = CustomerRateServices();
   List<Map<String, dynamic>> estates = [];
+  FirebaseServices _firebaseServices = FirebaseServices();
   final List<String> categories = ['Hotel', 'Restaurant', 'Coffee'];
 
   @override
   void initState() {
     super.initState();
     _fetchEstates();
+    _firebaseServices.initMessage(showNotification);
+    _requestPermissionsInSequence();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<GeneralProvider>(context, listen: false).fetchApprovalCount();
     });
+  }
+
+  void showNotification(RemoteNotification? notification) {
+    if (notification != null) {
+      const AndroidNotificationDetails androidDetails =
+          AndroidNotificationDetails('channel_id', 'channel_name',
+              importance: Importance.high,
+              priority: Priority.high,
+              icon: 'ic_notification');
+      const NotificationDetails generalDetails =
+          NotificationDetails(android: androidDetails);
+      _firebaseServices.flutterLocalNotificationPlugin.show(
+        0,
+        notification.title,
+        notification.body,
+        generalDetails,
+      );
+    }
+  }
+
+  Future<void> _requestPermissionsInSequence() async {
+    await _requestLocationPermission();
+    await _requestNotificationPermission(); // Then request notification permission
+    await _checkNotificationPermissionStatus(); // Ensure the permission status is verified
+  }
+
+  Future<void> _requestLocationPermission() async {
+    PermissionStatus status = await Permission.location.status;
+
+    if (status.isDenied || status.isRestricted) {
+      status = await Permission.location.request();
+    }
+
+    if (status.isPermanentlyDenied) {
+      // Show an alert to guide the user to settings to enable location permissions.
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(getTranslated(context, "Location Permission Required")),
+          content: Text(getTranslated(context,
+              "Please enable location permission in settings to use the map features.")),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                openAppSettings();
+              },
+              child: Text(getTranslated(context, "Open Settings")),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  Future<void> _requestNotificationPermission() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    NotificationSettings settings = await messaging.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      print('User granted permission for notifications');
+    } else if (settings.authorizationStatus ==
+        AuthorizationStatus.provisional) {
+      print('User granted provisional permission for notifications');
+    } else {
+      print('User declined or has not accepted permission for notifications');
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title:
+              Text(getTranslated(context, "Notification Permission Required")),
+          content: Text(getTranslated(
+              context, "Please enable notification permission in settings.")),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                openAppSettings();
+              },
+              child: Text(getTranslated(context, "Open Settings")),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  Future<void> _checkNotificationPermissionStatus() async {
+    PermissionStatus status = await Permission.notification.status;
+    if (status.isGranted) {
+      print("Notification permission granted.");
+    } else if (status.isDenied) {
+      print("Notification permission denied.");
+    } else if (status.isPermanentlyDenied) {
+      print(
+          "Notification permission permanently denied. Directing user to settings.");
+      openAppSettings();
+    } else {
+      print("Notification permission status unknown.");
+    }
   }
 
   Future<void> _fetchEstates() async {
@@ -56,7 +171,9 @@ class _MainScreenContentState extends State<MainScreenContent> {
         var categoryData = data[category];
         if (categoryData is List) {
           for (var estateData in categoryData) {
-            if (estateData != null && estateData is Map<dynamic, dynamic>) {
+            if (estateData != null &&
+                estateData is Map<dynamic, dynamic> &&
+                estateData['IsAccepted'] == 2) {
               estateList.add(
                   _extractEstateData(Map<String, dynamic>.from(estateData)));
             }

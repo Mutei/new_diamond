@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -31,6 +32,9 @@ class LoginMethod {
       DatabaseReference typeUserRef =
           _databaseRef.child('App/User/$uid/TypeUser');
       DataSnapshot snapshot = await typeUserRef.get();
+      String? token = await FirebaseMessaging.instance.getToken();
+      DatabaseReference userRef =
+          FirebaseDatabase.instance.ref("App/User/$uid");
 
       // Dismiss the loading dialog after getting the result from Firebase
       Navigator.of(context, rootNavigator: true).pop();
@@ -38,6 +42,9 @@ class LoginMethod {
       // Check if TypeUser exists and if it's '1'
       if (snapshot.exists && snapshot.value == '1') {
         // If TypeUser is '1', navigate to the MainScreen
+        if (token != null) {
+          await userRef.update({"Token": token});
+        }
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => const MainScreen()),
           (Route<dynamic> route) => false,

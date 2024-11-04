@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import '../screens/login_screen.dart';
 
 class LogOutMethod {
+  final _database = FirebaseDatabase.instance.ref();
+
   Future<void> logOut(BuildContext context) async {
     try {
       // Show a loading indicator if needed
@@ -14,6 +17,13 @@ class LogOutMethod {
         },
       );
 
+      // Remove the Token from Firebase Realtime Database
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+      if (userId != null) {
+        await _database.child('App/User/$userId/Token').remove();
+      }
+
+      // Sign out the user
       await FirebaseAuth.instance.signOut();
 
       // Close the loading indicator
