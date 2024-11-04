@@ -51,57 +51,57 @@ class _MainScreenContentState extends State<MainScreenContent> {
 
   List<Map<String, dynamic>> _parseEstates(Map<String, dynamic> data) {
     List<Map<String, dynamic>> estateList = [];
-
-    // Categories to process: Coffee, Restaurant, Hottel
     List<String> categories = ["Coffee", "Restaurant", "Hottel"];
 
     for (var category in categories) {
       if (data.containsKey(category)) {
-        print("Found '$category' key in data."); // Debugging
+        print("Found '$category' key in data.");
 
         var categoryData = data[category];
         if (categoryData is List) {
           print("'$category' is a List with length: ${categoryData.length}");
 
           for (var estateData in categoryData) {
-            if (estateData != null) {
-              // Only check for null
-              print(
-                  "Processing estateData in $category: $estateData"); // Debugging print
-
-              estateList.add({
-                'id': estateData['IDEstate'] ?? 'Unknown ID',
-                'nameEn': estateData['NameEn'] ?? 'Unknown',
-                'nameAr': estateData['NameAr'] ?? 'غير معروف',
-                'rating': 0.0,
-                'fee': estateData['Fee'] ?? 'Free',
-                'time': estateData['Time'] ?? '20 min',
-                'TypeofRestaurant':
-                    estateData['TypeofRestaurant'] ?? 'Unknown Type',
-                'Sessions': estateData['Sessions'] ?? 'Unknown Session Type',
-                'MenuLink': estateData['MenuLink'] ?? 'No Menu',
-                'Entry': estateData['Entry'] ?? 'Empty',
-                'Lstmusic': estateData['Lstmusic'] ?? 'No music',
-                'Type': estateData['Type'] ?? 'Unknown',
-              });
+            if (estateData != null && estateData is Map<dynamic, dynamic>) {
+              print("Processing estateData in $category: $estateData");
+              estateList.add(
+                  _extractEstateData(Map<String, dynamic>.from(estateData)));
             } else {
-              print(
-                  "Skipping null entry in '$category' list."); // Skipping only null
+              print("Skipping null or incompatible entry in '$category' list.");
             }
           }
+        } else if (categoryData is Map) {
+          print("'$category' data is a Map.");
+          estateList
+              .add(_extractEstateData(Map<String, dynamic>.from(categoryData)));
         } else {
           print(
-              "'$category' data is not a List. Found type: ${categoryData.runtimeType}");
+              "'$category' data type is unsupported: ${categoryData.runtimeType}");
         }
       } else {
-        print(
-            "'$category' key not found in data."); // Debug if category key is missing
+        print("'$category' key not found in data.");
       }
     }
 
-    print(
-        "Final Parsed Estates: $estateList"); // Final parsed list for all categories
+    print("Final Parsed Estates: $estateList");
     return estateList;
+  }
+
+  Map<String, dynamic> _extractEstateData(Map<String, dynamic> estateData) {
+    return {
+      'id': estateData['IDEstate'] ?? 'Unknown ID',
+      'nameEn': estateData['NameEn'] ?? 'Unknown',
+      'nameAr': estateData['NameAr'] ?? 'غير معروف',
+      'rating': 0.0,
+      'fee': estateData['Fee'] ?? 'Free',
+      'time': estateData['Time'] ?? '20 min',
+      'TypeofRestaurant': estateData['TypeofRestaurant'] ?? 'Unknown Type',
+      'Sessions': estateData['Sessions'] ?? 'Unknown Session Type',
+      'MenuLink': estateData['MenuLink'] ?? 'No Menu',
+      'Entry': estateData['Entry'] ?? 'Empty',
+      'Lstmusic': estateData['Lstmusic'] ?? 'No music',
+      'Type': estateData['Type'] ?? 'Unknown',
+    };
   }
 
   @override
