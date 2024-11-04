@@ -27,6 +27,8 @@ migrate_working_dir/
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
+dmbook-db210-firebase-adminsdk-2682a-2c20d021db.json
+lib/backend/firebase_services.dart
 .pub-cache/
 .pub/
 /build/

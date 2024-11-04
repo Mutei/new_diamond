@@ -35,29 +35,15 @@ class _MainScreenContentState extends State<MainScreenContent> {
   Future<void> _fetchEstates() async {
     try {
       final data = await estateServices.fetchEstates();
-      List<Map<String, dynamic>> parsedEstates = _parseEstates(data);
-
-      for (var estate in parsedEstates) {
-        final ratings =
-            await customerRateServices.fetchEstateRatingWithUsers(estate['id']);
-
-        double totalRating = 0;
-        if (ratings.isNotEmpty) {
-          totalRating = ratings
-                  .map((e) => e['rating'] as double)
-                  .reduce((a, b) => a + b) /
-              ratings.length;
-        }
-
+      print("Fetched Data: $data");
+      if (data != null) {
+        List<Map<String, dynamic>> parsedEstates = _parseEstates(data);
         setState(() {
-          estate['rating'] = totalRating;
-          estate['ratingsList'] = ratings;
+          estates = parsedEstates; // Updating the state with parsed data
         });
+      } else {
+        print("No data found in Firebase.");
       }
-
-      setState(() {
-        estates = parsedEstates;
-      });
     } catch (e) {
       print("Error fetching estates: $e");
     }
@@ -65,24 +51,56 @@ class _MainScreenContentState extends State<MainScreenContent> {
 
   List<Map<String, dynamic>> _parseEstates(Map<String, dynamic> data) {
     List<Map<String, dynamic>> estateList = [];
-    data.forEach((key, value) {
-      value.forEach((estateID, estateData) {
-        estateList.add({
-          'id': estateID,
-          'nameEn': estateData['NameEn'] ?? 'Unknown',
-          'nameAr': estateData['NameAr'] ?? 'غير معروف',
-          'rating': 0.0,
-          'fee': estateData['Fee'] ?? 'Free',
-          'time': estateData['Time'] ?? '20 min',
-          'TypeofRestaurant': estateData['TypeofRestaurant'] ?? 'Unknown Type',
-          'Sessions': estateData['Sessions'] ?? 'Unknown Session Type',
-          'MenuLink': estateData['MenuLink'] ?? 'No Menu',
-          'Entry': estateData['Entry'] ?? 'Empty',
-          'Lstmusic': estateData['Lstmusic'] ?? 'No music',
-          'Type': estateData['Type'] ?? 'Unknown',
-        });
-      });
-    });
+
+    // Categories to process: Coffee, Restaurant, Hottel
+    List<String> categories = ["Coffee", "Restaurant", "Hottel"];
+
+    for (var category in categories) {
+      if (data.containsKey(category)) {
+        print("Found '$category' key in data."); // Debugging
+
+        var categoryData = data[category];
+        if (categoryData is List) {
+          print("'$category' is a List with length: ${categoryData.length}");
+
+          for (var estateData in categoryData) {
+            if (estateData != null) {
+              // Only check for null
+              print(
+                  "Processing estateData in $category: $estateData"); // Debugging print
+
+              estateList.add({
+                'id': estateData['IDEstate'] ?? 'Unknown ID',
+                'nameEn': estateData['NameEn'] ?? 'Unknown',
+                'nameAr': estateData['NameAr'] ?? 'غير معروف',
+                'rating': 0.0,
+                'fee': estateData['Fee'] ?? 'Free',
+                'time': estateData['Time'] ?? '20 min',
+                'TypeofRestaurant':
+                    estateData['TypeofRestaurant'] ?? 'Unknown Type',
+                'Sessions': estateData['Sessions'] ?? 'Unknown Session Type',
+                'MenuLink': estateData['MenuLink'] ?? 'No Menu',
+                'Entry': estateData['Entry'] ?? 'Empty',
+                'Lstmusic': estateData['Lstmusic'] ?? 'No music',
+                'Type': estateData['Type'] ?? 'Unknown',
+              });
+            } else {
+              print(
+                  "Skipping null entry in '$category' list."); // Skipping only null
+            }
+          }
+        } else {
+          print(
+              "'$category' data is not a List. Found type: ${categoryData.runtimeType}");
+        }
+      } else {
+        print(
+            "'$category' key not found in data."); // Debug if category key is missing
+      }
+    }
+
+    print(
+        "Final Parsed Estates: $estateList"); // Final parsed list for all categories
     return estateList;
   }
 
