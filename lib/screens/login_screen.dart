@@ -1,3 +1,4 @@
+import 'package:diamond_host_admin/screens/sign_in_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:diamond_host_admin/widgets/reused_textform_field.dart';
 import 'package:diamond_host_admin/widgets/reused_phone_number_widget.dart';
@@ -288,7 +289,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     Text(getTranslated(context, "Are you new here? ")),
                     GestureDetector(
                       onTap: () {
-                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const SignInScreen()),
+                        );
                       },
                       child: Text(
                         getTranslated(context, "Sign in"),
