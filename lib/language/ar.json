@@ -135,5 +135,26 @@
   "Book a hotel, restaurant or cafe and experience our best services": "احجز فندقًا أو مطعمًا أو مقهى واستمتع بأفضل خدماتنا",
   "You can also book a table in a restaurant or adequate for you": "يمكنك أيضًا حجز طاولة في مطعم أو بما يناسبك",
   "Enjoy the finest services with Premium and Premium Plus": "استمتع بأرقى الخدمات مع بريميوم وبريميوم بلس",
-  "Next": "التالي"
+  "Next": "التالي",
+
+  "Failed to add reply": "فشل في إضافة الرد",
+  "View all {n} comments": "عرض جميع {n} التعليقات",
+  "Hide comments": "إخفاء التعليقات",
+  "View all {n} replies": "عرض جميع {n} الردود",
+  "Hide replies": "إخفاء الردود",
+
+  "Write a reply...": "اكتب رداً...",
+  "Reply": "رد",
+
+  "Unknown User": "مستخدم غير معروف",
+  "Unknown Estate": "عقار غير معروف",
+  "Unknown Date": "تاريخ غير معروف",
+  "Like": "إعجاب",
+  "Unlike": "إلغاء الإعجاب",
+  "Send": "إرسال",
+  "View all": "عرض الكل",
+  "Hide": "إخفاء",
+  "Load more comments": "تحميل المزيد من التعليقات",
+  "Load more replies": "تحميل المزيد من الردود"
+
 }
