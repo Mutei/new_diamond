@@ -42,14 +42,19 @@ class _NotificationScreenState extends State<NotificationScreen>
     if (bookingsData != null) {
       List<Map<String, dynamic>> loadedBookings =
           bookingsData.entries.map((entry) {
+        final bookingData = entry.value as Map<dynamic, dynamic>;
         return {
-          "bookingId": entry.key,
-          "status": entry.value["Status"].toString(),
-          "nameEn": entry.value["NameEn"], // Fetch English name
-          "nameAr": entry.value["NameAr"], // Fetch Arabic name
-          "startDate": entry.value["StartDate"].toString(),
-          "clock": entry.value["Clock"].toString(),
-          "type": entry.value["Type"].toString(),
+          "bookingId": entry.key ?? "", // Default to empty string if null
+          "status":
+              bookingData["Status"]?.toString() ?? "Unknown", // Default status
+          "nameEn":
+              bookingData["NameEn"] ?? "Unnamed Estate", // Default English name
+          "nameAr":
+              bookingData["NameAr"] ?? "منشأة بدون اسم", // Default Arabic name
+          "startDate": bookingData["StartDate"]?.toString() ??
+              "N/A", // Default start date
+          "clock": bookingData["Clock"]?.toString() ?? "N/A", // Default time
+          "type": bookingData["Type"]?.toString() ?? "N/A", // Default type
         };
       }).toList();
 

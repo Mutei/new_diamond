@@ -136,7 +136,7 @@
   "You can also book a table in a restaurant or adequate for you": "يمكنك أيضًا حجز طاولة في مطعم أو بما يناسبك",
   "Enjoy the finest services with Premium and Premium Plus": "استمتع بأرقى الخدمات مع بريميوم وبريميوم بلس",
   "Next": "التالي",
-
+  "Rooms": "الغرف المتوفرة",
   "Failed to add reply": "فشل في إضافة الرد",
   "View all {n} comments": "عرض جميع {n} التعليقات",
   "Hide comments": "إخفاء التعليقات",
@@ -155,6 +155,7 @@
   "View all": "عرض الكل",
   "Hide": "إخفاء",
   "Load more comments": "تحميل المزيد من التعليقات",
-  "Load more replies": "تحميل المزيد من الردود"
+  "Load more replies": "تحميل المزيد من الردود",
+  "additional services": "خدمات زائدة"
 
 }

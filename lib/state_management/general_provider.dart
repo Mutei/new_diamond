@@ -205,6 +205,7 @@
 //       required this.type,
 //       required this.subtext});
 // }
+import 'package:diamond_host_admin/constants/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
@@ -243,6 +244,25 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _lastSeenApprovalCount =
         prefs.getInt('lastSeenApprovalCount') ?? 0; // Default to 0
+  }
+
+  FunSnackBarPage(String hint, BuildContext context) {
+    final snackBar = SnackBar(
+      content: Text(
+        hint,
+        style: TextStyle(
+          color: kDeepPurpleColor,
+        ),
+      ),
+      action: SnackBarAction(
+        label: 'Undo',
+        onPressed: () {
+          // Some code to undo the change.
+        },
+      ),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   void toggleTheme(ThemeModeType themeModeType) async {

@@ -2,14 +2,19 @@ import 'package:diamond_host_admin/constants/colors.dart';
 import 'package:diamond_host_admin/constants/styles.dart';
 import 'package:diamond_host_admin/extension/sized_box_extension.dart';
 import 'package:diamond_host_admin/widgets/reused_elevated_button.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
+import '../backend/additional_facility.dart';
 import '../backend/booking_services.dart';
+import '../backend/rooms.dart';
 import '../localization/language_constants.dart';
 import '../backend/customer_rate_services.dart';
+import '../state_management/general_provider.dart';
 import '../utils/success_dialogue.dart';
 import '../utils/failure_dialogue.dart'; // Import FailureDialog
 import '../widgets/chip_widget.dart';
@@ -57,6 +62,7 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
   List<String> _imageUrls = [];
   TimeOfDay? selectedTime;
   DateTime? selectedDate;
+  List<Rooms> LstRoomsSelected = [];
   final BookingServices bookingServices =
       BookingServices(); // Instantiate BookingServices
   final _cacheManager = CacheManager(
@@ -255,6 +261,7 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
         Localizations.localeOf(context).languageCode == 'ar'
             ? widget.nameAr
             : widget.nameEn;
+    final objProvider = Provider.of<GeneralProvider>(context, listen: true);
 
     return Scaffold(
       appBar: AppBar(
@@ -366,6 +373,97 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                 ],
               ),
               24.kH,
+              Visibility(
+                visible: widget.type == "1",
+                child: Text(getTranslated(context, "Rooms")),
+              ),
+              Visibility(
+                visible: widget.type == "1",
+                child: FirebaseAnimatedList(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  defaultChild:
+                      const Center(child: CircularProgressIndicator()),
+                  itemBuilder: (context, snapshot, animation, index) {
+                    Map map = snapshot.value as Map;
+                    map['Key'] = snapshot.key;
+                    Rooms room = Rooms(
+                      id: map['ID'],
+                      name: map['Name'],
+                      nameEn: map['Name'],
+                      price: map['Price'],
+                      bio: map['BioAr'],
+                      bioEn: map['BioEn'],
+                      color: Colors.white,
+                    );
+
+                    bool isSelected = LstRoomsSelected.any(
+                        (element) => element.id == room.id);
+
+                    return GestureDetector(
+                      onTap: () async {
+                        setState(() {
+                          if (isSelected) {
+                            LstRoomsSelected.removeWhere(
+                                (element) => element.id == room.id);
+                          } else {
+                            LstRoomsSelected.add(room);
+                          }
+                        });
+                      },
+                      child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: 70,
+                        color: isSelected ? Colors.blue[100] : Colors.white,
+                        child: ListTile(
+                          title: Text(
+                            objProvider.CheckLangValue
+                                ? room.nameEn
+                                : room.name,
+                            style: TextStyle(
+                              color: isSelected ? kPrimaryColor : Colors.black,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                          ),
+                          subtitle: Text(
+                            objProvider.CheckLangValue ? room.bioEn : room.bio,
+                            style: TextStyle(
+                              color:
+                                  isSelected ? kPrimaryColor : Colors.black54,
+                            ),
+                          ),
+                          leading: const Icon(
+                            Icons.single_bed,
+                            color: Colors.black,
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                room.price,
+                                style: TextStyle(
+                                    color: kDeepPurpleColor, fontSize: 18),
+                              ),
+                              if (isSelected)
+                                const Icon(
+                                  Icons.check_circle,
+                                  color: kPrimaryColor,
+                                  size: 24,
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  query: FirebaseDatabase.instance
+                      .ref("App")
+                      .child("Rooms")
+                      .child(widget.estateId.toString()),
+                ),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -373,11 +471,30 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                     child: CustomButton(
                       text: getTranslated(context, "Book"),
                       onPressed: () async {
-                        await _pickDate();
-                        if (selectedDate != null) {
-                          await _pickTime();
-                          if (selectedTime != null) {
-                            _showConfirmationDialog();
+                        if (widget.type == "1") {
+                          if (LstRoomsSelected.isEmpty) {
+                            objProvider.FunSnackBarPage(
+                                "Choose Room Before", context);
+                          } else {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => AdditionalFacility(
+                                  CheckState: "",
+                                  CheckIsBooking: true,
+                                  estate: widget.type, // estate as String
+                                  IDEstate: widget.estateId.toString(),
+                                  Lstroom: LstRoomsSelected,
+                                ),
+                              ),
+                            );
+                          }
+                        } else {
+                          await _pickDate();
+                          if (selectedDate != null) {
+                            await _pickTime();
+                            if (selectedTime != null) {
+                              _showConfirmationDialog();
+                            }
                           }
                         }
                       },
