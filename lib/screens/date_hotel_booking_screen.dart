@@ -10,6 +10,7 @@ import '../backend/rooms.dart';
 import '../constants/colors.dart';
 import '../constants/styles.dart';
 import '../localization/language_constants.dart';
+import '../utils/success_dialogue.dart';
 import 'main_screen.dart';
 
 class DateBooking extends StatefulWidget {
@@ -18,11 +19,12 @@ class DateBooking extends StatefulWidget {
   final List<Additional> LstAdditional;
   final String estateID;
 
-  DateBooking(
-      {required this.Estate,
-      required this.LstRooms,
-      required this.LstAdditional,
-      required this.estateID});
+  DateBooking({
+    required this.Estate,
+    required this.LstRooms,
+    required this.LstAdditional,
+    required this.estateID,
+  });
 
   @override
   State<DateBooking> createState() =>
@@ -35,6 +37,10 @@ class _DateBookingState extends State<DateBooking> {
   final List<Rooms> lstRooms;
   final List<Additional> lstAdditional;
   final String estateID;
+
+  String? hotelName;
+  String? country;
+  String? city;
 
   _DateBookingState(
       this.estate, this.lstAdditional, this.lstRooms, this.estateID);
@@ -56,10 +62,27 @@ class _DateBookingState extends State<DateBooking> {
     super.initState();
     WidgetsBinding.instance
         .addPostFrameCallback((_) => afterLayoutWidgetBuild());
+    fetchHotelDetails();
   }
 
   void afterLayoutWidgetBuild() async {
     _show();
+  }
+
+  Future<void> fetchHotelDetails() async {
+    // Fetch hotel name and country based on estateID
+    DatabaseReference hotelRef = FirebaseDatabase.instance
+        .ref("App")
+        .child("Estate")
+        .child("Hottel")
+        .child(estateID);
+    DataSnapshot hotelSnapshot = await hotelRef.get();
+
+    setState(() {
+      hotelName = hotelSnapshot.child("NameEn").value?.toString() ?? "Hotel";
+      country = hotelSnapshot.child("Country").value?.toString() ?? "";
+      city = hotelSnapshot.child("City").value?.toString() ?? "";
+    });
   }
 
   void _show() async {
@@ -157,6 +180,7 @@ class _DateBookingState extends State<DateBooking> {
       "DateOfBooking": registrationDate,
       "Clock": "${DateTime.now().hour}:${DateTime.now().minute}",
     });
+
     for (var additional in lstAdditional) {
       await refAdd.child(idBook).child(additional.id).set({
         "IDEstate": widget.Estate,
@@ -167,34 +191,22 @@ class _DateBookingState extends State<DateBooking> {
       });
     }
 
-    String providerId = widget.Estate; // Assuming providerId relates to estate
-
-    DatabaseReference providerTokenRef =
-        FirebaseDatabase.instance.ref("App/User/$providerId/Token");
-    DataSnapshot tokenSnapshot = await providerTokenRef.get();
-    String? providerToken = tokenSnapshot.value?.toString();
-
-    // if (providerToken != null && providerToken.isNotEmpty) {
-    //   await _sendNotificationToProvider(
-    //     providerToken,
-    //     getTranslated(context, "New Booking Request"),
-    //     getTranslated(context, "You have a new booking request"),
-    //   );
-    // }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-          content: Text(
-        getTranslated(context, "Successfully"),
-        style: TextStyle(
-          color: kDeepPurpleColor,
-        ),
-      )),
-    );
-
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => MainScreen()));
-    // Further data saving and notifications
+    // Show the success dialog instead of the snackbar
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return SuccessDialog(
+          text: 'Booking Status',
+          text1: 'Your booking is under progress.',
+        );
+      },
+    ).then((_) {
+      // Navigate to the main screen after closing the dialog
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => MainScreen()),
+      );
+    });
   }
 
   @override
@@ -217,12 +229,12 @@ class _DateBookingState extends State<DateBooking> {
                             ? "assets/images/coffee.png"
                             : "assets/images/restaurant.png")),
                 title: Text(
-                  "Estate Details", // Display appropriate estate details
+                  hotelName ?? "Loading...", // Display hotel name
                   style: const TextStyle(
                       fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 subtitle: Text(
-                  "Location Info", // Customize as needed
+                  "${country ?? "Loading..."}, ${city ?? "Loading..."}", // Display country
                   style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
@@ -330,7 +342,7 @@ class _DateBookingState extends State<DateBooking> {
                           ),
                           child: Center(
                             child: Text(
-                              getTranslated(context, "Confirm Your Booking"),
+                              getTranslated(context, "Confirm your booking"),
                               style: const TextStyle(
                                 color: Colors.white,
                               ),
