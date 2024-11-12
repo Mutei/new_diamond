@@ -15,22 +15,54 @@ class RestaurantScreen extends StatefulWidget {
 class _RestaurantScreenState extends State<RestaurantScreen> {
   final EstateServices estateServices = EstateServices();
   List<Map<String, dynamic>> restaurants = [];
+  List<Map<String, dynamic>> filteredEstates = [];
+  bool loading = true;
+  bool searchActive = false;
+
+  final TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _fetchRestaurants();
+    searchController.addListener(_filterEstates);
+  }
+
+  void _filterEstates() {
+    final query = searchController.text.toLowerCase();
+    setState(() {
+      if (query.isNotEmpty) {
+        searchActive = true;
+        filteredEstates = restaurants.where((estate) {
+          final nameEn = estate['nameEn'].toLowerCase();
+          final nameAr = estate['nameAr'].toLowerCase();
+          return nameEn.contains(query) || nameAr.contains(query);
+        }).toList();
+      } else {
+        searchActive = false;
+        filteredEstates = restaurants;
+      }
+    });
+  }
+
+  void _clearSearch() {
+    searchController.clear();
+    FocusScope.of(context).unfocus();
+    setState(() {
+      searchActive = false;
+      filteredEstates = restaurants;
+    });
   }
 
   Future<void> _fetchRestaurants() async {
+    setState(() => loading = true);
     try {
       final data = await estateServices.fetchEstates();
       final parsedEstates = _parseEstates(data);
 
-      // Process each estate and categorize restaurants
       List<Map<String, dynamic>> tempRestaurants = [];
       for (var estate in parsedEstates) {
-        estate = await _addImageToEstate(estate); // Add image to estate
+        estate = await _addImageToEstate(estate);
         if (_isRestaurant(estate)) {
           tempRestaurants.add(estate);
         }
@@ -38,9 +70,12 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
 
       setState(() {
         restaurants = tempRestaurants;
+        filteredEstates = restaurants;
+        loading = false;
       });
     } catch (e) {
       print("Error fetching restaurants: $e");
+      setState(() => loading = false);
     }
   }
 
@@ -56,7 +91,6 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
           'fee': estateData['Fee'] ?? 'Free',
           'time': estateData['Time'] ?? '20 min',
           'Type': estateData['Type'] ?? 'Unknown',
-          // Add other necessary fields here
         });
       });
     });
@@ -85,49 +119,84 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
       appBar: ReusedAppBar(
         title: getTranslated(context, "Restaurants"),
       ),
-      body: restaurants.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: restaurants.length,
-              itemBuilder: (context, index) {
-                final restaurant = restaurants[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProfileEstateScreen(
-                          nameEn: restaurant['nameEn'],
-                          nameAr: restaurant['nameAr'],
-                          estateId: restaurant['id'],
-                          location: "Rose Garden", // Update as needed
-                          rating: restaurant['rating'],
-                          fee: restaurant['fee'],
-                          deliveryTime: restaurant['time'],
-                          price: 32.0, // Update as needed or fetch dynamically
-                          typeOfRestaurant:
-                              restaurant['TypeofRestaurant'] ?? '',
-                          sessions: restaurant['Sessions'] ?? '',
-                          menuLink: restaurant['MenuLink'] ?? '',
-                          entry: restaurant['Entry'] ?? '',
-                          music: restaurant['Lstmusic'] ?? '',
-                          type: restaurant['Type'],
-                        ),
-                      ),
-                    );
-                  },
-                  child: DifferentEstateCards(
-                    nameEn: restaurant['nameEn'],
-                    nameAr: restaurant['nameAr'],
-                    estateId: restaurant['id'],
-                    rating: restaurant['rating'],
-                    imageUrl: restaurant['imageUrl'],
-                    fee: restaurant['fee'],
-                    time: restaurant['time'],
-                  ),
-                );
-              },
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextFormField(
+              controller: searchController,
+              decoration: InputDecoration(
+                labelText: getTranslated(context, "Search"),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                prefixIcon: Icon(Icons.search),
+                suffixIcon: searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: Icon(Icons.clear),
+                        onPressed: _clearSearch,
+                      )
+                    : null,
+              ),
             ),
+          ),
+          Expanded(
+            child: loading
+                ? const Center(child: CircularProgressIndicator())
+                : searchActive && filteredEstates.isEmpty
+                    ? Center(
+                        child: Text(
+                          getTranslated(context, "No results found"),
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Theme.of(context).textTheme.bodyLarge?.color,
+                          ),
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount: filteredEstates.length,
+                        itemBuilder: (context, index) {
+                          final restaurant = filteredEstates[index];
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ProfileEstateScreen(
+                                    nameEn: restaurant['nameEn'],
+                                    nameAr: restaurant['nameAr'],
+                                    estateId: restaurant['id'],
+                                    location: "Rose Garden",
+                                    rating: restaurant['rating'],
+                                    fee: restaurant['fee'],
+                                    deliveryTime: restaurant['time'],
+                                    price: 32.0, // Update as needed
+                                    typeOfRestaurant:
+                                        restaurant['TypeofRestaurant'] ?? '',
+                                    sessions: restaurant['Sessions'] ?? '',
+                                    menuLink: restaurant['MenuLink'] ?? '',
+                                    entry: restaurant['Entry'] ?? '',
+                                    music: restaurant['Lstmusic'] ?? '',
+                                    type: restaurant['Type'],
+                                  ),
+                                ),
+                              );
+                            },
+                            child: DifferentEstateCards(
+                              nameEn: restaurant['nameEn'],
+                              nameAr: restaurant['nameAr'],
+                              estateId: restaurant['id'],
+                              rating: restaurant['rating'],
+                              imageUrl: restaurant['imageUrl'],
+                              fee: restaurant['fee'],
+                              time: restaurant['time'],
+                            ),
+                          );
+                        },
+                      ),
+          ),
+        ],
+      ),
     );
   }
 }

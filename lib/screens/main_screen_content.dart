@@ -125,6 +125,7 @@ class _MainScreenContentState extends State<MainScreenContent> {
 
   void _clearSearch() {
     searchController.clear();
+    FocusScope.of(context).unfocus();
     setState(() {
       searchActive = false;
       filteredEstates = estates;

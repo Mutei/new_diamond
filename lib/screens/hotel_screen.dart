@@ -15,22 +15,54 @@ class HotelScreen extends StatefulWidget {
 class _HotelScreenState extends State<HotelScreen> {
   final EstateServices estateServices = EstateServices();
   List<Map<String, dynamic>> hotels = [];
+  List<Map<String, dynamic>> filteredEstates = [];
+  bool loading = true;
+  bool searchActive = false;
+
+  final TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _fetchHotels();
+    searchController.addListener(_filterEstates);
+  }
+
+  void _filterEstates() {
+    final query = searchController.text.toLowerCase();
+    setState(() {
+      if (query.isNotEmpty) {
+        searchActive = true;
+        filteredEstates = hotels.where((estate) {
+          final nameEn = estate['nameEn'].toLowerCase();
+          final nameAr = estate['nameAr'].toLowerCase();
+          return nameEn.contains(query) || nameAr.contains(query);
+        }).toList();
+      } else {
+        searchActive = false;
+        filteredEstates = hotels;
+      }
+    });
+  }
+
+  void _clearSearch() {
+    searchController.clear();
+    FocusScope.of(context).unfocus();
+    setState(() {
+      searchActive = false;
+      filteredEstates = hotels;
+    });
   }
 
   Future<void> _fetchHotels() async {
+    setState(() => loading = true);
     try {
       final data = await estateServices.fetchEstates();
       final parsedEstates = _parseEstates(data);
 
-      // Process each estate and categorize hotels
       List<Map<String, dynamic>> tempHotels = [];
       for (var estate in parsedEstates) {
-        estate = await _addImageToEstate(estate); // Add image to estate
+        estate = await _addImageToEstate(estate);
         if (_isHotel(estate)) {
           tempHotels.add(estate);
         }
@@ -38,9 +70,12 @@ class _HotelScreenState extends State<HotelScreen> {
 
       setState(() {
         hotels = tempHotels;
+        filteredEstates = hotels;
+        loading = false;
       });
     } catch (e) {
       print("Error fetching hotels: $e");
+      setState(() => loading = false);
     }
   }
 
@@ -84,48 +119,84 @@ class _HotelScreenState extends State<HotelScreen> {
       appBar: ReusedAppBar(
         title: getTranslated(context, "Hotels"),
       ),
-      body: hotels.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: hotels.length,
-              itemBuilder: (context, index) {
-                final hotel = hotels[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProfileEstateScreen(
-                          nameEn: hotel['nameEn'],
-                          nameAr: hotel['nameAr'],
-                          estateId: hotel['id'],
-                          location: "Rose Garden",
-                          rating: hotel['rating'],
-                          fee: hotel['fee'],
-                          deliveryTime: hotel['time'],
-                          price: 32.0,
-                          typeOfRestaurant: hotel['TypeofRestaurant'] ?? '',
-                          sessions: hotel['Sessions'] ?? '',
-                          menuLink: hotel['MenuLink'] ?? '',
-                          entry: hotel['Entry'] ?? '',
-                          music: hotel['Lstmusic'] ?? '',
-                          type: hotel['Type'],
-                        ),
-                      ),
-                    );
-                  },
-                  child: DifferentEstateCards(
-                    nameEn: hotel['nameEn'],
-                    nameAr: hotel['nameAr'],
-                    estateId: hotel['id'],
-                    rating: hotel['rating'],
-                    imageUrl: hotel['imageUrl'],
-                    fee: hotel['fee'],
-                    time: hotel['time'],
-                  ),
-                );
-              },
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextFormField(
+              controller: searchController,
+              decoration: InputDecoration(
+                labelText: getTranslated(context, "Search"),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                prefixIcon: Icon(Icons.search),
+                suffixIcon: searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: Icon(Icons.clear),
+                        onPressed: _clearSearch,
+                      )
+                    : null,
+              ),
             ),
+          ),
+          Expanded(
+            child: loading
+                ? const Center(child: CircularProgressIndicator())
+                : searchActive && filteredEstates.isEmpty
+                    ? Center(
+                        child: Text(
+                          getTranslated(context, "No results found"),
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Theme.of(context).textTheme.bodyLarge?.color,
+                          ),
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount: filteredEstates.length,
+                        itemBuilder: (context, index) {
+                          final hotel = filteredEstates[index];
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ProfileEstateScreen(
+                                    nameEn: hotel['nameEn'],
+                                    nameAr: hotel['nameAr'],
+                                    estateId: hotel['id'],
+                                    location: "Rose Garden",
+                                    rating: hotel['rating'],
+                                    fee: hotel['fee'],
+                                    deliveryTime: hotel['time'],
+                                    price: 32.0,
+                                    typeOfRestaurant:
+                                        hotel['TypeofRestaurant'] ?? '',
+                                    sessions: hotel['Sessions'] ?? '',
+                                    menuLink: hotel['MenuLink'] ?? '',
+                                    entry: hotel['Entry'] ?? '',
+                                    music: hotel['Lstmusic'] ?? '',
+                                    type: hotel['Type'],
+                                  ),
+                                ),
+                              );
+                            },
+                            child: DifferentEstateCards(
+                              nameEn: hotel['nameEn'],
+                              nameAr: hotel['nameAr'],
+                              estateId: hotel['id'],
+                              rating: hotel['rating'],
+                              imageUrl: hotel['imageUrl'],
+                              fee: hotel['fee'],
+                              time: hotel['time'],
+                            ),
+                          );
+                        },
+                      ),
+          ),
+        ],
+      ),
     );
   }
 }
