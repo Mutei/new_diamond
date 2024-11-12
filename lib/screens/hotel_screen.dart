@@ -3,6 +3,7 @@ import 'package:diamond_host_admin/widgets/reused_appbar.dart';
 import 'package:flutter/material.dart';
 import '../widgets/estate_card_widget.dart';
 import '../backend/estate_services.dart';
+import '../widgets/reused_different_screen_card_widget.dart';
 import 'profile_estate_screen.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
@@ -113,7 +114,7 @@ class _HotelScreenState extends State<HotelScreen> {
                       ),
                     );
                   },
-                  child: EstateCard(
+                  child: DifferentEstateCards(
                     nameEn: hotel['nameEn'],
                     nameAr: hotel['nameAr'],
                     estateId: hotel['id'],

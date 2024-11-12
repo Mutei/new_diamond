@@ -3,6 +3,7 @@ import '../localization/language_constants.dart';
 import '../widgets/estate_card_widget.dart';
 import '../backend/estate_services.dart';
 import '../widgets/reused_appbar.dart';
+import '../widgets/reused_different_screen_card_widget.dart';
 import 'profile_estate_screen.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
@@ -115,7 +116,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                       ),
                     );
                   },
-                  child: EstateCard(
+                  child: DifferentEstateCards(
                     nameEn: restaurant['nameEn'],
                     nameAr: restaurant['nameAr'],
                     estateId: restaurant['id'],

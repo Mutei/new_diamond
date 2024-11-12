@@ -5,6 +5,7 @@ import '../localization/language_constants.dart';
 import '../widgets/estate_card_widget.dart';
 import '../backend/estate_services.dart';
 import '../widgets/reused_appbar.dart';
+import '../widgets/reused_different_screen_card_widget.dart';
 import 'profile_estate_screen.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
@@ -116,7 +117,7 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
                       ),
                     );
                   },
-                  child: EstateCard(
+                  child: DifferentEstateCards(
                     nameEn: coffee['nameEn'],
                     nameAr: coffee['nameAr'],
                     estateId: coffee['id'],
