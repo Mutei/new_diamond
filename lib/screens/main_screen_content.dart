@@ -7,9 +7,9 @@ import '../widgets/reused_appbar.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/estate_card_widget.dart';
 import 'profile_estate_screen.dart';
-import 'hotel_screen.dart'; // Import hotel screen
-import 'restaurant_screen.dart'; // Import restaurant screen
-import 'coffee_screen.dart'; // Import coffee screen
+import 'hotel_screen.dart';
+import 'restaurant_screen.dart';
+import 'coffee_screen.dart';
 
 class MainScreenContent extends StatefulWidget {
   const MainScreenContent({super.key});
@@ -24,40 +24,44 @@ class _MainScreenContentState extends State<MainScreenContent> {
 
   final List<String> categories = ['Hotel', 'Restaurant', 'Coffee'];
   List<Map<String, dynamic>> estates = [];
-  List<Map<String, dynamic>> hotels = [];
-  List<Map<String, dynamic>> restaurants = [];
-  List<Map<String, dynamic>> cafes = [];
+  List<Map<String, dynamic>> filteredEstates = [];
+  bool loading = true;
+  bool searchActive = false;
+
+  final TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _fetchEstates();
+    searchController.addListener(_filterEstates);
   }
 
   Future<void> _fetchEstates() async {
+    setState(() => loading = true);
     try {
       final data = await estateServices.fetchEstates();
-      final parsedEstates = _parseEstates(data);
-
-      for (var estate in parsedEstates) {
-        estate = await _addAdditionalEstateData(estate);
-        _categorizeEstates(estate);
-      }
+      final parsedEstates = await _parseAndFetchAdditionalData(data);
 
       setState(() {
         estates = parsedEstates;
+        filteredEstates = estates;
+        loading = false;
       });
     } catch (e) {
       print("Error fetching estates: $e");
+      setState(() => loading = false);
     }
   }
 
-  List<Map<String, dynamic>> _parseEstates(Map<String, dynamic> data) {
+  Future<List<Map<String, dynamic>>> _parseAndFetchAdditionalData(
+      Map<String, dynamic> data) async {
     List<Map<String, dynamic>> estateList = [];
-    data.forEach((key, value) {
-      value.forEach((estateID, estateData) {
-        estateList.add({
-          'id': estateID,
+    for (var entry in data.entries) {
+      for (var estateEntry in entry.value.entries) {
+        var estateData = estateEntry.value;
+        var estate = {
+          'id': estateEntry.key,
           'nameEn': estateData['NameEn'] ?? 'Unknown',
           'nameAr': estateData['NameAr'] ?? 'غير معروف',
           'rating': 0.0,
@@ -69,9 +73,12 @@ class _MainScreenContentState extends State<MainScreenContent> {
           'Entry': estateData['Entry'] ?? 'Empty',
           'Lstmusic': estateData['Lstmusic'] ?? 'No music',
           'Type': estateData['Type'] ?? 'Unknown',
-        });
-      });
-    });
+        };
+
+        estate = await _addAdditionalEstateData(estate);
+        estateList.add(estate);
+      }
+    }
     return estateList;
   }
 
@@ -99,38 +106,33 @@ class _MainScreenContentState extends State<MainScreenContent> {
       ..['imageUrl'] = imageUrl;
   }
 
-  void _categorizeEstates(Map<String, dynamic> estate) {
-    switch (estate['Type']) {
-      case '1':
-        hotels.add(estate);
-        break;
-      case '3':
-        restaurants.add(estate);
-        break;
-      case '2':
-        cafes.add(estate);
-        break;
-      default:
-        break;
-    }
+  void _filterEstates() {
+    final query = searchController.text.toLowerCase();
+    setState(() {
+      if (query.isNotEmpty) {
+        searchActive = true;
+        filteredEstates = estates.where((estate) {
+          final nameEn = estate['nameEn'].toLowerCase();
+          final nameAr = estate['nameAr'].toLowerCase();
+          return nameEn.contains(query) || nameAr.contains(query);
+        }).toList();
+      } else {
+        searchActive = false;
+        filteredEstates = estates;
+      }
+    });
   }
 
-  IconData _getCategoryIcon(String category) {
-    switch (category) {
-      case 'Hotel':
-        return Icons.hotel;
-      case 'Restaurant':
-        return Icons.restaurant;
-      case 'Coffee':
-        return Icons.local_cafe;
-      default:
-        return Icons.category;
-    }
+  void _clearSearch() {
+    searchController.clear();
+    setState(() {
+      searchActive = false;
+      filteredEstates = estates;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Access current theme
     final ThemeData theme = Theme.of(context);
     final bool isDarkMode = theme.brightness == Brightness.dark;
 
@@ -139,123 +141,176 @@ class _MainScreenContentState extends State<MainScreenContent> {
         title: getTranslated(context, "Main Screen"),
       ),
       drawer: const CustomDrawer(),
-      backgroundColor:
-          theme.scaffoldBackgroundColor, // Use theme's background color
-      body: estates.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 8.0),
-                    child: Text(
-                      getTranslated(context, "All Categories"),
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: theme.textTheme.titleLarge
-                            ?.color, // Use theme's text color
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    height: 130,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      itemCount: categories.length,
-                      itemBuilder: (context, index) {
-                        final category = categories[index];
-                        final iconData = _getCategoryIcon(category);
-
-                        return GestureDetector(
-                          onTap: () {
-                            // Directly push to the respective screen
-                            switch (category) {
-                              case 'Hotel':
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => HotelScreen(),
-                                  ),
-                                );
-                                break;
-                              case 'Restaurant':
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => RestaurantScreen(),
-                                  ),
-                                );
-                                break;
-                              case 'Coffee':
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => CoffeeScreen(),
-                                  ),
-                                );
-                                break;
-                              default:
-                                break;
-                            }
-                          },
-                          child: Container(
-                            width: 100,
-                            margin: const EdgeInsets.only(right: 16.0),
-                            child: Column(
-                              children: [
-                                AnimatedContainer(
-                                  duration: Duration(milliseconds: 300),
-                                  curve: Curves.easeInOut,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: isDarkMode
-                                          ? [
-                                              Colors.deepPurple.shade700,
-                                              Colors.indigo.shade700
-                                            ]
-                                          : [
-                                              Colors.deepPurple,
-                                              Colors.indigo,
-                                            ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  child: Icon(iconData,
-                                      size: 40, color: Colors.white),
-                                  padding: EdgeInsets.all(20),
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  category,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: theme.textTheme.bodyLarge?.color,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildSection("Hotels", hotels),
-                  _buildSection("Restaurants", restaurants),
-                  _buildSection("Cafes", cafes),
-                  const SizedBox(height: 16),
-                ],
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextFormField(
+              controller: searchController,
+              decoration: InputDecoration(
+                labelText: getTranslated(context, "Search"),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                prefixIcon: Icon(Icons.search),
+                suffixIcon: searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: Icon(Icons.clear),
+                        onPressed: _clearSearch,
+                      )
+                    : null,
               ),
             ),
+          ),
+          Expanded(
+            child: loading
+                ? const Center(child: CircularProgressIndicator())
+                : searchActive && filteredEstates.isEmpty
+                    ? Center(
+                        child: Text(
+                          getTranslated(context, "No results found"),
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: theme.textTheme.bodyLarge?.color,
+                          ),
+                        ),
+                      )
+                    : SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (!searchActive) ...[
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0, vertical: 8.0),
+                                child: Text(
+                                  getTranslated(context, "All Categories"),
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: theme.textTheme.titleLarge?.color,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 130,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16.0),
+                                  itemCount: categories.length,
+                                  itemBuilder: (context, index) {
+                                    final category = categories[index];
+                                    final iconData = _getCategoryIcon(category);
+
+                                    return GestureDetector(
+                                      onTap: () {
+                                        switch (category) {
+                                          case 'Hotel':
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    HotelScreen(),
+                                              ),
+                                            );
+                                            break;
+                                          case 'Restaurant':
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    RestaurantScreen(),
+                                              ),
+                                            );
+                                            break;
+                                          case 'Coffee':
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    CoffeeScreen(),
+                                              ),
+                                            );
+                                            break;
+                                        }
+                                      },
+                                      child: Container(
+                                        width: 100,
+                                        margin:
+                                            const EdgeInsets.only(right: 16.0),
+                                        child: Column(
+                                          children: [
+                                            AnimatedContainer(
+                                              duration:
+                                                  Duration(milliseconds: 300),
+                                              curve: Curves.easeInOut,
+                                              decoration: BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  colors: isDarkMode
+                                                      ? [
+                                                          Colors.deepPurple
+                                                              .shade700,
+                                                          Colors.indigo.shade700
+                                                        ]
+                                                      : [
+                                                          Colors.deepPurple,
+                                                          Colors.indigo,
+                                                        ],
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                              ),
+                                              child: Icon(iconData,
+                                                  size: 40,
+                                                  color: Colors.white),
+                                              padding: EdgeInsets.all(20),
+                                            ),
+                                            const SizedBox(height: 12),
+                                            Text(
+                                              category,
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                                color: theme
+                                                    .textTheme.bodyLarge?.color,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+                            _buildSection(
+                                "Hotels",
+                                filteredEstates
+                                    .where((estate) => estate['Type'] == '1')
+                                    .toList()),
+                            _buildSection(
+                                "Restaurants",
+                                filteredEstates
+                                    .where((estate) => estate['Type'] == '3')
+                                    .toList()),
+                            _buildSection(
+                                "Cafes",
+                                filteredEstates
+                                    .where((estate) => estate['Type'] == '2')
+                                    .toList()),
+                            const SizedBox(height: 16),
+                          ],
+                        ),
+                      ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -326,5 +381,18 @@ class _MainScreenContentState extends State<MainScreenContent> {
         ],
       ),
     );
+  }
+
+  IconData _getCategoryIcon(String category) {
+    switch (category) {
+      case 'Hotel':
+        return Icons.hotel;
+      case 'Restaurant':
+        return Icons.restaurant;
+      case 'Coffee':
+        return Icons.local_cafe;
+      default:
+        return Icons.category;
+    }
   }
 }
