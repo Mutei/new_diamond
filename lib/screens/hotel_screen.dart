@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../widgets/estate_card_widget.dart';
 import '../backend/estate_services.dart';
 import '../widgets/reused_different_screen_card_widget.dart';
+import '../widgets/search_text_form_field.dart';
 import 'profile_estate_screen.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
@@ -123,21 +124,10 @@ class _HotelScreenState extends State<HotelScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: TextFormField(
+            child: SearchTextField(
               controller: searchController,
-              decoration: InputDecoration(
-                labelText: getTranslated(context, "Search"),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                prefixIcon: Icon(Icons.search),
-                suffixIcon: searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: Icon(Icons.clear),
-                        onPressed: _clearSearch,
-                      )
-                    : null,
-              ),
+              onClear: _clearSearch,
+              onChanged: (value) => _filterEstates(),
             ),
           ),
           Expanded(
