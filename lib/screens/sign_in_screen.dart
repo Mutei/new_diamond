@@ -2,6 +2,8 @@ import 'package:diamond_host_admin/extension/sized_box_extension.dart';
 import 'package:diamond_host_admin/localization/language_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:auto_size_text/auto_size_text.dart'; // Import AutoSizeText
+
 import '../backend/authentication_methods.dart';
 import '../constants/colors.dart';
 import '../constants/styles.dart';
@@ -11,7 +13,7 @@ import '../widgets/reused_elevated_button.dart';
 import '../widgets/reused_phone_number_widget.dart';
 import '../widgets/reused_textform_field.dart';
 import 'login_screen.dart';
-import 'package:icons_plus/icons_plus.dart'; // Import the icons_plus package
+import 'package:icons_plus/icons_plus.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -25,7 +27,7 @@ class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   String? _phoneNumber;
-  bool _acceptedTerms = false; // Track if terms are accepted
+  bool _acceptedTerms = false;
 
   final AuthenticationMethods _authMethods = AuthenticationMethods();
 
@@ -37,7 +39,6 @@ class _SignInScreenState extends State<SignInScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         actions: [
-          // Language change button
           IconButton(
             icon: Icon(Icons.language, color: kPurpleColor),
             onPressed: () {
@@ -49,22 +50,6 @@ class _SignInScreenState extends State<SignInScreen> {
               );
             },
           ),
-          // Dark/Light mode toggle button
-          // Consumer<GeneralProvider>(
-          //   builder: (context, generalProvider, child) {
-          //     return IconButton(
-          //       icon: Icon(
-          //         generalProvider.isDarkMode
-          //             ? Icons.dark_mode
-          //             : Icons.light_mode,
-          //         color: kPurpleColor,
-          //       ),
-          //       onPressed: () {
-          //         generalProvider.toggleTheme(); // Toggle theme
-          //       },
-          //     );
-          //   },
-          // ),
         ],
       ),
       body: SingleChildScrollView(
@@ -139,12 +124,10 @@ class _SignInScreenState extends State<SignInScreen> {
                   CustomButton(
                     text: getTranslated(context, 'Sign in'),
                     onPressed: () async {
-                      // Hide the keyboard
                       FocusScope.of(context).unfocus();
 
                       if (_formKey.currentState!.validate()) {
                         if (!_acceptedTerms) {
-                          // Show error if terms are not accepted
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(getTranslated(context,
@@ -154,14 +137,13 @@ class _SignInScreenState extends State<SignInScreen> {
                           return;
                         }
 
-                        // Call sign-up method
                         try {
                           await _authMethods.signUpWithEmailPhone(
                             email: _emailController.text.trim(),
                             password: _passwordController.text.trim(),
-                            phone: _phoneNumber!, // Make sure this is not null
+                            phone: _phoneNumber!,
                             acceptedTerms: _acceptedTerms,
-                            context: context, // Pass the context here
+                            context: context,
                           );
                           print('OTP sent for verification');
                         } catch (e) {
@@ -174,11 +156,13 @@ class _SignInScreenState extends State<SignInScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        getTranslated(context, "Already have an account? "),
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyLarge, // Replace bodyText1 with bodyLarge
+                      Flexible(
+                        child: AutoSizeText(
+                          getTranslated(context, "Already have an account? "),
+                          style: Theme.of(context).textTheme.bodyLarge,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                       GestureDetector(
                         onTap: () {
@@ -188,14 +172,15 @@ class _SignInScreenState extends State<SignInScreen> {
                                 builder: (context) => const LoginScreen()),
                           );
                         },
-                        child: Text(
+                        child: AutoSizeText(
                           getTranslated(context, "Login"),
                           style:
                               Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                    color: Colors
-                                        .blue, // Keeping the blue color for this specific text
+                                    color: Colors.blue,
                                     fontWeight: FontWeight.bold,
                                   ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],

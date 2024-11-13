@@ -1,10 +1,10 @@
 import 'package:diamond_host_admin/constants/styles.dart';
-import 'package:diamond_host_admin/widgets/reused_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:diamond_host_admin/constants/colors.dart';
 import 'package:diamond_host_admin/localization/language_constants.dart';
-import '../widgets/booking_card_widget.dart'; // Import the reusable BookingCard widget
+import 'package:auto_size_text/auto_size_text.dart';
+import '../widgets/booking_card_widget.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({Key? key}) : super(key: key);
@@ -15,10 +15,8 @@ class NotificationScreen extends StatefulWidget {
 
 class _NotificationScreenState extends State<NotificationScreen>
     with TickerProviderStateMixin {
-  final DatabaseReference bookingRef = FirebaseDatabase.instance
-      .ref("App")
-      .child("Booking")
-      .child("Book"); // Firebase path
+  final DatabaseReference bookingRef =
+      FirebaseDatabase.instance.ref("App").child("Booking").child("Book");
   bool isLoading = true;
   List<Map<String, dynamic>> bookings = [];
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
@@ -34,7 +32,6 @@ class _NotificationScreenState extends State<NotificationScreen>
     _fetchBookings();
   }
 
-  // Fetch the booking status from Firebase
   Future<void> _fetchBookings() async {
     DatabaseEvent event = await bookingRef.once();
     Map<dynamic, dynamic>? bookingsData = event.snapshot.value as Map?;
@@ -44,24 +41,20 @@ class _NotificationScreenState extends State<NotificationScreen>
           bookingsData.entries.map((entry) {
         final bookingData = entry.value as Map<dynamic, dynamic>;
         return {
-          "bookingId": entry.key ?? "", // Default to empty string if null
-          "status":
-              bookingData["Status"]?.toString() ?? "Unknown", // Default status
-          "nameEn":
-              bookingData["NameEn"] ?? "Unnamed Estate", // Default English name
-          "nameAr":
-              bookingData["NameAr"] ?? "منشأة بدون اسم", // Default Arabic name
-          "startDate": bookingData["StartDate"]?.toString() ??
-              "N/A", // Default start date
-          "clock": bookingData["Clock"]?.toString() ?? "N/A", // Default time
-          "type": bookingData["Type"]?.toString() ?? "N/A", // Default type
+          "bookingId": entry.key ?? "",
+          "status": bookingData["Status"]?.toString() ?? "Unknown",
+          "nameEn": bookingData["NameEn"] ?? "Unnamed Estate",
+          "nameAr": bookingData["NameAr"] ?? "منشأة بدون اسم",
+          "startDate": bookingData["StartDate"]?.toString() ?? "N/A",
+          "clock": bookingData["Clock"]?.toString() ?? "N/A",
+          "type": bookingData["Type"]?.toString() ?? "N/A",
         };
       }).toList();
 
       setState(() {
         bookings = loadedBookings;
         isLoading = false;
-        _populateList(); // Animate the list population
+        _populateList();
       });
     } else {
       setState(() {
@@ -70,7 +63,6 @@ class _NotificationScreenState extends State<NotificationScreen>
     }
   }
 
-  // Populate the AnimatedList with entries
   void _populateList() {
     Future.delayed(const Duration(milliseconds: 300), () {
       for (var i = 0; i < bookings.length; i++) {
@@ -83,11 +75,18 @@ class _NotificationScreenState extends State<NotificationScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ReusedAppBar(
-        title: getTranslated(
-          context,
-          "Booking Status",
+      appBar: AppBar(
+        title: AutoSizeText(
+          getTranslated(context, "Booking Status"),
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: kDeepPurpleColor,
+          ),
+          maxLines: 1,
         ),
+        iconTheme: kIconTheme,
+        centerTitle: true,
       ),
       body: isLoading
           ? Center(
@@ -97,19 +96,18 @@ class _NotificationScreenState extends State<NotificationScreen>
             )
           : bookings.isEmpty
               ? Center(
-                  child: Text(
+                  child: AutoSizeText(
                     getTranslated(context, "No bookings found."),
                     style: const TextStyle(fontSize: 16),
+                    maxLines: 1,
                   ),
                 )
               : AnimatedList(
                   key: _listKey,
                   initialItemCount: bookings.length,
                   itemBuilder: (context, index, animation) {
-                    // Ensure the index is within range
                     if (index < bookings.length) {
                       final booking = bookings[index];
-                      // Get the translated name
                       final String displayName =
                           Localizations.localeOf(context).languageCode == 'ar'
                               ? booking['nameAr']
@@ -117,10 +115,9 @@ class _NotificationScreenState extends State<NotificationScreen>
                       return BookingCardWidget(
                         booking: booking,
                         animation: animation,
-                        estateName: displayName, // Pass the translated name
+                        estateName: displayName,
                       );
                     } else {
-                      // Return an empty widget if index is out of range
                       return const SizedBox.shrink();
                     }
                   },

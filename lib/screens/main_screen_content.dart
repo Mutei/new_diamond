@@ -11,6 +11,7 @@ import 'profile_estate_screen.dart';
 import 'hotel_screen.dart';
 import 'restaurant_screen.dart';
 import 'coffee_screen.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class MainScreenContent extends StatefulWidget {
   const MainScreenContent({super.key});
@@ -200,35 +201,29 @@ class _MainScreenContentState extends State<MainScreenContent> {
                                         switch (category) {
                                           case 'Hotel':
                                             Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    HotelScreen(),
-                                              ),
-                                            );
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        HotelScreen()));
                                             break;
                                           case 'Restaurant':
                                             Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    RestaurantScreen(),
-                                              ),
-                                            );
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        RestaurantScreen()));
                                             break;
                                           case 'Coffee':
                                             Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    CoffeeScreen(),
-                                              ),
-                                            );
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        CoffeeScreen()));
                                             break;
                                         }
                                       },
                                       child: Container(
-                                        width: 100,
+                                        width: 110,
                                         margin:
                                             const EdgeInsets.only(right: 16.0),
                                         child: Column(
@@ -247,7 +242,7 @@ class _MainScreenContentState extends State<MainScreenContent> {
                                                         ]
                                                       : [
                                                           Colors.deepPurple,
-                                                          Colors.indigo,
+                                                          Colors.indigo
                                                         ],
                                                   begin: Alignment.topLeft,
                                                   end: Alignment.bottomRight,
@@ -260,8 +255,9 @@ class _MainScreenContentState extends State<MainScreenContent> {
                                                   color: Colors.white),
                                               padding: EdgeInsets.all(20),
                                             ),
-                                            const SizedBox(height: 12),
-                                            Text(
+                                            const SizedBox(
+                                                height: 4), // Adjusted height
+                                            AutoSizeText(
                                               category,
                                               style: TextStyle(
                                                 fontSize: 14,
@@ -269,6 +265,7 @@ class _MainScreenContentState extends State<MainScreenContent> {
                                                 color: theme
                                                     .textTheme.bodyLarge?.color,
                                               ),
+                                              maxLines: 1,
                                               textAlign: TextAlign.center,
                                             ),
                                           ],
@@ -278,7 +275,7 @@ class _MainScreenContentState extends State<MainScreenContent> {
                                   },
                                 ),
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 8),
                             ],
                             _buildSection(
                                 "Hotels",
@@ -295,7 +292,6 @@ class _MainScreenContentState extends State<MainScreenContent> {
                                 filteredEstates
                                     .where((estate) => estate['Type'] == '2')
                                     .toList()),
-                            const SizedBox(height: 16),
                           ],
                         ),
                       ),

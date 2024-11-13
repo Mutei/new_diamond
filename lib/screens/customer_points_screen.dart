@@ -1,10 +1,8 @@
-import 'package:diamond_host_admin/constants/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import '../localization/language_constants.dart';
-import '../state_management/general_provider.dart';
 
 class CustomerPoints extends StatefulWidget {
   const CustomerPoints({super.key});
@@ -92,17 +90,16 @@ class _CustomerPointsState extends State<CustomerPoints> {
             Center(
               child: Column(
                 children: [
-                  Text(
+                  AutoSizeText(
                     getTranslated(context, "Total Points"),
                     style: const TextStyle(
                       fontSize: 26,
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
+                    maxLines: 1,
                   ),
-                  SizedBox(
-                      height: screenHeight *
-                          0.02), // Spacing based on screen height
+                  SizedBox(height: screenHeight * 0.02),
                   Stack(
                     alignment: Alignment.center,
                     children: [
@@ -115,12 +112,12 @@ class _CustomerPointsState extends State<CustomerPoints> {
                               ? (progressToNextReward - 1)
                               : progressToNextReward,
                           backgroundColor: Colors.grey[300],
-                          color: kConfirmColor,
+                          color: Colors.amber,
                           strokeWidth: screenWidth *
                               0.03, // Thickness relative to screen width
                         ),
                       ),
-                      Text(
+                      AutoSizeText(
                         '${(progressToNextReward * 100).toStringAsFixed(0)}%',
                         style: TextStyle(
                           color: Colors.white,
@@ -128,16 +125,18 @@ class _CustomerPointsState extends State<CustomerPoints> {
                               screenWidth * 0.05, // Font size is responsive
                           fontWeight: FontWeight.bold,
                         ),
+                        maxLines: 1,
                       ),
                     ],
                   ),
-                  SizedBox(height: screenHeight * 0.02), // Spacing
-                  Text(
+                  SizedBox(height: screenHeight * 0.02),
+                  AutoSizeText(
                     '$_totalPoints / $_maxPoints ${getTranslated(context, "points")}',
                     style: TextStyle(
                       fontSize: screenWidth * 0.045, // Responsive font size
                       color: Colors.white70,
                     ),
+                    maxLines: 1,
                   ),
                   SizedBox(height: screenHeight * 0.02),
                   Container(
@@ -155,7 +154,7 @@ class _CustomerPointsState extends State<CustomerPoints> {
                         ),
                       ],
                     ),
-                    child: Text(
+                    child: AutoSizeText(
                       _totalPoints >= 500000
                           ? getTranslated(
                               context, '50 SR off with 1 million points')
@@ -165,28 +164,31 @@ class _CustomerPointsState extends State<CustomerPoints> {
                         fontSize: screenWidth * 0.045, // Responsive font size
                         color: const Color(0xFF673AB7),
                       ),
+                      maxLines: 1,
                     ),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: screenHeight * 0.04), // Spacing
-            Text(
+            SizedBox(height: screenHeight * 0.04),
+            AutoSizeText(
               getTranslated(context, "How it works?"),
               style: TextStyle(
                 fontSize: screenWidth * 0.05, // Responsive font size
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
+              maxLines: 1,
             ),
-            SizedBox(height: screenHeight * 0.01), // Spacing
-            Text(
+            SizedBox(height: screenHeight * 0.01),
+            AutoSizeText(
               getTranslated(context,
                   'Earn points by rating and giving feedback to providers. Reach 500,000 points to get 25 SR off, and 1 million points to get 50 SR off.'),
               style: TextStyle(
                 fontSize: screenWidth * 0.04, // Responsive font size
                 color: Colors.white60,
               ),
+              maxLines: 3,
             ),
           ],
         ),

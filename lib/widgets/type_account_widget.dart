@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
 class TypeAccountWidget extends StatelessWidget {
@@ -65,8 +66,9 @@ class TypeAccountWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 15), // Adjusted spacing
-            // Account Title
-            Text(
+
+            // Account Title with AutoSizeText for responsive text size
+            AutoSizeText(
               title,
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -74,16 +76,21 @@ class TypeAccountWidget extends StatelessWidget {
                 fontWeight: FontWeight.bold,
                 color: isSelected ? Colors.white : Colors.black87,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 8),
-            // Account Subtitle
-            Text(
+
+            // Account Subtitle with AutoSizeText for responsive text size
+            AutoSizeText(
               subtitle,
-              textAlign: TextAlign.center, // Center-align subtitle
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
                 color: isSelected ? Colors.white70 : Colors.grey.shade600,
               ),
+              maxLines: 10,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

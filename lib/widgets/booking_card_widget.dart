@@ -7,13 +7,13 @@ import 'package:diamond_host_admin/localization/language_constants.dart';
 class BookingCardWidget extends StatelessWidget {
   final Map<String, dynamic> booking;
   final Animation<double> animation;
-  final String estateName; // Add this to receive the translated name
+  final String estateName;
 
   const BookingCardWidget({
     Key? key,
     required this.booking,
     required this.animation,
-    required this.estateName, // Add this to the constructor
+    required this.estateName,
   }) : super(key: key);
 
   @override
@@ -49,14 +49,23 @@ class BookingCardWidget extends StatelessWidget {
                 12.kH,
                 _buildStatusWidget(context, booking["status"]),
                 12.kH,
-                _buildInfoRow(context, Icons.store,
-                    '${getTranslated(context, 'Name')}: $estateName'), // Display the translated estate name
+                _buildInfoRow(
+                  context,
+                  Icons.store,
+                  '${getTranslated(context, 'Name')}: $estateName',
+                ),
                 12.kH,
-                _buildInfoRow(context, Icons.date_range,
-                    '${getTranslated(context, 'Date')}: ${booking["startDate"]}'),
+                _buildInfoRow(
+                  context,
+                  Icons.date_range,
+                  '${getTranslated(context, 'Date')}: ${booking["startDate"]}',
+                ),
                 12.kH,
-                _buildInfoRow(context, Icons.access_time,
-                    '${getTranslated(context, 'Time')}: ${booking["clock"]}'),
+                _buildInfoRow(
+                  context,
+                  Icons.access_time,
+                  '${getTranslated(context, 'Time')}: ${booking["clock"]}',
+                ),
               ],
             ),
           ),
@@ -65,7 +74,6 @@ class BookingCardWidget extends StatelessWidget {
     );
   }
 
-  // Status widget based on the booking status
   Widget _buildStatusWidget(BuildContext context, String status) {
     IconData icon;
     Color iconColor;
@@ -97,15 +105,17 @@ class BookingCardWidget extends StatelessWidget {
       children: [
         Icon(icon, color: iconColor),
         const SizedBox(width: 10),
-        Text(
-          statusText,
-          style: TextStyle(color: iconColor, fontWeight: FontWeight.bold),
+        Flexible(
+          child: Text(
+            statusText,
+            style: TextStyle(color: iconColor, fontWeight: FontWeight.bold),
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ],
     );
   }
 
-  // Helper method to create an icon and text row
   Widget _buildInfoRow(BuildContext context, IconData icon, String text) {
     return Row(
       children: [
@@ -114,9 +124,12 @@ class BookingCardWidget extends StatelessWidget {
           color: kPurpleColor,
         ),
         const SizedBox(width: 8),
-        Text(
-          text,
-          style: kSecondaryStyle,
+        Flexible(
+          child: Text(
+            text,
+            style: kSecondaryStyle,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ],
     );
