@@ -1,5 +1,7 @@
 // lib/widgets/filter_dialog.dart
 
+import 'package:diamond_host_admin/constants/styles.dart';
+import 'package:diamond_host_admin/widgets/search_text_form_field.dart';
 import 'package:flutter/material.dart';
 import '../localization/language_constants.dart';
 import '../constants/restaurant_options.dart';
@@ -91,10 +93,7 @@ class _FilterDialogState extends State<FilterDialog> {
             // Header
             Text(
               getTranslated(context, "Filters"),
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: kTeritary,
             ),
             const SizedBox(height: 10),
 
@@ -104,32 +103,20 @@ class _FilterDialogState extends State<FilterDialog> {
               children: [
                 Text(
                   getTranslated(context, "Type of Restaurant"),
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: kSecondaryStyle,
                 ),
                 const SizedBox(height: 5),
-                TextField(
+                SearchTextField(
                   controller: typeSearchController,
-                  decoration: InputDecoration(
-                    labelText: getTranslated(context, "Search"),
-                    prefixIcon: Icon(Icons.search),
-                    suffixIcon: typeSearchController.text.isNotEmpty
-                        ? IconButton(
-                            icon: Icon(Icons.clear),
-                            onPressed: () {
-                              FocusScope.of(context).unfocus();
-                              typeSearchController.clear();
-                            },
-                          )
-                        : null,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    filled: true,
-                    fillColor: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.grey[800]
-                        : Colors.grey[200],
-                  ),
+                  onClear: () {
+                    FocusScope.of(context).unfocus();
+                    typeSearchController.clear();
+                  },
+                  onChanged: (value) {
+                    _filterTypeOptions();
+                  },
                 ),
+
                 const SizedBox(height: 10),
                 // Horizontally scrollable ChoiceChips
                 SingleChildScrollView(
@@ -170,18 +157,24 @@ class _FilterDialogState extends State<FilterDialog> {
               localFilterState['entry'],
               ["Single", "Familial", "Mixed"],
             ),
-            // _buildFilterSection(
-            //   context,
-            //   "Sessions",
-            //   localFilterState['sessions'],
-            //   ["Morning", "Afternoon", "Evening"],
-            // ),
-            // _buildFilterSection(
-            //   context,
-            //   "Additionals",
-            //   localFilterState['additionals'],
-            //   ["Free Wi-Fi", "Outdoor Seating", "Live Sports"],
-            // ),
+            _buildFilterSection(
+              context,
+              "Sessions",
+              localFilterState['sessions'],
+              ["Internal sessions", "External sessions", "Private sessions"],
+            ),
+            _buildFilterSection(
+              context,
+              "Additionals",
+              localFilterState['additionals'],
+              [
+                "Is there Hookah?",
+                "Is there Buffet?",
+                "Is there a dinner buffet?",
+                "Is there a lunch buffet?",
+                "Is there a breakfast buffet?"
+              ],
+            ),
             SwitchListTile(
               title: Text(getTranslated(context, "Music")),
               value: localFilterState['music'],
@@ -230,7 +223,7 @@ class _FilterDialogState extends State<FilterDialog> {
       children: [
         Text(
           getTranslated(context, title),
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: kSecondaryStyle,
         ),
         const SizedBox(height: 5),
         Wrap(
