@@ -1,3 +1,5 @@
+// lib/screens/restaurant_screen.dart
+
 import 'package:flutter/material.dart';
 import '../localization/language_constants.dart';
 import '../widgets/estate_card_widget.dart';
@@ -7,6 +9,8 @@ import '../widgets/reused_different_screen_card_widget.dart';
 import '../widgets/search_text_form_field.dart';
 import 'profile_estate_screen.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import '../constants/restaurant_options.dart'; // Import the restaurant options
+import '../widgets/filter_dialog.dart'; // Import the FilterDialog widget
 
 class RestaurantScreen extends StatefulWidget {
   @override
@@ -36,6 +40,13 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
     super.initState();
     _fetchRestaurants();
     searchController.addListener(_filterEstates);
+  }
+
+  @override
+  void dispose() {
+    searchController.removeListener(_filterEstates);
+    searchController.dispose();
+    super.dispose();
   }
 
   void _filterEstates() {
@@ -159,101 +170,33 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
     return estate['Type'] == '3';
   }
 
-  void _showFilterDialog() {
-    showModalBottomSheet(
+  void _showFilterDialog() async {
+    final updatedFilterState = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setModalState) {
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    getTranslated(context, "Filters"),
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  _buildFilterSection(
-                    context,
-                    "Type of Restaurant",
-                    filterState['typeOfRestaurant'],
-                    ["Popular restaurant", "Indian Restaurant", "Seafood"],
-                    setModalState,
-                  ),
-                  _buildFilterSection(
-                    context,
-                    "Entry",
-                    filterState['entry'],
-                    ["Single", "Family"],
-                    setModalState,
-                  ),
-                  SwitchListTile(
-                    title: Text(getTranslated(context, "Music")),
-                    value: filterState['music'],
-                    onChanged: (value) {
-                      setModalState(() => filterState['music'] = value);
-                    },
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      _applyFilters();
-                      Navigator.pop(context);
-                    },
-                    child: Text(getTranslated(context, "Apply")),
-                  ),
-                ],
-              ),
-            );
-          },
+        return FilterDialog(
+          initialFilterState: filterState,
         );
       },
     );
-  }
 
-  Widget _buildFilterSection(
-      BuildContext context,
-      String title,
-      List<String> selectedOptions,
-      List<String> options,
-      StateSetter setModalState) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          getTranslated(context, title),
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        Wrap(
-          spacing: 8,
-          children: options.map((option) {
-            final isSelected = selectedOptions.contains(option);
-            return ChoiceChip(
-              label: Text(option),
-              selected: isSelected,
-              onSelected: (selected) {
-                setModalState(() {
-                  if (selected) {
-                    selectedOptions.add(option);
-                  } else {
-                    selectedOptions.remove(option);
-                  }
-                });
-              },
-            );
-          }).toList(),
-        ),
-        const SizedBox(height: 10),
-      ],
-    );
+    if (updatedFilterState != null) {
+      setState(() {
+        filterState
+          ..['typeOfRestaurant'] = updatedFilterState['typeOfRestaurant']
+          ..['entry'] = updatedFilterState['entry']
+          ..['sessions'] = updatedFilterState['sessions']
+          ..['additionals'] = updatedFilterState['additionals']
+          ..['music'] = updatedFilterState['music']
+          ..['valet'] = updatedFilterState['valet']
+          ..['kidsArea'] = updatedFilterState['kidsArea'];
+        _applyFilters();
+      });
+    }
   }
 
   @override
@@ -275,6 +218,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
             child: SearchTextField(
               controller: searchController,
               onClear: () {
+                FocusScope.of(context).unfocus();
                 searchController.clear();
                 setState(() {
                   searchActive = false;
