@@ -21,6 +21,15 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
   bool searchActive = false;
 
   final TextEditingController searchController = TextEditingController();
+  final Map<String, dynamic> filterState = {
+    'typeOfRestaurant': <String>[],
+    'entry': <String>[],
+    'sessions': <String>[],
+    'additionals': <String>[],
+    'music': false,
+    'valet': null,
+    'kidsArea': false,
+  };
 
   @override
   void initState() {
@@ -40,17 +49,47 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
           return nameEn.contains(query) || nameAr.contains(query);
         }).toList();
       } else {
-        searchActive = false;
-        filteredEstates = restaurants;
+        _applyFilters();
       }
     });
   }
 
-  void _clearSearch() {
-    searchController.clear();
+  void _applyFilters() {
     setState(() {
-      searchActive = false;
-      filteredEstates = restaurants;
+      filteredEstates = restaurants.where((estate) {
+        if (filterState['typeOfRestaurant'].isNotEmpty) {
+          if (!filterState['typeOfRestaurant']
+              .contains(estate['TypeofRestaurant'])) {
+            return false;
+          }
+        }
+        if (filterState['entry'].isNotEmpty) {
+          if (!filterState['entry'].contains(estate['Entry'])) {
+            return false;
+          }
+        }
+        if (filterState['sessions'].isNotEmpty) {
+          if (!filterState['sessions'].contains(estate['Sessions'])) {
+            return false;
+          }
+        }
+        if (filterState['additionals'].isNotEmpty) {
+          if (!filterState['additionals'].contains(estate['additionals'])) {
+            return false;
+          }
+        }
+        if (filterState['music'] && estate['Music'] != '1') {
+          return false;
+        }
+        if (filterState['valet'] != null &&
+            estate['HasValet'] != (filterState['valet'] ? '1' : '0')) {
+          return false;
+        }
+        if (filterState['kidsArea'] && estate['HasKidsArea'] != '1') {
+          return false;
+        }
+        return true;
+      }).toList();
     });
   }
 
@@ -91,6 +130,13 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
           'fee': estateData['Fee'] ?? 'Free',
           'time': estateData['Time'] ?? '20 min',
           'Type': estateData['Type'] ?? 'Unknown',
+          'TypeofRestaurant': estateData['TypeofRestaurant']?.toString() ?? '',
+          'Entry': estateData['Entry']?.toString() ?? '',
+          'Sessions': estateData['Sessions']?.toString() ?? '',
+          'additionals': estateData['additionals']?.toString() ?? '',
+          'Music': estateData['Music']?.toString() ?? '',
+          'HasValet': estateData['HasValet']?.toString() ?? '0',
+          'HasKidsArea': estateData['HasKidsArea']?.toString() ?? '0',
         });
       });
     });
@@ -110,7 +156,104 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
   }
 
   bool _isRestaurant(Map<String, dynamic> estate) {
-    return estate['Type'] == '3'; // Assuming '3' represents a restaurant
+    return estate['Type'] == '3';
+  }
+
+  void _showFilterDialog() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    getTranslated(context, "Filters"),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  _buildFilterSection(
+                    context,
+                    "Type of Restaurant",
+                    filterState['typeOfRestaurant'],
+                    ["Popular restaurant", "Indian Restaurant", "Seafood"],
+                    setModalState,
+                  ),
+                  _buildFilterSection(
+                    context,
+                    "Entry",
+                    filterState['entry'],
+                    ["Single", "Family"],
+                    setModalState,
+                  ),
+                  SwitchListTile(
+                    title: Text(getTranslated(context, "Music")),
+                    value: filterState['music'],
+                    onChanged: (value) {
+                      setModalState(() => filterState['music'] = value);
+                    },
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      _applyFilters();
+                      Navigator.pop(context);
+                    },
+                    child: Text(getTranslated(context, "Apply")),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildFilterSection(
+      BuildContext context,
+      String title,
+      List<String> selectedOptions,
+      List<String> options,
+      StateSetter setModalState) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          getTranslated(context, title),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        Wrap(
+          spacing: 8,
+          children: options.map((option) {
+            final isSelected = selectedOptions.contains(option);
+            return ChoiceChip(
+              label: Text(option),
+              selected: isSelected,
+              onSelected: (selected) {
+                setModalState(() {
+                  if (selected) {
+                    selectedOptions.add(option);
+                  } else {
+                    selectedOptions.remove(option);
+                  }
+                });
+              },
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 10),
+      ],
+    );
   }
 
   @override
@@ -118,6 +261,12 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
     return Scaffold(
       appBar: ReusedAppBar(
         title: getTranslated(context, "Restaurants"),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.filter_list),
+            onPressed: _showFilterDialog,
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -125,7 +274,13 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
             padding: const EdgeInsets.all(16.0),
             child: SearchTextField(
               controller: searchController,
-              onClear: _clearSearch,
+              onClear: () {
+                searchController.clear();
+                setState(() {
+                  searchActive = false;
+                  filteredEstates = restaurants;
+                });
+              },
               onChanged: (value) => _filterEstates(),
             ),
           ),
@@ -165,7 +320,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                                     sessions: restaurant['Sessions'] ?? '',
                                     menuLink: restaurant['MenuLink'] ?? '',
                                     entry: restaurant['Entry'] ?? '',
-                                    music: restaurant['Lstmusic'] ?? '',
+                                    music: restaurant['Music'] ?? '',
                                     type: restaurant['Type'],
                                   ),
                                 ),
