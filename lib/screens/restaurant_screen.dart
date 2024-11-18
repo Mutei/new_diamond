@@ -68,38 +68,37 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
     setState(() {
       searchActive = true; // Indicate that filtering is active
       filteredEstates = restaurants.where((estate) {
+        bool matches = true;
+
+        // Check each filter individually
         if (filterState['typeOfRestaurant'].isNotEmpty) {
-          if (!filterState['typeOfRestaurant']
-              .contains(estate['TypeofRestaurant'])) {
-            return false;
-          }
+          matches = matches &&
+              filterState['typeOfRestaurant']
+                  .contains(estate['TypeofRestaurant']);
         }
         if (filterState['entry'].isNotEmpty) {
-          if (!filterState['entry'].contains(estate['Entry'])) {
-            return false;
-          }
+          matches = matches && filterState['entry'].contains(estate['Entry']);
         }
         if (filterState['sessions'].isNotEmpty) {
-          if (!filterState['sessions'].contains(estate['Sessions'])) {
-            return false;
-          }
+          matches =
+              matches && filterState['sessions'].contains(estate['Sessions']);
         }
         if (filterState['additionals'].isNotEmpty) {
-          if (!filterState['additionals'].contains(estate['additionals'])) {
-            return false;
-          }
+          matches = matches &&
+              filterState['additionals'].contains(estate['additionals']);
         }
-        if (filterState['music'] && estate['Music'] != '1') {
-          return false;
+        if (filterState['music']) {
+          matches = matches && estate['Music'] == '1';
         }
-        if (filterState['valet'] != null &&
-            estate['HasValet'] != (filterState['valet'] ? '1' : '0')) {
-          return false;
+        if (filterState['valet'] != null) {
+          matches = matches &&
+              estate['HasValet'] == (filterState['valet'] ? '1' : '0');
         }
-        if (filterState['kidsArea'] && estate['HasKidsArea'] != '1') {
-          return false;
+        if (filterState['kidsArea']) {
+          matches = matches && estate['HasKidsArea'] == '1';
         }
-        return true;
+
+        return matches;
       }).toList();
     });
   }
