@@ -1,5 +1,4 @@
-// lib/screens/restaurant_screen.dart
-
+import 'package:diamond_host_admin/constants/styles.dart';
 import 'package:flutter/material.dart';
 import '../localization/language_constants.dart';
 import '../widgets/estate_card_widget.dart';
@@ -9,8 +8,8 @@ import '../widgets/reused_different_screen_card_widget.dart';
 import '../widgets/search_text_form_field.dart';
 import 'profile_estate_screen.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import '../constants/restaurant_options.dart'; // Import the restaurant options
-import '../widgets/filter_dialog.dart'; // Import the FilterDialog widget
+import '../constants/restaurant_options.dart';
+import '../widgets/filter_dialog.dart';
 
 class RestaurantScreen extends StatefulWidget {
   @override
@@ -67,6 +66,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
 
   void _applyFilters() {
     setState(() {
+      searchActive = true; // Indicate that filtering is active
       filteredEstates = restaurants.where((estate) {
         if (filterState['typeOfRestaurant'].isNotEmpty) {
           if (!filterState['typeOfRestaurant']
@@ -235,10 +235,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                     ? Center(
                         child: Text(
                           getTranslated(context, "No results found"),
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Theme.of(context).textTheme.bodyLarge?.color,
-                          ),
+                          style: kSecondaryStyle,
                         ),
                       )
                     : ListView.builder(
