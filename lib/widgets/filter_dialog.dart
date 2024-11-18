@@ -1,10 +1,9 @@
-// lib/widgets/filter_dialog.dart
-
-import 'package:diamond_host_admin/constants/styles.dart';
 import 'package:diamond_host_admin/widgets/search_text_form_field.dart';
 import 'package:flutter/material.dart';
-import '../localization/language_constants.dart';
+
 import '../constants/restaurant_options.dart';
+import '../constants/styles.dart';
+import '../localization/language_constants.dart';
 
 class FilterDialog extends StatefulWidget {
   final Map<String, dynamic> initialFilterState;
@@ -26,17 +25,10 @@ class _FilterDialogState extends State<FilterDialog> {
   @override
   void initState() {
     super.initState();
-    // Initialize local filter state
     localFilterState = Map<String, dynamic>.from(widget.initialFilterState);
-
-    // Initialize search controller for "Type of Restaurant"
     typeSearchController = TextEditingController();
-
-    // Initialize filtered list with all restaurant types
     filteredTypeOptions =
         restaurantOptions.map((e) => e['label'] as String).toList();
-
-    // Add listener to handle search input
     typeSearchController.addListener(_filterTypeOptions);
   }
 
@@ -71,8 +63,6 @@ class _FilterDialogState extends State<FilterDialog> {
       localFilterState['music'] = false;
       localFilterState['valet'] = null;
       localFilterState['kidsArea'] = false;
-
-      // Reset search field
       typeSearchController.clear();
     });
   }
@@ -90,67 +80,13 @@ class _FilterDialogState extends State<FilterDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Header
             Text(
               getTranslated(context, "Filters"),
               style: kTeritary,
             ),
             const SizedBox(height: 10),
-
-            // Type of Restaurant with Search
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  getTranslated(context, "Type of Restaurant"),
-                  style: kSecondaryStyle,
-                ),
-                const SizedBox(height: 5),
-                SearchTextField(
-                  controller: typeSearchController,
-                  onClear: () {
-                    FocusScope.of(context).unfocus();
-                    typeSearchController.clear();
-                  },
-                  onChanged: (value) {
-                    _filterTypeOptions();
-                  },
-                ),
-
-                const SizedBox(height: 10),
-                // Horizontally scrollable ChoiceChips
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: filteredTypeOptions.map((option) {
-                      final isSelected =
-                          localFilterState['typeOfRestaurant'].contains(option);
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: ChoiceChip(
-                          label: Text(option),
-                          selected: isSelected,
-                          onSelected: (selected) {
-                            setState(() {
-                              if (selected) {
-                                localFilterState['typeOfRestaurant']
-                                    .add(option);
-                              } else {
-                                localFilterState['typeOfRestaurant']
-                                    .remove(option);
-                              }
-                            });
-                          },
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
-            ),
+            _buildTypeOfRestaurantSection(),
             const SizedBox(height: 10),
-
-            // Other Filter Sections
             _buildFilterSection(
               context,
               "Entry",
@@ -184,31 +120,60 @@ class _FilterDialogState extends State<FilterDialog> {
                 });
               },
             ),
-            // Add more filters as needed
-            const SizedBox(height: 10),
-
-            // Buttons: Clear Filters & Apply
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey, // Clear filters color
-                  ),
-                  onPressed: _clearFilters,
-                  child: Text(getTranslated(context, "Clear Filters")),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context, localFilterState);
-                  },
-                  child: Text(getTranslated(context, "Apply")),
-                ),
-              ],
-            ),
+            const SizedBox(height: 20),
+            _buildActionButtons(context),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildTypeOfRestaurantSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          getTranslated(context, "Type of Restaurant"),
+          style: kSecondaryStyle,
+        ),
+        const SizedBox(height: 5),
+        SearchTextField(
+          controller: typeSearchController,
+          onClear: () {
+            FocusScope.of(context).unfocus();
+            typeSearchController.clear();
+          },
+          onChanged: (value) {
+            _filterTypeOptions();
+          },
+        ),
+        const SizedBox(height: 10),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: filteredTypeOptions.map((option) {
+              final isSelected =
+                  localFilterState['typeOfRestaurant'].contains(option);
+              return Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: ChoiceChip(
+                  label: Text(option),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    setState(() {
+                      if (selected) {
+                        localFilterState['typeOfRestaurant'].add(option);
+                      } else {
+                        localFilterState['typeOfRestaurant'].remove(option);
+                      }
+                    });
+                  },
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
     );
   }
 
@@ -247,6 +212,48 @@ class _FilterDialogState extends State<FilterDialog> {
           }).toList(),
         ),
         const SizedBox(height: 10),
+      ],
+    );
+  }
+
+  Widget _buildActionButtons(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.redAccent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+            padding:
+                const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
+          ),
+          onPressed: _clearFilters,
+          child: Text(
+            getTranslated(context, "Clear Filters"),
+            style: const TextStyle(
+                fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+            padding:
+                const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
+          ),
+          onPressed: () {
+            Navigator.pop(context, localFilterState);
+          },
+          child: Text(
+            getTranslated(context, "Apply"),
+            style: const TextStyle(
+                fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+        ),
       ],
     );
   }
