@@ -171,5 +171,17 @@
   "Entry":"Entry",
   "Clear Filters": "Clear Filters",
   "Sessions":"Sessions",
-  "Additionals":"Additionals"
+  "Additionals":"Additionals",
+  "Kids Area":"Kids Area",
+  "Single":"Single",
+  "Familial":"Familial",
+  "Mixed":"Mixed",
+  "Internal sessions":"Internal sessions",
+  "External sessions":"External sessions",
+  "Private sessions":"Private sessions",
+  "Is there Hookah?":"Is there Hookah?",
+  "Is there Buffet?":"Is there Buffet?",
+  "Is there a dinner buffet?":"Is there a dinner buffet?",
+  "Is there a lunch buffet?":"Is there a lunch buffet?",
+  "Is there a breakfast buffet?":"Is there a breakfast buffet?"
 }

@@ -1,6 +1,5 @@
 import 'package:diamond_host_admin/widgets/search_text_form_field.dart';
 import 'package:flutter/material.dart';
-
 import '../constants/restaurant_options.dart';
 import '../constants/styles.dart';
 import '../localization/language_constants.dart';
@@ -27,9 +26,14 @@ class _FilterDialogState extends State<FilterDialog> {
     super.initState();
     localFilterState = Map<String, dynamic>.from(widget.initialFilterState);
     typeSearchController = TextEditingController();
-    filteredTypeOptions =
-        restaurantOptions.map((e) => e['label'] as String).toList();
     typeSearchController.addListener(_filterTypeOptions);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Initialize filteredTypeOptions after the context is available
+    filteredTypeOptions = _getLocalizedOptions();
   }
 
   @override
@@ -39,17 +43,26 @@ class _FilterDialogState extends State<FilterDialog> {
     super.dispose();
   }
 
+  List<String> _getLocalizedOptions() {
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+    return restaurantOptions
+        .map((e) => isArabic ? e['labelAr'] as String : e['label'] as String)
+        .toList();
+  }
+
   void _filterTypeOptions() {
     final query = typeSearchController.text.toLowerCase();
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+
     setState(() {
       if (query.isNotEmpty) {
         filteredTypeOptions = restaurantOptions
-            .map((e) => e['label'] as String)
+            .map(
+                (e) => isArabic ? e['labelAr'] as String : e['label'] as String)
             .where((label) => label.toLowerCase().contains(query))
             .toList();
       } else {
-        filteredTypeOptions =
-            restaurantOptions.map((e) => e['label'] as String).toList();
+        filteredTypeOptions = _getLocalizedOptions();
       }
     });
   }
@@ -91,24 +104,32 @@ class _FilterDialogState extends State<FilterDialog> {
               context,
               "Entry",
               localFilterState['entry'],
-              ["Single", "Familial", "Mixed"],
+              [
+                getTranslated(context, "Single"),
+                getTranslated(context, "Familial"),
+                getTranslated(context, "Mixed")
+              ],
             ),
             _buildFilterSection(
               context,
               "Sessions",
               localFilterState['sessions'],
-              ["Internal sessions", "External sessions", "Private sessions"],
+              [
+                getTranslated(context, "Internal sessions"),
+                getTranslated(context, "External sessions"),
+                getTranslated(context, "Private sessions")
+              ],
             ),
             _buildFilterSection(
               context,
               "Additionals",
               localFilterState['additionals'],
               [
-                "Is there Hookah?",
-                "Is there Buffet?",
-                "Is there a dinner buffet?",
-                "Is there a lunch buffet?",
-                "Is there a breakfast buffet?"
+                getTranslated(context, "Is there Hookah?"),
+                getTranslated(context, "Is there Buffet?"),
+                getTranslated(context, "Is there a dinner buffet?"),
+                getTranslated(context, "Is there a lunch buffet?"),
+                getTranslated(context, "Is there a breakfast buffet?")
               ],
             ),
             SwitchListTile(
@@ -117,6 +138,15 @@ class _FilterDialogState extends State<FilterDialog> {
               onChanged: (value) {
                 setState(() {
                   localFilterState['music'] = value;
+                });
+              },
+            ),
+            SwitchListTile(
+              title: Text(getTranslated(context, "Kids Area")),
+              value: localFilterState['kidsArea'],
+              onChanged: (value) {
+                setState(() {
+                  localFilterState['kidsArea'] = value;
                 });
               },
             ),

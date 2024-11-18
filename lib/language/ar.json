@@ -170,6 +170,20 @@
   "Entry": "الدخول",
   "Clear Filters": "مسح الفلاتر",
   "Sessions": "الجلسات",
-  "Additionals": "إضافات"
+  "Additionals": "إضافات",
+  "Kids Area": "منطقة للأطفال",
+  "Single": "فردي",
+  "Familial": "عائلي",
+  "Mixed": "مختلط",
+  "Internal sessions": "جلسات داخلية",
+  "External sessions": "جلسات خارجية",
+  "Private sessions": "جلسات خاصة",
+  "Is there Hookah?": "هل يوجد شيشة؟",
+  "Is there Buffet?": "هل يوجد بوفيه؟",
+  "Is there a dinner buffet?": "هل يوجد بوفيه عشاء؟",
+  "Is there a lunch buffet?": "هل يوجد بوفيه غداء؟",
+  "Is there a breakfast buffet?": "هل يوجد بوفيه إفطار؟"
+
+
 
 }
