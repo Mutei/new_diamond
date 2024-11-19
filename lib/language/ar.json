@@ -182,8 +182,9 @@
   "Is there Buffet?": "هل يوجد بوفيه؟",
   "Is there a dinner buffet?": "هل يوجد بوفيه عشاء؟",
   "Is there a lunch buffet?": "هل يوجد بوفيه غداء؟",
-  "Is there a breakfast buffet?": "هل يوجد بوفيه إفطار؟"
-
+  "Is there a breakfast buffet?": "هل يوجد بوفيه إفطار؟",
+  "There is music": "هناك موسيقى",
+  "There is no music": "لا توجد موسيقى"
 
 
 }

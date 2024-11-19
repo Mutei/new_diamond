@@ -369,7 +369,12 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                       icon: Icons.fastfood, label: widget.typeOfRestaurant),
                   ChipWidget(icon: Icons.home, label: widget.sessions),
                   ChipWidget(icon: Icons.grain, label: widget.entry),
-                  ChipWidget(icon: Icons.music_note, label: widget.music),
+                  ChipWidget(
+                    icon: Icons.music_note,
+                    label: widget.music == "1"
+                        ? getTranslated(context, "There is music")
+                        : getTranslated(context, "There is no music"),
+                  ),
                 ],
               ),
               24.kH,
