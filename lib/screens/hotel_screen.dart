@@ -1,6 +1,7 @@
 import 'package:diamond_host_admin/localization/language_constants.dart';
 import 'package:diamond_host_admin/widgets/reused_appbar.dart';
 import 'package:flutter/material.dart';
+import '../backend/customer_rate_services.dart';
 import '../widgets/estate_card_widget.dart';
 import '../backend/estate_services.dart';
 import '../widgets/reused_different_screen_card_widget.dart';
@@ -19,7 +20,7 @@ class _HotelScreenState extends State<HotelScreen> {
   List<Map<String, dynamic>> filteredEstates = [];
   bool loading = true;
   bool searchActive = false;
-
+  final CustomerRateServices customerRateServices = CustomerRateServices();
   final TextEditingController searchController = TextEditingController();
 
   @override
@@ -27,6 +28,62 @@ class _HotelScreenState extends State<HotelScreen> {
     super.initState();
     _fetchHotels();
     searchController.addListener(_filterEstates);
+  }
+
+  Future<List<Map<String, dynamic>>> _parseAndFetchAdditionalData(
+      Map<String, dynamic> data) async {
+    List<Map<String, dynamic>> estateList = [];
+    for (var entry in data.entries) {
+      for (var estateEntry in entry.value.entries) {
+        var estateData = estateEntry.value;
+        var estate = {
+          'id': estateEntry.key,
+          'nameEn': estateData['NameEn'] ?? 'Unknown',
+          'nameAr': estateData['NameAr'] ?? 'غير معروف',
+          'rating': 0.0, // Initial rating
+          'fee': estateData['Fee'] ?? 'Free',
+          'time': estateData['Time'] ?? '20 min',
+          'Type': estateData['Type'] ?? 'Unknown',
+          'TypeofRestaurant': estateData['TypeofRestaurant'] ?? '',
+          'Entry': estateData['Entry'] ?? '',
+          'Sessions': estateData['Sessions'] ?? '',
+          'additionals': estateData['additionals'] ?? '',
+          'Music': estateData['Music'] ?? '',
+          'HasValet': estateData['HasValet'] ?? '0',
+          'HasKidsArea': estateData['HasKidsArea'] ?? '0',
+        };
+
+        estate = await _addAdditionalEstateData(estate);
+        estateList.add(estate);
+      }
+    }
+    return estateList;
+  }
+
+  Future<Map<String, dynamic>> _addAdditionalEstateData(
+      Map<String, dynamic> estate) async {
+    // Fetch ratings
+    final ratings =
+        await customerRateServices.fetchEstateRatingWithUsers(estate['id']);
+    final totalRating = ratings.isNotEmpty
+        ? ratings.map((e) => e['rating'] as double).reduce((a, b) => a + b) /
+            ratings.length
+        : 0.0;
+
+    // Fetch image URL
+    final storageRef =
+        FirebaseStorage.instance.ref().child('${estate['id']}/0.jpg');
+    String imageUrl;
+    try {
+      imageUrl = await storageRef.getDownloadURL();
+    } catch (e) {
+      imageUrl = 'https://via.placeholder.com/150';
+    }
+
+    return estate
+      ..['rating'] = totalRating
+      ..['ratingsList'] = ratings
+      ..['imageUrl'] = imageUrl;
   }
 
   void _filterEstates() {
@@ -59,7 +116,7 @@ class _HotelScreenState extends State<HotelScreen> {
     setState(() => loading = true);
     try {
       final data = await estateServices.fetchEstates();
-      final parsedEstates = _parseEstates(data);
+      final parsedEstates = await _parseAndFetchAdditionalData(data);
 
       List<Map<String, dynamic>> tempHotels = [];
       for (var estate in parsedEstates) {

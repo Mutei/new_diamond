@@ -1,14 +1,12 @@
-import 'package:diamond_host_admin/constants/styles.dart';
 import 'package:flutter/material.dart';
-import '../localization/language_constants.dart';
-import '../widgets/estate_card_widget.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import '../backend/customer_rate_services.dart';
 import '../backend/estate_services.dart';
+import '../localization/language_constants.dart';
 import '../widgets/reused_appbar.dart';
 import '../widgets/reused_different_screen_card_widget.dart';
 import '../widgets/search_text_form_field.dart';
 import 'profile_estate_screen.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import '../constants/restaurant_options.dart';
 import '../widgets/filter_dialog.dart';
 
 class RestaurantScreen extends StatefulWidget {
@@ -18,6 +16,8 @@ class RestaurantScreen extends StatefulWidget {
 
 class _RestaurantScreenState extends State<RestaurantScreen> {
   final EstateServices estateServices = EstateServices();
+  final CustomerRateServices customerRateServices = CustomerRateServices();
+
   List<Map<String, dynamic>> restaurants = [];
   List<Map<String, dynamic>> filteredEstates = [];
   bool loading = true;
@@ -107,15 +107,10 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
     setState(() => loading = true);
     try {
       final data = await estateServices.fetchEstates();
-      final parsedEstates = _parseEstates(data);
+      final parsedEstates = await _parseAndFetchAdditionalData(data);
 
-      List<Map<String, dynamic>> tempRestaurants = [];
-      for (var estate in parsedEstates) {
-        estate = await _addImageToEstate(estate);
-        if (_isRestaurant(estate)) {
-          tempRestaurants.add(estate);
-        }
-      }
+      List<Map<String, dynamic>> tempRestaurants =
+          parsedEstates.where((estate) => _isRestaurant(estate)).toList();
 
       setState(() {
         restaurants = tempRestaurants;
@@ -128,41 +123,60 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
     }
   }
 
-  List<Map<String, dynamic>> _parseEstates(Map<String, dynamic> data) {
+  Future<List<Map<String, dynamic>>> _parseAndFetchAdditionalData(
+      Map<String, dynamic> data) async {
     List<Map<String, dynamic>> estateList = [];
-    data.forEach((key, value) {
-      value.forEach((estateID, estateData) {
-        estateList.add({
-          'id': estateID,
+    for (var entry in data.entries) {
+      for (var estateEntry in entry.value.entries) {
+        var estateData = estateEntry.value;
+        var estate = {
+          'id': estateEntry.key,
           'nameEn': estateData['NameEn'] ?? 'Unknown',
           'nameAr': estateData['NameAr'] ?? 'غير معروف',
-          'rating': estateData['Rating'] ?? 0.0,
+          'rating': 0.0, // Initial rating
           'fee': estateData['Fee'] ?? 'Free',
           'time': estateData['Time'] ?? '20 min',
           'Type': estateData['Type'] ?? 'Unknown',
-          'TypeofRestaurant': estateData['TypeofRestaurant']?.toString() ?? '',
-          'Entry': estateData['Entry']?.toString() ?? '',
-          'Sessions': estateData['Sessions']?.toString() ?? '',
-          'additionals': estateData['additionals']?.toString() ?? '',
-          'Music': estateData['Music']?.toString() ?? '',
-          'HasValet': estateData['HasValet']?.toString() ?? '0',
-          'HasKidsArea': estateData['HasKidsArea']?.toString() ?? '0',
-        });
-      });
-    });
+          'TypeofRestaurant': estateData['TypeofRestaurant'] ?? '',
+          'Entry': estateData['Entry'] ?? '',
+          'Sessions': estateData['Sessions'] ?? '',
+          'additionals': estateData['additionals'] ?? '',
+          'Music': estateData['Music'] ?? '',
+          'HasValet': estateData['HasValet'] ?? '0',
+          'HasKidsArea': estateData['HasKidsArea'] ?? '0',
+        };
+
+        estate = await _addAdditionalEstateData(estate);
+        estateList.add(estate);
+      }
+    }
     return estateList;
   }
 
-  Future<Map<String, dynamic>> _addImageToEstate(
+  Future<Map<String, dynamic>> _addAdditionalEstateData(
       Map<String, dynamic> estate) async {
+    // Fetch ratings
+    final ratings =
+        await customerRateServices.fetchEstateRatingWithUsers(estate['id']);
+    final totalRating = ratings.isNotEmpty
+        ? ratings.map((e) => e['rating'] as double).reduce((a, b) => a + b) /
+            ratings.length
+        : 0.0;
+
+    // Fetch image URL
     final storageRef =
         FirebaseStorage.instance.ref().child('${estate['id']}/0.jpg');
+    String imageUrl;
     try {
-      estate['imageUrl'] = await storageRef.getDownloadURL();
+      imageUrl = await storageRef.getDownloadURL();
     } catch (e) {
-      estate['imageUrl'] = 'https://via.placeholder.com/150';
+      imageUrl = 'https://via.placeholder.com/150';
     }
-    return estate;
+
+    return estate
+      ..['rating'] = totalRating
+      ..['ratingsList'] = ratings
+      ..['imageUrl'] = imageUrl;
   }
 
   bool _isRestaurant(Map<String, dynamic> estate) {
@@ -234,7 +248,10 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                     ? Center(
                         child: Text(
                           getTranslated(context, "No results found"),
-                          style: kSecondaryStyle,
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Theme.of(context).textTheme.bodyLarge?.color,
+                          ),
                         ),
                       )
                     : ListView.builder(

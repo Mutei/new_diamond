@@ -185,5 +185,8 @@
   "Is there a lunch buffet?":"Is there a lunch buffet?",
   "Is there a breakfast buffet?":"Is there a breakfast buffet?",
   "There is music":"There is music",
-  "There is no music":"There is no music"
+  "There is no music":"There is no music",
+  "Feedback": "Feedback",
+  "No feedback provided": "No feedback provided",
+  "Anonymous": "Anonymous"
 }

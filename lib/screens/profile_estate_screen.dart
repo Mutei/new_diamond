@@ -69,12 +69,36 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
       Config('customCacheKey', stalePeriod: const Duration(days: 7)));
   double _overallRating = 0.0;
   int _currentImageIndex = 0;
+  List<Map<String, dynamic>> _feedbackList = [];
 
   @override
   void initState() {
     super.initState();
     _fetchImageUrls();
     _fetchUserRatings();
+    _fetchFeedback();
+  }
+
+  Future<void> _fetchFeedback() async {
+    try {
+      DatabaseReference feedbackRef =
+          FirebaseDatabase.instance.ref('App/CustomerFeedback');
+      DataSnapshot snapshot = await feedbackRef.get();
+      if (snapshot.exists) {
+        List<Map<String, dynamic>> feedbacks = [];
+        snapshot.children.forEach((child) {
+          final data = Map<String, dynamic>.from(child.value as Map);
+          if (data['EstateID'] == widget.estateId) {
+            feedbacks.add(data);
+          }
+        });
+        setState(() {
+          _feedbackList = feedbacks;
+        });
+      }
+    } catch (e) {
+      print('Error fetching feedback: $e');
+    }
   }
 
   // Fetch multiple images URLs from Firebase Storage
@@ -376,6 +400,115 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                         : getTranslated(context, "There is no music"),
                   ),
                 ],
+              ),
+              Text(
+                getTranslated(context, "Feedback"),
+                style: kTeritary,
+              ),
+              8.kH,
+              SizedBox(
+                height:
+                    150, // Keep the height if you want to restrict the container's size
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _feedbackList.length,
+                  itemBuilder: (context, index) {
+                    final feedback = _feedbackList[index];
+                    return Container(
+                      width: 250,
+                      margin: const EdgeInsets.only(right: 10),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.black
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.3),
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // User Name with wrap and ellipsis
+                          Text(
+                            feedback['userName'] ??
+                                getTranslated(context, 'Anonymous'),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1, // Ensures it doesn't exceed one line
+                          ),
+                          const SizedBox(height: 5),
+                          // Feedback text with controlled overflow
+                          Expanded(
+                            child: Text(
+                              feedback['feedback'] ??
+                                  getTranslated(
+                                      context, 'No feedback provided'),
+                              style: const TextStyle(fontSize: 14),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2, // Adjust to fit your design needs
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          // Wrap layout for icons and ratings
+                          Wrap(
+                            alignment: WrapAlignment.start,
+                            spacing: 10, // Space between items
+                            runSpacing:
+                                8, // Space between rows if wrapping occurs
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.star,
+                                      color: Colors.orange, size: 16),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Rating: ${feedback['RateForEstate']}',
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.restaurant,
+                                      color: Colors.orange, size: 16),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Food: ${feedback['RateForFoodOrDrink']}',
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.miscellaneous_services,
+                                      color: Colors.orange, size: 16),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Service: ${feedback['RateForServices']}',
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
               24.kH,
               Visibility(
