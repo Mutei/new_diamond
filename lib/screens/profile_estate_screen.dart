@@ -19,6 +19,7 @@ import '../utils/success_dialogue.dart';
 import '../utils/failure_dialogue.dart'; // Import FailureDialog
 import '../widgets/chip_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:auto_size_text/auto_size_text.dart'; // Import AutoSizeText
 
 class ProfileEstateScreen extends StatefulWidget {
   final String nameEn;
@@ -291,357 +292,442 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
       appBar: AppBar(
         iconTheme: kIconTheme,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _imageUrls.isEmpty
-                  ? Container(
-                      height: 200,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        color: Colors.grey[200],
-                      ),
-                      child: const Center(child: CircularProgressIndicator()),
-                    )
-                  : Stack(
-                      alignment: Alignment.bottomCenter,
-                      children: [
-                        SizedBox(
-                          height: 200,
-                          child: PageView.builder(
-                            itemCount: _imageUrls.length,
-                            onPageChanged: (index) {
-                              setState(() {
-                                _currentImageIndex = index;
-                              });
-                            },
-                            itemBuilder: (context, index) {
-                              return ClipRRect(
-                                borderRadius: BorderRadius.circular(15),
-                                child: CachedNetworkImage(
-                                  imageUrl: _imageUrls[index],
-                                  cacheManager: _cacheManager,
-                                  placeholder: (context, url) =>
-                                      Container(color: Colors.grey[300]),
-                                  errorWidget: (context, url, error) =>
-                                      const Icon(Icons.error),
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                ),
-                              );
-                            },
-                          ),
+      body: SafeArea(
+        // Added SafeArea
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0)
+                .copyWith(bottom: 32.0), // Increased bottom padding
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Image Section
+                _imageUrls.isEmpty
+                    ? Container(
+                        height: 200,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          color: Colors.grey[200],
                         ),
-                        Positioned(
-                          bottom: 10,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 4, horizontal: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.5),
-                              borderRadius: BorderRadius.circular(12),
+                        child: const Center(child: CircularProgressIndicator()),
+                      )
+                    : Stack(
+                        alignment: Alignment.bottomCenter,
+                        children: [
+                          SizedBox(
+                            height: 200,
+                            child: PageView.builder(
+                              itemCount: _imageUrls.length,
+                              onPageChanged: (index) {
+                                setState(() {
+                                  _currentImageIndex = index;
+                                });
+                              },
+                              itemBuilder: (context, index) {
+                                return ClipRRect(
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: CachedNetworkImage(
+                                    imageUrl: _imageUrls[index],
+                                    cacheManager: _cacheManager,
+                                    placeholder: (context, url) =>
+                                        Container(color: Colors.grey[300]),
+                                    errorWidget: (context, url, error) =>
+                                        const Icon(Icons.error),
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                  ),
+                                );
+                              },
                             ),
-                            child: Text(
-                              '${_currentImageIndex + 1} / ${_imageUrls.length}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
+                          ),
+                          Positioned(
+                            bottom: 10,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 4, horizontal: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.5),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                '${_currentImageIndex + 1} / ${_imageUrls.length}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
+                          ),
+                        ],
+                      ),
+                16.kH,
+
+                // Display Name
+                AutoSizeText(
+                  displayName,
+                  style: kTeritary,
+                  maxLines: 1,
+                  minFontSize: 12,
+                ),
+                8.kH,
+
+                // Location
+                AutoSizeText(
+                  widget.location,
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
+                  maxLines: 1,
+                  minFontSize: 12,
+                ),
+                16.kH,
+
+                // Ratings, Fee, Delivery Time
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Row(
+                      children: [
+                        const Icon(Icons.star, color: Colors.orange, size: 16),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: AutoSizeText(
+                            _overallRating.toStringAsFixed(1),
+                            style: const TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.bold),
+                            maxLines: 1,
+                            minFontSize: 12,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        const Icon(Icons.monetization_on,
+                            color: Colors.grey, size: 16),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: AutoSizeText(
+                            widget.fee,
+                            style: const TextStyle(
+                                fontSize: 14, color: Colors.grey),
+                            maxLines: 1,
+                            minFontSize: 12,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        const Icon(Icons.timer, color: Colors.grey, size: 16),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: AutoSizeText(
+                            widget.deliveryTime,
+                            style: const TextStyle(
+                                fontSize: 14, color: Colors.grey),
+                            maxLines: 1,
+                            minFontSize: 12,
                           ),
                         ),
                       ],
+                    );
+                  },
+                ),
+                16.kH,
+
+                // Chips Section
+                Wrap(
+                  spacing: 10.0, // Space between chips
+                  runSpacing: 10.0, // Space between rows
+                  children: [
+                    ChipWidget(
+                        icon: Icons.fastfood, label: widget.typeOfRestaurant),
+                    ChipWidget(icon: Icons.home, label: widget.sessions),
+                    ChipWidget(icon: Icons.grain, label: widget.entry),
+                    ChipWidget(
+                      icon: Icons.music_note,
+                      label: widget.music == "1"
+                          ? getTranslated(context, "There is music")
+                          : getTranslated(context, "There is no music"),
                     ),
-              16.kH,
-              Text(displayName, style: kTeritary),
-              8.kH,
-              Text(widget.location,
-                  style: const TextStyle(fontSize: 16, color: Colors.grey)),
-              16.kH,
-              Row(
-                children: [
-                  const Icon(Icons.star, color: Colors.orange, size: 16),
-                  4.kW,
-                  Text(
-                    _overallRating.toStringAsFixed(1),
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
-                  10.kW,
-                  const Icon(Icons.monetization_on,
-                      color: Colors.grey, size: 16),
-                  4.kW,
-                  Text(widget.fee,
-                      style: const TextStyle(fontSize: 14, color: Colors.grey)),
-                  10.kW,
-                  const Icon(Icons.timer, color: Colors.grey, size: 16),
-                  4.kW,
-                  Text(widget.deliveryTime,
-                      style: const TextStyle(fontSize: 14, color: Colors.grey)),
-                ],
-              ),
-              16.kH,
-              Wrap(
-                spacing: 10.0, // Add space between chips
-                runSpacing:
-                    10.0, // Add space between rows of chips if they overflow
-                children: [
-                  ChipWidget(
-                      icon: Icons.fastfood, label: widget.typeOfRestaurant),
-                  ChipWidget(icon: Icons.home, label: widget.sessions),
-                  ChipWidget(icon: Icons.grain, label: widget.entry),
-                  ChipWidget(
-                    icon: Icons.music_note,
-                    label: widget.music == "1"
-                        ? getTranslated(context, "There is music")
-                        : getTranslated(context, "There is no music"),
-                  ),
-                ],
-              ),
-              Text(
-                getTranslated(context, "Feedback"),
-                style: kTeritary,
-              ),
-              8.kH,
-              SizedBox(
-                height:
-                    150, // Keep the height if you want to restrict the container's size
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _feedbackList.length,
-                  itemBuilder: (context, index) {
-                    final feedback = _feedbackList[index];
-                    return Container(
-                      width: 250,
-                      margin: const EdgeInsets.only(right: 10),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).brightness == Brightness.dark
-                            ? Colors.black
-                            : Colors.white,
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.3),
-                            spreadRadius: 2,
-                            blurRadius: 5,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // User Name with wrap and ellipsis
-                          Text(
-                            feedback['userName'] ??
-                                getTranslated(context, 'Anonymous'),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1, // Ensures it doesn't exceed one line
-                          ),
-                          const SizedBox(height: 5),
-                          // Feedback text with controlled overflow
-                          Expanded(
-                            child: Text(
-                              feedback['feedback'] ??
-                                  getTranslated(
-                                      context, 'No feedback provided'),
-                              style: const TextStyle(fontSize: 14),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 2, // Adjust to fit your design needs
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          // Wrap layout for icons and ratings
-                          Wrap(
-                            alignment: WrapAlignment.start,
-                            spacing: 10, // Space between items
-                            runSpacing:
-                                8, // Space between rows if wrapping occurs
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.star,
-                                      color: Colors.orange, size: 16),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'Rating: ${feedback['RateForEstate']}',
-                                    style: const TextStyle(fontSize: 12),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.restaurant,
-                                      color: Colors.orange, size: 16),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'Food: ${feedback['RateForFoodOrDrink']}',
-                                    style: const TextStyle(fontSize: 12),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.miscellaneous_services,
-                                      color: Colors.orange, size: 16),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'Service: ${feedback['RateForServices']}',
-                                    style: const TextStyle(fontSize: 12),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                  ],
                 ),
-              ),
-              24.kH,
-              Visibility(
-                visible: widget.type == "1",
-                child: Text(getTranslated(context, "Rooms")),
-              ),
-              Visibility(
-                visible: widget.type == "1",
-                child: FirebaseAnimatedList(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  defaultChild:
-                      const Center(child: CircularProgressIndicator()),
-                  itemBuilder: (context, snapshot, animation, index) {
-                    Map map = snapshot.value as Map;
-                    map['Key'] = snapshot.key;
-                    Rooms room = Rooms(
-                      id: map['ID'],
-                      name: map['Name'],
-                      nameEn: map['Name'],
-                      price: map['Price'],
-                      bio: map['BioAr'],
-                      bioEn: map['BioEn'],
-                      color: Colors.white,
-                    );
 
-                    bool isSelected = LstRoomsSelected.any(
-                        (element) => element.id == room.id);
-
-                    return GestureDetector(
-                      onTap: () async {
-                        setState(() {
-                          if (isSelected) {
-                            LstRoomsSelected.removeWhere(
-                                (element) => element.id == room.id);
-                          } else {
-                            LstRoomsSelected.add(room);
-                          }
-                        });
-                      },
-                      child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        height: 70,
-                        color: isSelected ? Colors.blue[100] : Colors.white,
-                        child: ListTile(
-                          title: Text(
-                            objProvider.CheckLangValue
-                                ? room.nameEn
-                                : room.name,
-                            style: TextStyle(
-                              color: isSelected ? kPrimaryColor : Colors.black,
-                              fontWeight: isSelected
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                            ),
-                          ),
-                          subtitle: Text(
-                            objProvider.CheckLangValue ? room.bioEn : room.bio,
-                            style: TextStyle(
-                              color:
-                                  isSelected ? kPrimaryColor : Colors.black54,
-                            ),
-                          ),
-                          leading: const Icon(
-                            Icons.single_bed,
-                            color: Colors.black,
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                room.price,
-                                style: TextStyle(
-                                    color: kDeepPurpleColor, fontSize: 18),
-                              ),
-                              if (isSelected)
-                                const Icon(
-                                  Icons.check_circle,
-                                  color: kPrimaryColor,
-                                  size: 24,
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                  query: FirebaseDatabase.instance
-                      .ref("App")
-                      .child("Rooms")
-                      .child(widget.estateId.toString()),
+                // Feedback Section
+                16.kH,
+                AutoSizeText(
+                  getTranslated(context, "Feedback"),
+                  style: kTeritary,
+                  maxLines: 1,
+                  minFontSize: 12,
                 ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: CustomButton(
-                      text: getTranslated(context, "Book"),
-                      onPressed: () async {
-                        if (widget.type == "1") {
-                          if (LstRoomsSelected.isEmpty) {
-                            objProvider.FunSnackBarPage(
-                                "Choose Room Before", context);
-                          } else {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => AdditionalFacility(
-                                  CheckState: "",
-                                  CheckIsBooking: true,
-                                  estate: widget.type, // estate as String
-                                  IDEstate: widget.estateId.toString(),
-                                  Lstroom: LstRoomsSelected,
-                                ),
+                8.kH,
+                SizedBox(
+                  height: 150, // Fixed height for horizontal feedback list
+                  child: _feedbackList.isEmpty
+                      ? const Center(child: Text("No feedback available."))
+                      : ListView.builder(
+                          scrollDirection:
+                              Axis.horizontal, // Horizontal scrolling
+                          itemCount:
+                              _feedbackList.length, // Number of feedback items
+                          itemBuilder: (context, index) {
+                            final feedback =
+                                _feedbackList[index]; // Current feedback item
+                            return Container(
+                              width: 250, // Fixed width for each feedback card
+                              margin: const EdgeInsets.only(
+                                  right: 10), // Space between cards
+                              padding: const EdgeInsets.all(
+                                  12), // Padding inside the card
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? Colors.black
+                                    : Colors.white,
+                                borderRadius: BorderRadius.circular(15),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.3),
+                                    spreadRadius: 2,
+                                    blurRadius: 5,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // User Name
+                                  AutoSizeText(
+                                    feedback['userName'] ??
+                                        getTranslated(context, 'Anonymous'),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                    maxLines: 1,
+                                    minFontSize: 12,
+                                  ),
+                                  const SizedBox(height: 5),
+
+                                  // Feedback Text
+                                  AutoSizeText(
+                                    feedback['feedback'] ??
+                                        getTranslated(
+                                            context, 'No feedback provided'),
+                                    style: const TextStyle(fontSize: 14),
+                                    maxLines: 3,
+                                    minFontSize: 10,
+                                  ),
+                                  const SizedBox(height: 10),
+
+                                  // Ratings Row
+                                  LayoutBuilder(
+                                    builder: (context, constraints) {
+                                      return Row(
+                                        children: [
+                                          const Icon(Icons.star,
+                                              color: Colors.orange, size: 16),
+                                          const SizedBox(width: 4),
+                                          Flexible(
+                                            child: AutoSizeText(
+                                              'Rating: ${feedback['RateForEstate'] ?? "N/A"}',
+                                              style:
+                                                  const TextStyle(fontSize: 12),
+                                              maxLines: 1,
+                                              minFontSize: 10,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          const Icon(Icons.restaurant,
+                                              color: Colors.orange, size: 16),
+                                          const SizedBox(width: 4),
+                                          Flexible(
+                                            child: AutoSizeText(
+                                              'Food: ${feedback['RateForFoodOrDrink'] ?? "N/A"}',
+                                              style:
+                                                  const TextStyle(fontSize: 12),
+                                              maxLines: 1,
+                                              minFontSize: 10,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          const Icon(
+                                              Icons.miscellaneous_services,
+                                              color: Colors.orange,
+                                              size: 16),
+                                          const SizedBox(width: 4),
+                                          Flexible(
+                                            child: AutoSizeText(
+                                              'Service: ${feedback['RateForServices'] ?? "N/A"}',
+                                              style:
+                                                  const TextStyle(fontSize: 12),
+                                              maxLines: 1,
+                                              minFontSize: 10,
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                ],
                               ),
                             );
-                          }
-                        } else {
-                          await _pickDate();
-                          if (selectedDate != null) {
-                            await _pickTime();
-                            if (selectedTime != null) {
-                              _showConfirmationDialog();
+                          },
+                        ),
+                ),
+
+                24.kH,
+
+                // Rooms Section
+                Visibility(
+                  visible: widget.type == "1",
+                  child: AutoSizeText(
+                    getTranslated(context, "Rooms"),
+                    style: kTeritary,
+                    maxLines: 1,
+                    minFontSize: 12,
+                  ),
+                ),
+                Visibility(
+                  visible: widget.type == "1",
+                  child: FirebaseAnimatedList(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    defaultChild:
+                        const Center(child: CircularProgressIndicator()),
+                    itemBuilder: (context, snapshot, animation, index) {
+                      Map map = snapshot.value as Map;
+                      map['Key'] = snapshot.key;
+                      Rooms room = Rooms(
+                        id: map['ID'],
+                        name: map['Name'],
+                        nameEn: map['Name'],
+                        price: map['Price'],
+                        bio: map['BioAr'],
+                        bioEn: map['BioEn'],
+                        color: Colors.white,
+                      );
+
+                      bool isSelected = LstRoomsSelected.any(
+                          (element) => element.id == room.id);
+
+                      return GestureDetector(
+                        onTap: () async {
+                          setState(() {
+                            if (isSelected) {
+                              LstRoomsSelected.removeWhere(
+                                  (element) => element.id == room.id);
+                            } else {
+                              LstRoomsSelected.add(room);
+                            }
+                          });
+                        },
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: 70,
+                          color: isSelected ? Colors.blue[100] : Colors.white,
+                          child: ListTile(
+                            title: AutoSizeText(
+                              objProvider.CheckLangValue
+                                  ? room.nameEn
+                                  : room.name,
+                              style: TextStyle(
+                                color:
+                                    isSelected ? kPrimaryColor : Colors.black,
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
+                              maxLines: 1,
+                              minFontSize: 12,
+                            ),
+                            subtitle: AutoSizeText(
+                              objProvider.CheckLangValue
+                                  ? room.bioEn
+                                  : room.bio,
+                              style: TextStyle(
+                                color:
+                                    isSelected ? kPrimaryColor : Colors.black54,
+                              ),
+                              maxLines: 2,
+                              minFontSize: 10,
+                            ),
+                            leading: const Icon(
+                              Icons.single_bed,
+                              color: Colors.black,
+                            ),
+                            trailing: LayoutBuilder(
+                              builder: (context, constraints) {
+                                return Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Flexible(
+                                      child: AutoSizeText(
+                                        room.price,
+                                        style: TextStyle(
+                                            color: kDeepPurpleColor,
+                                            fontSize: 18),
+                                        maxLines: 1,
+                                        minFontSize: 12,
+                                      ),
+                                    ),
+                                    if (isSelected)
+                                      const Icon(
+                                        Icons.check_circle,
+                                        color: kPrimaryColor,
+                                        size: 24,
+                                      ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    query: FirebaseDatabase.instance
+                        .ref("App")
+                        .child("Rooms")
+                        .child(widget.estateId.toString()),
+                  ),
+                ),
+
+                // Book Button
+                16.kH,
+                Row(
+                  children: [
+                    Expanded(
+                      child: CustomButton(
+                        text: getTranslated(context, "Book"),
+                        onPressed: () async {
+                          if (widget.type == "1") {
+                            if (LstRoomsSelected.isEmpty) {
+                              objProvider.FunSnackBarPage(
+                                  "Choose Room Before", context);
+                            } else {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => AdditionalFacility(
+                                    CheckState: "",
+                                    CheckIsBooking: true,
+                                    estate: widget.type, // estate as String
+                                    IDEstate: widget.estateId.toString(),
+                                    Lstroom: LstRoomsSelected,
+                                  ),
+                                ),
+                              );
+                            }
+                          } else {
+                            await _pickDate();
+                            if (selectedDate != null) {
+                              await _pickTime();
+                              if (selectedTime != null) {
+                                _showConfirmationDialog();
+                              }
                             }
                           }
-                        }
-                      },
+                        },
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              16.kH,
-            ],
+                  ],
+                ),
+                16.kH,
+              ],
+            ),
           ),
         ),
       ),
