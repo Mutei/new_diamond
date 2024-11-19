@@ -208,31 +208,77 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
       filteredEstates = coffees.where((estate) {
         bool matches = true;
 
+        // Helper function to handle both comma-separated strings and lists
+        List<String> parseOptions(dynamic data) {
+          if (data is List) {
+            return data.cast<String>();
+          } else if (data is String) {
+            return data.split(',').map((e) => e.trim()).toList();
+          }
+          return [];
+        }
+
+        // Match Entry filter
         if (filterState['entry'].isNotEmpty) {
-          matches = matches && filterState['entry'].contains(estate['Entry']);
+          matches = matches &&
+              filterState['entry'].any((selectedEntry) {
+                final entryData = parseOptions(estate['Entry']);
+                return entryData.contains(selectedEntry);
+              });
         }
+
+        // Match Sessions filter
         if (filterState['sessions'].isNotEmpty) {
-          matches =
-              matches && filterState['sessions'].contains(estate['Sessions']);
+          matches = matches &&
+              filterState['sessions'].any((selectedSession) {
+                final sessionsData = parseOptions(estate['Sessions']);
+                return sessionsData.contains(selectedSession);
+              });
         }
+
+        // Match Additionals filter
         if (filterState['additionals'].isNotEmpty) {
           matches = matches &&
-              filterState['additionals'].any((additional) =>
-                  estate['additionals']?.contains(additional) ?? false);
+              filterState['additionals'].any((selectedAdditional) {
+                final additionalsData = parseOptions(estate['additionals']);
+                return additionalsData.contains(selectedAdditional);
+              });
         }
+
+        // Match Music filter
         if (filterState['music']) {
           matches = matches && estate['Music'] == '1';
         }
+
+        // Match Valet filter
         if (filterState['valet'] != null) {
           matches = matches &&
               estate['HasValet'] == (filterState['valet'] ? '1' : '0');
         }
+
+        // Match Kids Area filter
         if (filterState['kidsArea']) {
           matches = matches && estate['HasKidsArea'] == '1';
         }
 
         return matches;
       }).toList();
+
+      // Sorting Logic: Example by nameEn (alphabetically), then by rating (descending)
+      filteredEstates.sort((a, b) {
+        final locale = Localizations.localeOf(context).languageCode;
+        final nameA = (locale == 'ar' ? a['nameAr'] : a['nameEn']) ?? '';
+        final nameB = (locale == 'ar' ? b['nameAr'] : b['nameEn']) ?? '';
+
+        // Primary sorting by name (alphabetical order)
+        int nameComparison = nameA.compareTo(nameB);
+        if (nameComparison != 0) {
+          return nameComparison;
+        }
+
+        // Secondary sorting by rating (descending)
+        return b['rating'].compareTo(a['rating']);
+      });
     });
   }
 
