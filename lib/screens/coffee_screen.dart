@@ -92,11 +92,32 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
     setState(() {
       if (query.isNotEmpty) {
         searchActive = true;
+
+        // Sort results based on the search query
         filteredEstates = coffees.where((estate) {
           final nameEn = estate['nameEn'].toLowerCase();
           final nameAr = estate['nameAr'].toLowerCase();
           return nameEn.contains(query) || nameAr.contains(query);
         }).toList();
+
+        // Sort to prioritize matches starting with the query
+        filteredEstates.sort((a, b) {
+          final nameEnA = a['nameEn'].toLowerCase();
+          final nameArA = a['nameAr'].toLowerCase();
+          final nameEnB = b['nameEn'].toLowerCase();
+          final nameArB = b['nameAr'].toLowerCase();
+
+          // Prioritize names starting with the query
+          if (nameEnA.startsWith(query) || nameArA.startsWith(query)) {
+            return -1; // a comes before b
+          }
+          if (nameEnB.startsWith(query) || nameArB.startsWith(query)) {
+            return 1; // b comes before a
+          }
+
+          // Otherwise, maintain alphabetical order
+          return nameEnA.compareTo(nameEnB);
+        });
       } else {
         searchActive = false;
         filteredEstates = coffees;
@@ -196,7 +217,8 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
         }
         if (filterState['additionals'].isNotEmpty) {
           matches = matches &&
-              filterState['additionals'].contains(estate['additionals']);
+              filterState['additionals'].any((additional) =>
+                  estate['additionals']?.contains(additional) ?? false);
         }
         if (filterState['music']) {
           matches = matches && estate['Music'] == '1';

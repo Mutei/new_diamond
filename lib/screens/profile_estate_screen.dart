@@ -438,9 +438,15 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                     ChipWidget(icon: Icons.grain, label: widget.entry),
                     ChipWidget(
                       icon: Icons.music_note,
-                      label: widget.music == "1"
-                          ? getTranslated(context, "There is music")
-                          : getTranslated(context, "There is no music"),
+                      label: widget.type == "3"
+                          ? (widget.music == "1"
+                              ? getTranslated(context, "There is music")
+                              : getTranslated(context, "There is no music"))
+                          : widget.type != "3"
+                              ? (widget.type == "2"
+                                  ? widget.music
+                                  : getTranslated(context, "There is no music"))
+                              : getTranslated(context, "Unknown"),
                     ),
                   ],
                 ),
