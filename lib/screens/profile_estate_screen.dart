@@ -34,26 +34,28 @@ class ProfileEstateScreen extends StatefulWidget {
   final String sessions;
   final String menuLink;
   final String entry;
-  final String music;
+  final String lstMusic;
   final String type;
+  final String music;
 
-  const ProfileEstateScreen({
-    Key? key,
-    required this.nameEn,
-    required this.nameAr,
-    required this.estateId,
-    required this.location,
-    required this.rating,
-    required this.fee,
-    required this.deliveryTime,
-    required this.price,
-    required this.typeOfRestaurant,
-    required this.sessions,
-    required this.menuLink,
-    required this.entry,
-    required this.music,
-    required this.type,
-  }) : super(key: key);
+  const ProfileEstateScreen(
+      {Key? key,
+      required this.nameEn,
+      required this.nameAr,
+      required this.estateId,
+      required this.location,
+      required this.rating,
+      required this.fee,
+      required this.deliveryTime,
+      required this.price,
+      required this.typeOfRestaurant,
+      required this.sessions,
+      required this.menuLink,
+      required this.entry,
+      required this.lstMusic,
+      required this.type,
+      required this.music})
+      : super(key: key);
 
   @override
   _ProfileEstateScreenState createState() => _ProfileEstateScreenState();
@@ -437,17 +439,17 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                     ChipWidget(icon: Icons.home, label: widget.sessions),
                     ChipWidget(icon: Icons.grain, label: widget.entry),
                     ChipWidget(
-                      icon: Icons.music_note,
-                      label: widget.type == "3"
-                          ? (widget.music == "1"
-                              ? getTranslated(context, "There is music")
-                              : getTranslated(context, "There is no music"))
-                          : widget.type != "3"
-                              ? (widget.type == "2"
-                                  ? widget.music
-                                  : getTranslated(context, "There is no music"))
-                              : getTranslated(context, "Unknown"),
-                    ),
+                        icon: Icons.music_note,
+                        label: widget.type == "3" || widget.type == "1"
+                            ? (widget.music == "1"
+                                ? getTranslated(context, "There is music")
+                                : getTranslated(context, "There is no music"))
+                            : (widget.type == "2"
+                                ? widget.music == "1"
+                                    ? widget.lstMusic
+                                    : getTranslated(
+                                        context, "There is no music")
+                                : getTranslated(context, "There is no music"))),
                   ],
                 ),
 

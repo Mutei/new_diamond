@@ -363,12 +363,13 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
                                     fee: coffee['fee'],
                                     deliveryTime: coffee['time'],
                                     price: 32.0, // Update or fetch dynamically
+                                    music: coffee['Music'],
                                     typeOfRestaurant:
                                         coffee['TypeofRestaurant'] ?? '',
                                     sessions: coffee['Sessions'] ?? '',
                                     menuLink: coffee['MenuLink'] ?? '',
                                     entry: coffee['Entry'] ?? '',
-                                    music: coffee['Lstmusic'] ?? '',
+                                    lstMusic: coffee['Lstmusic'] ?? '',
                                     type: coffee['Type'],
                                   ),
                                 ),

@@ -74,6 +74,7 @@ class _MainScreenContentState extends State<MainScreenContent> {
           'MenuLink': estateData['MenuLink'] ?? 'No Menu',
           'Entry': estateData['Entry'] ?? 'Empty',
           'Lstmusic': estateData['Lstmusic'] ?? 'No music',
+          'Music': estateData['Music'] ?? 'No music',
           'Type': estateData['Type'] ?? 'Unknown',
         };
 
@@ -346,7 +347,8 @@ class _MainScreenContentState extends State<MainScreenContent> {
                           sessions: estate['Sessions'],
                           menuLink: estate['MenuLink'],
                           entry: estate['Entry'],
-                          music: estate['Lstmusic'],
+                          lstMusic: estate['Lstmusic'],
+                          music: estate['Music'],
                           type: estate['Type'],
                         ),
                       ),
