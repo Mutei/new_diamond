@@ -1,3 +1,4 @@
+import 'package:diamond_host_admin/widgets/coffee_filter_dialog.dart';
 import 'package:flutter/material.dart';
 import '../backend/customer_rate_services.dart';
 import '../localization/language_constants.dart';
@@ -171,11 +172,87 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
     return estate['Type'] == '2'; // Assuming '2' represents a coffee shop
   }
 
+  final Map<String, dynamic> filterState = {
+    'typeOfRestaurant': <String>[],
+    'entry': <String>[],
+    'sessions': <String>[],
+    'additionals': <String>[],
+    'music': false,
+    'valet': null,
+    'kidsArea': false,
+  };
+  void _applyFilters() {
+    setState(() {
+      searchActive = true; // Indicate that filtering is active
+      filteredEstates = coffees.where((estate) {
+        bool matches = true;
+
+        if (filterState['entry'].isNotEmpty) {
+          matches = matches && filterState['entry'].contains(estate['Entry']);
+        }
+        if (filterState['sessions'].isNotEmpty) {
+          matches =
+              matches && filterState['sessions'].contains(estate['Sessions']);
+        }
+        if (filterState['additionals'].isNotEmpty) {
+          matches = matches &&
+              filterState['additionals'].contains(estate['additionals']);
+        }
+        if (filterState['music']) {
+          matches = matches && estate['Music'] == '1';
+        }
+        if (filterState['valet'] != null) {
+          matches = matches &&
+              estate['HasValet'] == (filterState['valet'] ? '1' : '0');
+        }
+        if (filterState['kidsArea']) {
+          matches = matches && estate['HasKidsArea'] == '1';
+        }
+
+        return matches;
+      }).toList();
+    });
+  }
+
+  void _showFilterDialog() async {
+    final updatedFilterState = await showModalBottomSheet<Map<String, dynamic>>(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return CoffeeFilterDialog(
+          initialFilterState: filterState,
+        );
+      },
+    );
+
+    if (updatedFilterState != null) {
+      setState(() {
+        filterState
+          ..['entry'] = updatedFilterState['entry']
+          ..['sessions'] = updatedFilterState['sessions']
+          ..['additionals'] = updatedFilterState['additionals']
+          ..['music'] = updatedFilterState['music']
+          ..['valet'] = updatedFilterState['valet']
+          ..['kidsArea'] = updatedFilterState['kidsArea'];
+        _applyFilters();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: ReusedAppBar(
         title: getTranslated(context, "Cafes"),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.filter_list),
+            onPressed: _showFilterDialog,
+          ),
+        ],
       ),
       body: Column(
         children: [
