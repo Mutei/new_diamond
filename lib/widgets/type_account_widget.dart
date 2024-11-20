@@ -39,9 +39,17 @@ class TypeAccountWidget extends StatelessWidget {
                   end: Alignment.bottomRight,
                 )
               : null,
-          color: isSelected ? Colors.purple[50] : Colors.white,
+          color: isSelected
+              ? Colors.purple[50]
+              : Theme.of(context).brightness == Brightness.dark
+                  ? Colors.black
+                  : Colors.white,
           border: Border.all(
-            color: isSelected ? Colors.deepPurple : Colors.grey.shade300,
+            color: isSelected
+                ? Colors.deepPurple
+                : Theme.of(context).brightness == Brightness.dark
+                    ? Colors.grey
+                    : Colors.grey.shade300,
             width: 1.5,
           ),
           boxShadow: [
@@ -66,22 +74,24 @@ class TypeAccountWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 15), // Adjusted spacing
-
-            // Account Title with AutoSizeText for responsive text size
+            // Account Title
             AutoSizeText(
               title,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: isSelected ? Colors.white : Colors.black87,
+                color: isSelected
+                    ? Colors.white
+                    : Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 8),
-
-            // Account Subtitle with AutoSizeText for responsive text size
+            // Account Subtitle
             AutoSizeText(
               subtitle,
               textAlign: TextAlign.center,
