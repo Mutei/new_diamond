@@ -189,5 +189,11 @@
   "No feedback provided": "لم يتم تقديم أي تعليقات",
   "Anonymous": "مجهول",
   "Valet Service": "خدمة صف السيارات",
-  "Valet with Fees": "خدمة صف السيارات من دون رسوم"
+  "Valet with Fees": "خدمة صف السيارات من دون رسوم",
+  "Rate": "قيم",
+  "Rate the Estate:": "قيم المنشآة:",
+  "Rate the Food/Drink:": "قيم الطعام/الشراب:",
+  "Rate the Services:": "قيم الخدمات:",
+  "Your Feedback": "ملاحظاتك",
+  "Submit Feedback": "إرسال الملاحظات"
 }

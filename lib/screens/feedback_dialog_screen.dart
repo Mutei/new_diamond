@@ -1,3 +1,4 @@
+import 'package:diamond_host_admin/localization/language_constants.dart';
 import 'package:diamond_host_admin/widgets/reused_appbar.dart';
 import 'package:diamond_host_admin/widgets/reused_elevated_button.dart';
 import 'package:flutter/material.dart';
@@ -7,13 +8,15 @@ import 'package:intl/intl.dart'; // Import if not already imported
 
 class FeedbackDialogScreen extends StatefulWidget {
   final String estateId;
-  final String estateName;
+  final String estateNameEn;
+  final String estateNameAr;
 
-  const FeedbackDialogScreen({
-    Key? key,
-    required this.estateId,
-    required this.estateName,
-  }) : super(key: key);
+  const FeedbackDialogScreen(
+      {Key? key,
+      required this.estateId,
+      required this.estateNameEn,
+      required this.estateNameAr})
+      : super(key: key);
 
   @override
   _FeedbackDialogScreenState createState() => _FeedbackDialogScreenState();
@@ -126,75 +129,86 @@ class _FeedbackDialogScreenState extends State<FeedbackDialogScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final String displayName =
+        Localizations.localeOf(context).languageCode == 'ar'
+            ? widget.estateNameAr
+            : widget.estateNameEn;
+    final String rate =
+        Localizations.localeOf(context).languageCode == 'ar' ? "قيم" : "Rate";
     return Scaffold(
       // appBar: AppBar(
       //   title: Text('Rate ${widget.estateName}'),
       // ),
-      appBar: ReusedAppBar(title: "Rate ${widget.estateName}"),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Rate the Estate:',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            Slider(
-              value: _rateForEstate,
-              onChanged: (value) {
-                setState(() {
-                  _rateForEstate = value;
-                });
-              },
-              min: 0,
-              max: 5,
-              divisions: 5,
-              label: _rateForEstate.toString(),
-            ),
-            SizedBox(height: 8),
-            Text('Rate the Food/Drink:',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            Slider(
-              value: _rateForFoodOrDrink,
-              onChanged: (value) {
-                setState(() {
-                  _rateForFoodOrDrink = value;
-                });
-              },
-              min: 0,
-              max: 5,
-              divisions: 5,
-              label: _rateForFoodOrDrink.toString(),
-            ),
-            SizedBox(height: 8),
-            Text('Rate the Services:',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            Slider(
-              value: _rateForServices,
-              onChanged: (value) {
-                setState(() {
-                  _rateForServices = value;
-                });
-              },
-              min: 0,
-              max: 5,
-              divisions: 5,
-              label: _rateForServices.toString(),
-            ),
-            SizedBox(height: 16),
-            TextField(
-              controller: _feedbackController,
-              decoration: InputDecoration(
-                labelText: 'Your Feedback',
-                border: OutlineInputBorder(),
+      appBar: ReusedAppBar(title: "$rate ${displayName}"),
+
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(getTranslated(context, 'Rate the Estate:'),
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Slider(
+                value: _rateForEstate,
+                onChanged: (value) {
+                  setState(() {
+                    _rateForEstate = value;
+                  });
+                },
+                min: 0,
+                max: 5,
+                divisions: 5,
+                label: _rateForEstate.toString(),
               ),
-              maxLines: 4,
-            ),
-            SizedBox(height: 16),
-            Center(
-              child: CustomButton(
-                  text: "Submit Feedback", onPressed: _submitFeedback),
-            ),
-          ],
+              SizedBox(height: 8),
+              Text(getTranslated(context, 'Rate the Food/Drink:'),
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Slider(
+                value: _rateForFoodOrDrink,
+                onChanged: (value) {
+                  setState(() {
+                    _rateForFoodOrDrink = value;
+                  });
+                },
+                min: 0,
+                max: 5,
+                divisions: 5,
+                label: _rateForFoodOrDrink.toString(),
+              ),
+              SizedBox(height: 8),
+              Text(getTranslated(context, 'Rate the Services:'),
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Slider(
+                value: _rateForServices,
+                onChanged: (value) {
+                  setState(() {
+                    _rateForServices = value;
+                  });
+                },
+                min: 0,
+                max: 5,
+                divisions: 5,
+                label: _rateForServices.toString(),
+              ),
+              SizedBox(height: 16),
+              TextField(
+                controller: _feedbackController,
+                decoration: InputDecoration(
+                  labelText: getTranslated(context, 'Your Feedback'),
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 4,
+                maxLength: 100,
+              ),
+              SizedBox(height: 16),
+              Center(
+                child: CustomButton(
+                    text: getTranslated(context, "Submit Feedback"),
+                    onPressed: _submitFeedback),
+              ),
+            ],
+          ),
         ),
       ),
     );

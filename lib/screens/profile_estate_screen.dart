@@ -319,7 +319,10 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
         title: displayName,
         actions: [
           TextButton(
-            child: Text("Rate"),
+            child: Text(
+              getTranslated(context, "Rate"),
+              style: TextStyle(color: kPrimaryColor),
+            ),
             onPressed: () async {
               // Navigate to Feedback Dialog Screen and await the result
               final result = await Navigator.push(
@@ -327,7 +330,8 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                 MaterialPageRoute(
                   builder: (context) => FeedbackDialogScreen(
                     estateId: widget.estateId,
-                    estateName: widget.nameEn,
+                    estateNameEn: widget.nameEn,
+                    estateNameAr: widget.nameAr,
                   ),
                 ),
               );
@@ -345,7 +349,9 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
         // Added SafeArea
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(16.0).copyWith(bottom: 32.0),
+            padding: const EdgeInsets.all(16.0).copyWith(
+                bottom:
+                    80.0), // Adjusted bottom padding to accommodate the fixed button
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -500,6 +506,123 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                 ),
 
                 // Feedback Section
+
+                24.kH,
+
+                // Rooms Section
+                Visibility(
+                  visible: widget.type == "1",
+                  child: AutoSizeText(
+                    getTranslated(context, "Rooms"),
+                    style: kTeritary,
+                    maxLines: 1,
+                    minFontSize: 12,
+                  ),
+                ),
+                Visibility(
+                  visible: widget.type == "1",
+                  child: FirebaseAnimatedList(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    defaultChild:
+                        const Center(child: CircularProgressIndicator()),
+                    itemBuilder: (context, snapshot, animation, index) {
+                      Map map = snapshot.value as Map;
+                      map['Key'] = snapshot.key;
+                      Rooms room = Rooms(
+                        id: map['ID'],
+                        name: map['Name'],
+                        nameEn: map['Name'],
+                        price: map['Price'],
+                        bio: map['BioAr'],
+                        bioEn: map['BioEn'],
+                        color: Colors.white,
+                      );
+
+                      bool isSelected = LstRoomsSelected.any(
+                          (element) => element.id == room.id);
+
+                      return GestureDetector(
+                        onTap: () async {
+                          setState(() {
+                            if (isSelected) {
+                              LstRoomsSelected.removeWhere(
+                                  (element) => element.id == room.id);
+                            } else {
+                              LstRoomsSelected.add(room);
+                            }
+                          });
+                        },
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: 70,
+                          color: isSelected ? Colors.blue[100] : Colors.white,
+                          child: ListTile(
+                            title: AutoSizeText(
+                              objProvider.CheckLangValue
+                                  ? room.nameEn
+                                  : room.name,
+                              style: TextStyle(
+                                color:
+                                    isSelected ? kPrimaryColor : Colors.black,
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
+                              maxLines: 1,
+                              minFontSize: 12,
+                            ),
+                            subtitle: AutoSizeText(
+                              objProvider.CheckLangValue
+                                  ? room.bioEn
+                                  : room.bio,
+                              style: TextStyle(
+                                color:
+                                    isSelected ? kPrimaryColor : Colors.black54,
+                              ),
+                              maxLines: 2,
+                              minFontSize: 10,
+                            ),
+                            leading: const Icon(
+                              Icons.single_bed,
+                              color: Colors.black,
+                            ),
+                            trailing: LayoutBuilder(
+                              builder: (context, constraints) {
+                                return Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Flexible(
+                                      child: AutoSizeText(
+                                        room.price,
+                                        style: TextStyle(
+                                            color: kDeepPurpleColor,
+                                            fontSize: 18),
+                                        maxLines: 1,
+                                        minFontSize: 12,
+                                      ),
+                                    ),
+                                    if (isSelected)
+                                      const Icon(
+                                        Icons.check_circle,
+                                        color: kPrimaryColor,
+                                        size: 24,
+                                      ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    query: FirebaseDatabase.instance
+                        .ref("App")
+                        .child("Rooms")
+                        .child(widget.estateId.toString()),
+                  ),
+                ),
+
                 16.kH,
                 AutoSizeText(
                   getTranslated(context, "Feedback"),
@@ -738,164 +861,45 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                         },
                       ),
 
-                24.kH,
-
-                // Rooms Section
-                Visibility(
-                  visible: widget.type == "1",
-                  child: AutoSizeText(
-                    getTranslated(context, "Rooms"),
-                    style: kTeritary,
-                    maxLines: 1,
-                    minFontSize: 12,
-                  ),
-                ),
-                Visibility(
-                  visible: widget.type == "1",
-                  child: FirebaseAnimatedList(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    defaultChild:
-                        const Center(child: CircularProgressIndicator()),
-                    itemBuilder: (context, snapshot, animation, index) {
-                      Map map = snapshot.value as Map;
-                      map['Key'] = snapshot.key;
-                      Rooms room = Rooms(
-                        id: map['ID'],
-                        name: map['Name'],
-                        nameEn: map['Name'],
-                        price: map['Price'],
-                        bio: map['BioAr'],
-                        bioEn: map['BioEn'],
-                        color: Colors.white,
-                      );
-
-                      bool isSelected = LstRoomsSelected.any(
-                          (element) => element.id == room.id);
-
-                      return GestureDetector(
-                        onTap: () async {
-                          setState(() {
-                            if (isSelected) {
-                              LstRoomsSelected.removeWhere(
-                                  (element) => element.id == room.id);
-                            } else {
-                              LstRoomsSelected.add(room);
-                            }
-                          });
-                        },
-                        child: Container(
-                          width: MediaQuery.of(context).size.width,
-                          height: 70,
-                          color: isSelected ? Colors.blue[100] : Colors.white,
-                          child: ListTile(
-                            title: AutoSizeText(
-                              objProvider.CheckLangValue
-                                  ? room.nameEn
-                                  : room.name,
-                              style: TextStyle(
-                                color:
-                                    isSelected ? kPrimaryColor : Colors.black,
-                                fontWeight: isSelected
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              ),
-                              maxLines: 1,
-                              minFontSize: 12,
-                            ),
-                            subtitle: AutoSizeText(
-                              objProvider.CheckLangValue
-                                  ? room.bioEn
-                                  : room.bio,
-                              style: TextStyle(
-                                color:
-                                    isSelected ? kPrimaryColor : Colors.black54,
-                              ),
-                              maxLines: 2,
-                              minFontSize: 10,
-                            ),
-                            leading: const Icon(
-                              Icons.single_bed,
-                              color: Colors.black,
-                            ),
-                            trailing: LayoutBuilder(
-                              builder: (context, constraints) {
-                                return Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Flexible(
-                                      child: AutoSizeText(
-                                        room.price,
-                                        style: TextStyle(
-                                            color: kDeepPurpleColor,
-                                            fontSize: 18),
-                                        maxLines: 1,
-                                        minFontSize: 12,
-                                      ),
-                                    ),
-                                    if (isSelected)
-                                      const Icon(
-                                        Icons.check_circle,
-                                        color: kPrimaryColor,
-                                        size: 24,
-                                      ),
-                                  ],
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                    query: FirebaseDatabase.instance
-                        .ref("App")
-                        .child("Rooms")
-                        .child(widget.estateId.toString()),
-                  ),
-                ),
-
-                // Book Button
-                16.kH,
-                Row(
-                  children: [
-                    Expanded(
-                      child: CustomButton(
-                        text: getTranslated(context, "Book"),
-                        onPressed: () async {
-                          if (widget.type == "1") {
-                            if (LstRoomsSelected.isEmpty) {
-                              objProvider.FunSnackBarPage(
-                                  "Choose Room Before", context);
-                            } else {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => AdditionalFacility(
-                                    CheckState: "",
-                                    CheckIsBooking: true,
-                                    estate: widget.type, // estate as String
-                                    IDEstate: widget.estateId.toString(),
-                                    Lstroom: LstRoomsSelected,
-                                  ),
-                                ),
-                              );
-                            }
-                          } else {
-                            await _pickDate();
-                            if (selectedDate != null) {
-                              await _pickTime();
-                              if (selectedTime != null) {
-                                _showConfirmationDialog();
-                              }
-                            }
-                          }
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                16.kH,
+                // Remove the button from here
               ],
             ),
+          ),
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SizedBox(
+          height: 50, // Adjust height as needed
+          child: CustomButton(
+            text: getTranslated(context, "Book"),
+            onPressed: () async {
+              if (widget.type == "1") {
+                if (LstRoomsSelected.isEmpty) {
+                  objProvider.FunSnackBarPage("Choose Room Before", context);
+                } else {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => AdditionalFacility(
+                        CheckState: "",
+                        CheckIsBooking: true,
+                        estate: widget.type, // estate as String
+                        IDEstate: widget.estateId.toString(),
+                        Lstroom: LstRoomsSelected,
+                      ),
+                    ),
+                  );
+                }
+              } else {
+                await _pickDate();
+                if (selectedDate != null) {
+                  await _pickTime();
+                  if (selectedTime != null) {
+                    _showConfirmationDialog();
+                  }
+                }
+              }
+            },
           ),
         ),
       ),
