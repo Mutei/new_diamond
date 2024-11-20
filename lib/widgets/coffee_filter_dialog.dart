@@ -154,9 +154,23 @@ class _CoffeeFilterDialogState extends State<CoffeeFilterDialog> {
               onChanged: (value) {
                 setState(() {
                   localFilterState['valet'] = value;
+                  if (!value) {
+                    // Reset Valet with Fees when valet service is turned off
+                    localFilterState['valetWithFees'] = false;
+                  }
                 });
               },
             ),
+            if (localFilterState['valet'] == true)
+              SwitchListTile(
+                title: Text(getTranslated(context, "Valet with Fees")),
+                value: localFilterState['valetWithFees'] ?? false,
+                onChanged: (value) {
+                  setState(() {
+                    localFilterState['valetWithFees'] = value;
+                  });
+                },
+              ),
             const SizedBox(height: 20),
             _buildActionButtons(context),
           ],
