@@ -1,6 +1,7 @@
 import 'package:diamond_host_admin/constants/colors.dart';
 import 'package:diamond_host_admin/constants/styles.dart';
 import 'package:diamond_host_admin/extension/sized_box_extension.dart';
+import 'package:diamond_host_admin/widgets/reused_appbar.dart';
 import 'package:diamond_host_admin/widgets/reused_elevated_button.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
@@ -19,7 +20,9 @@ import '../utils/success_dialogue.dart';
 import '../utils/failure_dialogue.dart'; // Import FailureDialog
 import '../widgets/chip_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:auto_size_text/auto_size_text.dart'; // Import AutoSizeText
+import 'package:auto_size_text/auto_size_text.dart';
+
+import 'feedback_dialog_screen.dart'; // Import FeedbackDialogScreen
 
 class ProfileEstateScreen extends StatefulWidget {
   final String nameEn;
@@ -312,8 +315,31 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
     final objProvider = Provider.of<GeneralProvider>(context, listen: true);
 
     return Scaffold(
-      appBar: AppBar(
-        iconTheme: kIconTheme,
+      appBar: ReusedAppBar(
+        title: displayName,
+        actions: [
+          TextButton(
+            child: Text("Rate"),
+            onPressed: () async {
+              // Navigate to Feedback Dialog Screen and await the result
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FeedbackDialogScreen(
+                    estateId: widget.estateId,
+                    estateName: widget.nameEn,
+                  ),
+                ),
+              );
+
+              // If feedback was submitted successfully, refresh the feedback list and ratings
+              if (result == true) {
+                await _fetchFeedback();
+                await _fetchUserRatings();
+              }
+            },
+          ),
+        ],
       ),
       body: SafeArea(
         // Added SafeArea
