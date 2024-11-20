@@ -631,183 +631,103 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                   minFontSize: 12,
                 ),
                 8.kH,
+
+                // Modified Feedback Section to scroll horizontally
                 _feedbackList.isEmpty
                     ? const Center(child: Text("No feedback available."))
-                    : ListView.builder(
-                        physics:
-                            const NeverScrollableScrollPhysics(), // Disable internal scrolling
-                        shrinkWrap: true,
-                        itemCount: _feedbackList.length,
-                        itemBuilder: (context, index) {
-                          final feedback = _feedbackList[index];
-                          return Card(
-                            margin: const EdgeInsets.symmetric(vertical: 8),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            elevation: 3,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        if (_expandedFeedbacks
-                                            .contains(index)) {
-                                          _expandedFeedbacks.remove(index);
-                                        } else {
-                                          _expandedFeedbacks.add(index);
-                                        }
-                                      });
-                                    },
-                                    child: Row(
-                                      children: [
-                                        CircleAvatar(
-                                          radius: 25,
-                                          backgroundColor: Colors.grey[300],
-                                          backgroundImage:
-                                              feedback['userAvatarUrl'] != null
-                                                  ? CachedNetworkImageProvider(
-                                                      feedback['userAvatarUrl'])
-                                                  : null,
-                                          child:
-                                              feedback['userAvatarUrl'] == null
-                                                  ? const Icon(
-                                                      Icons.person,
-                                                      color: Colors.white,
-                                                      size: 30,
-                                                    )
-                                                  : null,
-                                        ),
-                                        const SizedBox(width: 10),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Expanded(
-                                                    child: AutoSizeText(
-                                                      feedback['userName'] ??
-                                                          getTranslated(context,
-                                                              'Anonymous'),
-                                                      style: const TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 16,
-                                                      ),
-                                                      maxLines: 1,
-                                                      minFontSize: 12,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    feedback['feedbackDate'] !=
-                                                            null
-                                                        ? DateFormat.yMMMd()
-                                                            .format(DateTime
-                                                                .parse(feedback[
-                                                                    'feedbackDate']))
-                                                        : '',
-                                                    style: const TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.grey,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              const SizedBox(height: 8),
-                                              Row(
-                                                children: [
-                                                  _buildStarRating(
-                                                      (feedback['RateForEstate'] ??
-                                                              0)
-                                                          .toDouble(),
-                                                      size: 16),
-                                                  const SizedBox(width: 4),
-                                                  Text(
-                                                    'Estate Rating: ${feedback['RateForEstate'] ?? 'N/A'}',
-                                                    style: const TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.grey,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Icon(
-                                          _expandedFeedbacks.contains(index)
-                                              ? Icons.expand_less
-                                              : Icons.expand_more,
-                                          color: Colors.grey,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  // Animated container for expanded content
-                                  AnimatedSwitcher(
-                                    duration: const Duration(milliseconds: 300),
-                                    transitionBuilder: (Widget child,
-                                        Animation<double> animation) {
-                                      return SlideTransition(
-                                        position: Tween<Offset>(
-                                          begin: const Offset(1, 0),
-                                          end: Offset.zero,
-                                        ).animate(animation),
-                                        child: child,
-                                      );
-                                    },
-                                    child: _expandedFeedbacks.contains(index)
-                                        ? Column(
-                                            children: [
-                                              const Divider(),
-                                              AutoSizeText(
-                                                feedback['feedback'] ??
-                                                    getTranslated(context,
-                                                        'No feedback provided'),
+                    : Container(
+                        height: _expandedFeedbacks.isEmpty
+                            ? 100
+                            : 200, // Adjust height dynamically
+                        child: ListView.builder(
+                          scrollDirection:
+                              Axis.horizontal, // Set horizontal scroll
+                          itemCount: _feedbackList.length,
+                          itemBuilder: (context, index) {
+                            final feedback = _feedbackList[index];
+                            return Container(
+                              width: MediaQuery.of(context).size.width *
+                                  0.8, // Adjust width as needed
+                              margin: const EdgeInsets.only(right: 16.0),
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                elevation: 3,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            if (_expandedFeedbacks
+                                                .contains(index)) {
+                                              _expandedFeedbacks.remove(index);
+                                            } else {
+                                              _expandedFeedbacks.add(index);
+                                            }
+                                          });
+                                        },
+                                        child: Row(
+                                          children: [
+                                            CircleAvatar(
+                                              radius: 25,
+                                              backgroundColor: kDeepPurpleColor,
+                                              child: Text(
+                                                (feedback['userName'] != null &&
+                                                        (feedback['userName']
+                                                                as String)
+                                                            .isNotEmpty)
+                                                    ? (feedback['userName']
+                                                            as String)[0]
+                                                        .toUpperCase()
+                                                    : '?',
                                                 style: const TextStyle(
-                                                    fontSize: 14),
-                                                maxLines: 10,
-                                                minFontSize: 10,
+                                                  color: Colors.white,
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
                                               ),
-                                              const SizedBox(height: 10),
-                                              // Additional Ratings
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
+                                            ),
+                                            const SizedBox(width: 10),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
                                                 children: [
-                                                  // Food Rating
-                                                  Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
                                                     children: [
-                                                      Row(
-                                                        children: [
-                                                          const Icon(
-                                                              Icons.restaurant,
-                                                              color:
-                                                                  Colors.orange,
-                                                              size: 16),
-                                                          const SizedBox(
-                                                              width: 4),
-                                                          _buildStarRating(
-                                                              (feedback['RateForFoodOrDrink'] ??
-                                                                      0)
-                                                                  .toDouble(),
-                                                              size: 16),
-                                                        ],
+                                                      Expanded(
+                                                        child: AutoSizeText(
+                                                          feedback[
+                                                                  'userName'] ??
+                                                              getTranslated(
+                                                                  context,
+                                                                  'Anonymous'),
+                                                          style:
+                                                              const TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 16,
+                                                          ),
+                                                          maxLines: 1,
+                                                          minFontSize: 12,
+                                                        ),
                                                       ),
-                                                      const SizedBox(height: 2),
                                                       Text(
-                                                        'Food Rating: ${feedback['RateForFoodOrDrink'] ?? 'N/A'}',
+                                                        feedback['feedbackDate'] !=
+                                                                null
+                                                            ? DateFormat.yMMMd()
+                                                                .format(DateTime
+                                                                    .parse(feedback[
+                                                                        'feedbackDate']))
+                                                            : '',
                                                         style: const TextStyle(
                                                           fontSize: 12,
                                                           color: Colors.grey,
@@ -815,32 +735,18 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                                                       ),
                                                     ],
                                                   ),
-                                                  // Service Rating
-                                                  Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
+                                                  const SizedBox(height: 8),
+                                                  Row(
                                                     children: [
-                                                      Row(
-                                                        children: [
-                                                          const Icon(
-                                                              Icons
-                                                                  .miscellaneous_services,
-                                                              color:
-                                                                  Colors.orange,
-                                                              size: 16),
-                                                          const SizedBox(
-                                                              width: 4),
-                                                          _buildStarRating(
-                                                              (feedback['RateForServices'] ??
-                                                                      0)
-                                                                  .toDouble(),
-                                                              size: 16),
-                                                        ],
+                                                      _buildStarRating(
+                                                        (feedback['RateForEstate'] ??
+                                                                0)
+                                                            .toDouble(),
+                                                        size: 16,
                                                       ),
-                                                      const SizedBox(height: 2),
+                                                      const SizedBox(width: 4),
                                                       Text(
-                                                        'Service Rating: ${feedback['RateForServices'] ?? 'N/A'}',
+                                                        'Estate Rating: ${feedback['RateForEstate'] ?? 'N/A'}',
                                                         style: const TextStyle(
                                                           fontSize: 12,
                                                           color: Colors.grey,
@@ -850,15 +756,126 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                                                   ),
                                                 ],
                                               ),
-                                            ],
-                                          )
-                                        : const SizedBox.shrink(),
+                                            ),
+                                            Icon(
+                                              _expandedFeedbacks.contains(index)
+                                                  ? Icons.expand_less
+                                                  : Icons.expand_more,
+                                              color: Colors.grey,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      AnimatedSwitcher(
+                                        duration:
+                                            const Duration(milliseconds: 300),
+                                        child: _expandedFeedbacks
+                                                .contains(index)
+                                            ? Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  const Divider(),
+                                                  AutoSizeText(
+                                                    feedback['feedback'] ??
+                                                        getTranslated(context,
+                                                            'No feedback provided'),
+                                                    style: const TextStyle(
+                                                        fontSize: 14),
+                                                    maxLines: 10,
+                                                    minFontSize: 10,
+                                                  ),
+                                                  const SizedBox(height: 10),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Row(
+                                                            children: [
+                                                              const Icon(
+                                                                  Icons
+                                                                      .restaurant,
+                                                                  color: Colors
+                                                                      .orange,
+                                                                  size: 16),
+                                                              const SizedBox(
+                                                                  width: 4),
+                                                              _buildStarRating(
+                                                                (feedback['RateForFoodOrDrink'] ??
+                                                                        0)
+                                                                    .toDouble(),
+                                                                size: 16,
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          const SizedBox(
+                                                              height: 2),
+                                                          Text(
+                                                            'Food Rating: ${feedback['RateForFoodOrDrink'] ?? 'N/A'}',
+                                                            style:
+                                                                const TextStyle(
+                                                              fontSize: 12,
+                                                              color:
+                                                                  Colors.grey,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Row(
+                                                            children: [
+                                                              const Icon(
+                                                                  Icons
+                                                                      .miscellaneous_services,
+                                                                  color: Colors
+                                                                      .orange,
+                                                                  size: 16),
+                                                              const SizedBox(
+                                                                  width: 4),
+                                                              _buildStarRating(
+                                                                (feedback['RateForServices'] ??
+                                                                        0)
+                                                                    .toDouble(),
+                                                                size: 16,
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          const SizedBox(
+                                                              height: 2),
+                                                          Text(
+                                                            'Service Rating: ${feedback['RateForServices'] ?? 'N/A'}',
+                                                            style:
+                                                                const TextStyle(
+                                                              fontSize: 12,
+                                                              color:
+                                                                  Colors.grey,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              )
+                                            : const SizedBox.shrink(),
+                                      ),
+                                    ],
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       ),
 
                 // Remove the button from here
