@@ -321,7 +321,7 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
           TextButton(
             child: Text(
               getTranslated(context, "Rate"),
-              style: TextStyle(color: kPrimaryColor),
+              style: TextStyle(color: kDeepPurpleColor),
             ),
             onPressed: () async {
               // Navigate to Feedback Dialog Screen and await the result
@@ -636,18 +636,22 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                 _feedbackList.isEmpty
                     ? const Center(child: Text("No feedback available."))
                     : Container(
-                        height: _expandedFeedbacks.isEmpty
-                            ? 100
-                            : 200, // Adjust height dynamically
+                        height: 200, // Set a fixed height for consistent layout
                         child: ListView.builder(
-                          scrollDirection:
-                              Axis.horizontal, // Set horizontal scroll
+                          scrollDirection: Axis.horizontal, // Horizontal scroll
                           itemCount: _feedbackList.length,
                           itemBuilder: (context, index) {
                             final feedback = _feedbackList[index];
-                            return Container(
+                            final isExpanded =
+                                _expandedFeedbacks.contains(index);
+
+                            return AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
                               width: MediaQuery.of(context).size.width *
-                                  0.8, // Adjust width as needed
+                                  (isExpanded
+                                      ? 0.9
+                                      : 0.8), // Adjust width based on expansion
                               margin: const EdgeInsets.only(right: 16.0),
                               child: Card(
                                 shape: RoundedRectangleBorder(
@@ -663,8 +667,7 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                                       GestureDetector(
                                         onTap: () {
                                           setState(() {
-                                            if (_expandedFeedbacks
-                                                .contains(index)) {
+                                            if (isExpanded) {
                                               _expandedFeedbacks.remove(index);
                                             } else {
                                               _expandedFeedbacks.add(index);
@@ -758,7 +761,7 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                                               ),
                                             ),
                                             Icon(
-                                              _expandedFeedbacks.contains(index)
+                                              isExpanded
                                                   ? Icons.expand_less
                                                   : Icons.expand_more,
                                               color: Colors.grey,
@@ -766,109 +769,94 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                                           ],
                                         ),
                                       ),
-                                      AnimatedSwitcher(
-                                        duration:
-                                            const Duration(milliseconds: 300),
-                                        child: _expandedFeedbacks
-                                                .contains(index)
-                                            ? Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  const Divider(),
-                                                  AutoSizeText(
-                                                    feedback['feedback'] ??
-                                                        getTranslated(context,
-                                                            'No feedback provided'),
-                                                    style: const TextStyle(
-                                                        fontSize: 14),
-                                                    maxLines: 10,
-                                                    minFontSize: 10,
-                                                  ),
-                                                  const SizedBox(height: 10),
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: [
-                                                      Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Row(
-                                                            children: [
-                                                              const Icon(
-                                                                  Icons
-                                                                      .restaurant,
-                                                                  color: Colors
-                                                                      .orange,
-                                                                  size: 16),
-                                                              const SizedBox(
-                                                                  width: 4),
-                                                              _buildStarRating(
-                                                                (feedback['RateForFoodOrDrink'] ??
-                                                                        0)
-                                                                    .toDouble(),
-                                                                size: 16,
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          const SizedBox(
-                                                              height: 2),
-                                                          Text(
-                                                            'Food Rating: ${feedback['RateForFoodOrDrink'] ?? 'N/A'}',
-                                                            style:
-                                                                const TextStyle(
-                                                              fontSize: 12,
-                                                              color:
-                                                                  Colors.grey,
-                                                            ),
-                                                          ),
-                                                        ],
+                                      if (isExpanded)
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const Divider(),
+                                            AutoSizeText(
+                                              feedback['feedback'] ??
+                                                  getTranslated(context,
+                                                      'No feedback provided'),
+                                              style:
+                                                  const TextStyle(fontSize: 14),
+                                              maxLines: 10,
+                                              minFontSize: 10,
+                                            ),
+                                            const SizedBox(height: 10),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        const Icon(
+                                                            Icons.restaurant,
+                                                            color:
+                                                                Colors.orange,
+                                                            size: 16),
+                                                        const SizedBox(
+                                                            width: 4),
+                                                        _buildStarRating(
+                                                          (feedback['RateForFoodOrDrink'] ??
+                                                                  0)
+                                                              .toDouble(),
+                                                          size: 16,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    const SizedBox(height: 2),
+                                                    Text(
+                                                      'Food Rating: ${feedback['RateForFoodOrDrink'] ?? 'N/A'}',
+                                                      style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.grey,
                                                       ),
-                                                      Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Row(
-                                                            children: [
-                                                              const Icon(
-                                                                  Icons
-                                                                      .miscellaneous_services,
-                                                                  color: Colors
-                                                                      .orange,
-                                                                  size: 16),
-                                                              const SizedBox(
-                                                                  width: 4),
-                                                              _buildStarRating(
-                                                                (feedback['RateForServices'] ??
-                                                                        0)
-                                                                    .toDouble(),
-                                                                size: 16,
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          const SizedBox(
-                                                              height: 2),
-                                                          Text(
-                                                            'Service Rating: ${feedback['RateForServices'] ?? 'N/A'}',
-                                                            style:
-                                                                const TextStyle(
-                                                              fontSize: 12,
-                                                              color:
-                                                                  Colors.grey,
-                                                            ),
-                                                          ),
-                                                        ],
+                                                    ),
+                                                  ],
+                                                ),
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        const Icon(
+                                                            Icons
+                                                                .miscellaneous_services,
+                                                            color:
+                                                                Colors.orange,
+                                                            size: 16),
+                                                        const SizedBox(
+                                                            width: 4),
+                                                        _buildStarRating(
+                                                          (feedback['RateForServices'] ??
+                                                                  0)
+                                                              .toDouble(),
+                                                          size: 16,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    const SizedBox(height: 2),
+                                                    Text(
+                                                      'Service Rating: ${feedback['RateForServices'] ?? 'N/A'}',
+                                                      style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.grey,
                                                       ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              )
-                                            : const SizedBox.shrink(),
-                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
                                     ],
                                   ),
                                 ),
@@ -876,7 +864,7 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                             );
                           },
                         ),
-                      ),
+                      )
 
                 // Remove the button from here
               ],
