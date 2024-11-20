@@ -148,6 +148,15 @@ class _CoffeeFilterDialogState extends State<CoffeeFilterDialog> {
                 });
               },
             ),
+            SwitchListTile(
+              title: Text(getTranslated(context, "Valet Service")),
+              value: localFilterState['valet'] ?? false,
+              onChanged: (value) {
+                setState(() {
+                  localFilterState['valet'] = value;
+                });
+              },
+            ),
             const SizedBox(height: 20),
             _buildActionButtons(context),
           ],
