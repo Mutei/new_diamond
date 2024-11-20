@@ -252,16 +252,17 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
           matches = matches && estate['Music'] == '1';
         }
 
-        if (filterState['valetWithFees'] != null) {
-          matches = matches &&
-              estate['ValetWithFees'] ==
-                  (filterState['valetWithFees'] ? '0' : '1');
-        }
-
         // Match Valet filter
-        if (filterState['valet'] != null) {
-          matches = matches &&
-              estate['HasValet'] == (filterState['valet'] ? '1' : '0');
+        if (filterState['valet'] == true) {
+          if (filterState['valetWithFees'] == false) {
+            // Show all cafes with valet service (both with and without fees)
+            matches = matches && estate['HasValet'] == '1';
+          } else {
+            // Show only cafes with valet service and no fees
+            matches = matches &&
+                estate['HasValet'] == '1' &&
+                estate['ValetWithFees'] == '0';
+          }
         }
 
         // Match Kids Area filter
