@@ -31,6 +31,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
     'additionals': <String>[],
     'music': false,
     'valet': null,
+    'valetWithFees': false,
     'kidsArea': false,
   };
 
@@ -70,38 +71,133 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
       filteredEstates = restaurants.where((estate) {
         bool matches = true;
 
-        // Check each filter individually
+        // Helper function to handle both comma-separated strings and lists
+        List<String> parseOptions(dynamic data) {
+          if (data is List) {
+            return data.cast<String>();
+          } else if (data is String) {
+            return data.split(',').map((e) => e.trim()).toList();
+          }
+          return [];
+        }
+
+        // Match Entry filter
+        if (filterState['entry'].isNotEmpty) {
+          matches = matches &&
+              filterState['entry'].any((selectedEntry) {
+                final entryData = parseOptions(estate['Entry']);
+                return entryData.contains(selectedEntry);
+              });
+        }
+        // Match Entry filter
         if (filterState['typeOfRestaurant'].isNotEmpty) {
           matches = matches &&
-              filterState['typeOfRestaurant']
-                  .contains(estate['TypeofRestaurant']);
+              filterState['typeOfRestaurant'].any((selectedEntry) {
+                final entryData = parseOptions(estate['TypeofRestaurant']);
+                return entryData.contains(selectedEntry);
+              });
         }
-        if (filterState['entry'].isNotEmpty) {
-          matches = matches && filterState['entry'].contains(estate['Entry']);
-        }
+
+        // Match Sessions filter
         if (filterState['sessions'].isNotEmpty) {
-          matches =
-              matches && filterState['sessions'].contains(estate['Sessions']);
+          matches = matches &&
+              filterState['sessions'].any((selectedSession) {
+                final sessionsData = parseOptions(estate['Sessions']);
+                return sessionsData.contains(selectedSession);
+              });
         }
+
+        // Match Additionals filter
         if (filterState['additionals'].isNotEmpty) {
           matches = matches &&
-              filterState['additionals'].contains(estate['additionals']);
+              filterState['additionals'].any((selectedAdditional) {
+                final additionalsData = parseOptions(estate['additionals']);
+                return additionalsData.contains(selectedAdditional);
+              });
         }
+
+        // Match Music filter
         if (filterState['music']) {
           matches = matches && estate['Music'] == '1';
         }
-        if (filterState['valet'] != null) {
-          matches = matches &&
-              estate['HasValet'] == (filterState['valet'] ? '1' : '0');
+
+        // Match Valet filter
+        if (filterState['valet'] == true) {
+          if (filterState['valetWithFees'] == false) {
+            // Show all cafes with valet service (both with and without fees)
+            matches = matches && estate['HasValet'] == '1';
+          } else {
+            // Show only cafes with valet service and no fees
+            matches = matches &&
+                estate['HasValet'] == '1' &&
+                estate['ValetWithFees'] == '0';
+          }
         }
+
+        // Match Kids Area filter
         if (filterState['kidsArea']) {
           matches = matches && estate['HasKidsArea'] == '1';
         }
 
         return matches;
       }).toList();
+
+      // Sorting Logic: Example by nameEn (alphabetically), then by rating (descending)
+      filteredEstates.sort((a, b) {
+        final locale = Localizations.localeOf(context).languageCode;
+        final nameA = (locale == 'ar' ? a['nameAr'] : a['nameEn']) ?? '';
+        final nameB = (locale == 'ar' ? b['nameAr'] : b['nameEn']) ?? '';
+
+        // Primary sorting by name (alphabetical order)
+        int nameComparison = nameA.compareTo(nameB);
+        if (nameComparison != 0) {
+          return nameComparison;
+        }
+
+        // Secondary sorting by rating (descending)
+        return b['rating'].compareTo(a['rating']);
+      });
     });
   }
+
+  // void _applyFilters() {
+  //   setState(() {
+  //     searchActive = true; // Indicate that filtering is active
+  //     filteredEstates = restaurants.where((estate) {
+  //       bool matches = true;
+  //
+  //       // Check each filter individually
+  //       if (filterState['typeOfRestaurant'].isNotEmpty) {
+  //         matches = matches &&
+  //             filterState['typeOfRestaurant']
+  //                 .contains(estate['TypeofRestaurant']);
+  //       }
+  //       if (filterState['entry'].isNotEmpty) {
+  //         matches = matches && filterState['entry'].contains(estate['Entry']);
+  //       }
+  //       if (filterState['sessions'].isNotEmpty) {
+  //         matches =
+  //             matches && filterState['sessions'].contains(estate['Sessions']);
+  //       }
+  //       if (filterState['additionals'].isNotEmpty) {
+  //         matches = matches &&
+  //             filterState['additionals'].contains(estate['additionals']);
+  //       }
+  //       if (filterState['music']) {
+  //         matches = matches && estate['Music'] == '1';
+  //       }
+  //       if (filterState['valet'] != null) {
+  //         matches = matches &&
+  //             estate['HasValet'] == (filterState['valet'] ? '1' : '0');
+  //       }
+  //       if (filterState['kidsArea']) {
+  //         matches = matches && estate['HasKidsArea'] == '1';
+  //       }
+  //
+  //       return matches;
+  //     }).toList();
+  //   });
+  // }
 
   Future<void> _fetchRestaurants() async {
     setState(() => loading = true);
@@ -144,6 +240,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
           'Music': estateData['Music'] ?? '',
           'HasValet': estateData['HasValet'] ?? '0',
           'HasKidsArea': estateData['HasKidsArea'] ?? '0',
+          'ValetWithFees': estateData['ValetWithFees'] ?? '0',
         };
 
         estate = await _addAdditionalEstateData(estate);
@@ -206,6 +303,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
           ..['additionals'] = updatedFilterState['additionals']
           ..['music'] = updatedFilterState['music']
           ..['valet'] = updatedFilterState['valet']
+          ..['valetWithFees'] = updatedFilterState['valetWithFees']
           ..['kidsArea'] = updatedFilterState['kidsArea'];
         _applyFilters();
       });

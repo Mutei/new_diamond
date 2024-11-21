@@ -104,32 +104,24 @@ class _FilterDialogState extends State<FilterDialog> {
               context,
               "Entry",
               localFilterState['entry'],
-              [
-                getTranslated(context, "Single"),
-                getTranslated(context, "Familial"),
-                getTranslated(context, "Mixed")
-              ],
+              ["Single", "Familial", "mixed"],
             ),
             _buildFilterSection(
               context,
               "Sessions",
               localFilterState['sessions'],
-              [
-                getTranslated(context, "Internal sessions"),
-                getTranslated(context, "External sessions"),
-                getTranslated(context, "Private sessions")
-              ],
+              ["Internal sessions", "External sessions", "Private sessions"],
             ),
             _buildFilterSection(
               context,
               "Additionals",
               localFilterState['additionals'],
               [
-                getTranslated(context, "Is there Hookah?"),
-                getTranslated(context, "Is there Buffet?"),
-                getTranslated(context, "Is there a dinner buffet?"),
-                getTranslated(context, "Is there a lunch buffet?"),
-                getTranslated(context, "Is there a breakfast buffet?")
+                "Is there Hookah?",
+                "Is there Buffet?",
+                "Is there a dinner buffet?",
+                "Is there a lunch buffet?",
+                "Is there a breakfast buffet?"
               ],
             ),
             SwitchListTile(
@@ -150,6 +142,29 @@ class _FilterDialogState extends State<FilterDialog> {
                 });
               },
             ),
+            SwitchListTile(
+              title: Text(getTranslated(context, "Valet Service")),
+              value: localFilterState['valet'] ?? false,
+              onChanged: (value) {
+                setState(() {
+                  localFilterState['valet'] = value;
+                  if (!value) {
+                    // Reset Valet with Fees when valet service is turned off
+                    localFilterState['valetWithFees'] = false;
+                  }
+                });
+              },
+            ),
+            if (localFilterState['valet'] == true)
+              SwitchListTile(
+                title: Text(getTranslated(context, "Valet with Fees")),
+                value: localFilterState['valetWithFees'] ?? false,
+                onChanged: (value) {
+                  setState(() {
+                    localFilterState['valetWithFees'] = value;
+                  });
+                },
+              ),
             const SizedBox(height: 20),
             _buildActionButtons(context),
           ],
@@ -227,7 +242,7 @@ class _FilterDialogState extends State<FilterDialog> {
           children: options.map((option) {
             final isSelected = selectedOptions.contains(option);
             return ChoiceChip(
-              label: Text(option),
+              label: Text(getTranslated(context, option)),
               selected: isSelected,
               onSelected: (selected) {
                 setState(() {
