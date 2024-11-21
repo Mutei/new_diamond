@@ -8,6 +8,7 @@ import '../widgets/reused_different_screen_card_widget.dart';
 import '../widgets/search_text_form_field.dart';
 import 'profile_estate_screen.dart';
 import '../widgets/filter_dialog.dart';
+import '../constants/restaurant_options.dart';
 
 class RestaurantScreen extends StatefulWidget {
   @override
@@ -65,13 +66,20 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
     });
   }
 
+  String mapArabicToEnglish(String arabicLabel) {
+    final match = restaurantOptions.firstWhere(
+      (option) => option['labelAr'] == arabicLabel,
+      orElse: () => {},
+    );
+    return match.isNotEmpty ? match['label'] as String : arabicLabel;
+  }
+
   void _applyFilters() {
     setState(() {
-      searchActive = true; // Indicate that filtering is active
+      searchActive = true;
       filteredEstates = restaurants.where((estate) {
         bool matches = true;
 
-        // Helper function to handle both comma-separated strings and lists
         List<String> parseOptions(dynamic data) {
           if (data is List) {
             return data.cast<String>();
@@ -81,7 +89,15 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
           return [];
         }
 
-        // Match Entry filter
+        if (filterState['typeOfRestaurant'].isNotEmpty) {
+          matches = matches &&
+              filterState['typeOfRestaurant'].any((selectedEntry) {
+                final selectedEnglishEntry = mapArabicToEnglish(selectedEntry);
+                final entryData = parseOptions(estate['TypeofRestaurant']);
+                return entryData.contains(selectedEnglishEntry);
+              });
+        }
+
         if (filterState['entry'].isNotEmpty) {
           matches = matches &&
               filterState['entry'].any((selectedEntry) {
@@ -89,16 +105,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                 return entryData.contains(selectedEntry);
               });
         }
-        // Match Entry filter
-        if (filterState['typeOfRestaurant'].isNotEmpty) {
-          matches = matches &&
-              filterState['typeOfRestaurant'].any((selectedEntry) {
-                final entryData = parseOptions(estate['TypeofRestaurant']);
-                return entryData.contains(selectedEntry);
-              });
-        }
 
-        // Match Sessions filter
         if (filterState['sessions'].isNotEmpty) {
           matches = matches &&
               filterState['sessions'].any((selectedSession) {
@@ -107,7 +114,6 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
               });
         }
 
-        // Match Additionals filter
         if (filterState['additionals'].isNotEmpty) {
           matches = matches &&
               filterState['additionals'].any((selectedAdditional) {
@@ -116,25 +122,20 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
               });
         }
 
-        // Match Music filter
         if (filterState['music']) {
           matches = matches && estate['Music'] == '1';
         }
 
-        // Match Valet filter
         if (filterState['valet'] == true) {
           if (filterState['valetWithFees'] == false) {
-            // Show all cafes with valet service (both with and without fees)
             matches = matches && estate['HasValet'] == '1';
           } else {
-            // Show only cafes with valet service and no fees
             matches = matches &&
                 estate['HasValet'] == '1' &&
                 estate['ValetWithFees'] == '0';
           }
         }
 
-        // Match Kids Area filter
         if (filterState['kidsArea']) {
           matches = matches && estate['HasKidsArea'] == '1';
         }
@@ -142,62 +143,20 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
         return matches;
       }).toList();
 
-      // Sorting Logic: Example by nameEn (alphabetically), then by rating (descending)
       filteredEstates.sort((a, b) {
         final locale = Localizations.localeOf(context).languageCode;
         final nameA = (locale == 'ar' ? a['nameAr'] : a['nameEn']) ?? '';
         final nameB = (locale == 'ar' ? b['nameAr'] : b['nameEn']) ?? '';
 
-        // Primary sorting by name (alphabetical order)
         int nameComparison = nameA.compareTo(nameB);
         if (nameComparison != 0) {
           return nameComparison;
         }
 
-        // Secondary sorting by rating (descending)
         return b['rating'].compareTo(a['rating']);
       });
     });
   }
-
-  // void _applyFilters() {
-  //   setState(() {
-  //     searchActive = true; // Indicate that filtering is active
-  //     filteredEstates = restaurants.where((estate) {
-  //       bool matches = true;
-  //
-  //       // Check each filter individually
-  //       if (filterState['typeOfRestaurant'].isNotEmpty) {
-  //         matches = matches &&
-  //             filterState['typeOfRestaurant']
-  //                 .contains(estate['TypeofRestaurant']);
-  //       }
-  //       if (filterState['entry'].isNotEmpty) {
-  //         matches = matches && filterState['entry'].contains(estate['Entry']);
-  //       }
-  //       if (filterState['sessions'].isNotEmpty) {
-  //         matches =
-  //             matches && filterState['sessions'].contains(estate['Sessions']);
-  //       }
-  //       if (filterState['additionals'].isNotEmpty) {
-  //         matches = matches &&
-  //             filterState['additionals'].contains(estate['additionals']);
-  //       }
-  //       if (filterState['music']) {
-  //         matches = matches && estate['Music'] == '1';
-  //       }
-  //       if (filterState['valet'] != null) {
-  //         matches = matches &&
-  //             estate['HasValet'] == (filterState['valet'] ? '1' : '0');
-  //       }
-  //       if (filterState['kidsArea']) {
-  //         matches = matches && estate['HasKidsArea'] == '1';
-  //       }
-  //
-  //       return matches;
-  //     }).toList();
-  //   });
-  // }
 
   Future<void> _fetchRestaurants() async {
     setState(() => loading = true);
@@ -229,7 +188,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
           'id': estateEntry.key,
           'nameEn': estateData['NameEn'] ?? 'Unknown',
           'nameAr': estateData['NameAr'] ?? 'غير معروف',
-          'rating': 0.0, // Initial rating
+          'rating': 0.0,
           'fee': estateData['Fee'] ?? 'Free',
           'time': estateData['Time'] ?? '20 min',
           'Type': estateData['Type'] ?? 'Unknown',
@@ -252,7 +211,6 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
 
   Future<Map<String, dynamic>> _addAdditionalEstateData(
       Map<String, dynamic> estate) async {
-    // Fetch ratings
     final ratings =
         await customerRateServices.fetchEstateRatingWithUsers(estate['id']);
     final totalRating = ratings.isNotEmpty
@@ -260,7 +218,6 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
             ratings.length
         : 0.0;
 
-    // Fetch image URL
     final storageRef =
         FirebaseStorage.instance.ref().child('${estate['id']}/0.jpg');
     String imageUrl;
