@@ -46,6 +46,7 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
           'time': estateData['Time'] ?? '20 min',
           'Type': estateData['Type'] ?? 'Unknown',
           'TypeofRestaurant': estateData['TypeofRestaurant'] ?? '',
+          'Lstmusic': estateData['Lstmusic'] ?? '',
           'Entry': estateData['Entry'] ?? '',
           'Sessions': estateData['Sessions'] ?? '',
           'additionals': estateData['additionals'] ?? '',
@@ -203,6 +204,7 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
     'valet': null,
     'kidsArea': false,
     'valetWithFees': false,
+    'lstMusic': <String>[],
   };
   void _applyFilters() {
     setState(() {
@@ -226,6 +228,15 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
               filterState['entry'].any((selectedEntry) {
                 final entryData = parseOptions(estate['Entry']);
                 return entryData.contains(selectedEntry);
+              });
+        }
+
+        // Match Entry filter
+        if (filterState['lstMusic'].isNotEmpty) {
+          matches = matches &&
+              filterState['lstMusic'].any((selectedEntry) {
+                final lstMusicData = parseOptions(estate['Lstmusic']);
+                return lstMusicData.contains(selectedEntry);
               });
         }
 
@@ -314,7 +325,8 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
           ..['music'] = updatedFilterState['music']
           ..['valet'] = updatedFilterState['valet']
           ..['kidsArea'] = updatedFilterState['kidsArea']
-          ..['valetWithFees'] = updatedFilterState['valetWithFees'];
+          ..['valetWithFees'] = updatedFilterState['valetWithFees']
+          ..['lstMusic'] = updatedFilterState['lstMusic'];
         _applyFilters();
       });
     }

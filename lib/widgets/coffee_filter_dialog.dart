@@ -136,9 +136,24 @@ class _CoffeeFilterDialogState extends State<CoffeeFilterDialog> {
               onChanged: (value) {
                 setState(() {
                   localFilterState['music'] = value;
+                  if (!value) {
+                    // Reset Lstmusic options when music is turned off
+                    localFilterState['lstMusic'] = [];
+                  }
                 });
               },
             ),
+            if (localFilterState['music'] == true)
+              _buildFilterSection(
+                context,
+                "List of musics",
+                localFilterState['lstMusic'],
+                [
+                  getTranslated(context, "singer"),
+                  getTranslated(context, "Oud"),
+                  getTranslated(context, "DJ"),
+                ],
+              ),
             SwitchListTile(
               title: Text(getTranslated(context, "Kids Area")),
               value: localFilterState['kidsArea'],
