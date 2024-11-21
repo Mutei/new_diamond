@@ -102,32 +102,24 @@ class _CoffeeFilterDialogState extends State<CoffeeFilterDialog> {
               context,
               "Entry",
               localFilterState['entry'],
-              [
-                getTranslated(context, "Single"),
-                getTranslated(context, "Familial"),
-                getTranslated(context, "mixed")
-              ],
+              ["Single", "Familial", "mixed"],
             ),
             _buildFilterSection(
               context,
               "Sessions",
               localFilterState['sessions'],
-              [
-                getTranslated(context, "Internal sessions"),
-                getTranslated(context, "External sessions"),
-                getTranslated(context, "Private sessions")
-              ],
+              ["Internal sessions", "External sessions", "Private sessions"],
             ),
             _buildFilterSection(
               context,
               "Additionals",
               localFilterState['additionals'],
               [
-                getTranslated(context, "Is there Hookah?"),
-                getTranslated(context, "Is there Buffet?"),
-                getTranslated(context, "Is there a dinner buffet?"),
-                getTranslated(context, "Is there a lunch buffet?"),
-                getTranslated(context, "Is there a breakfast buffet?")
+                "Is there Hookah?",
+                "Is there Buffet?",
+                "Is there a dinner buffet?",
+                "Is there a lunch buffet?",
+                "Is there a breakfast buffet?"
               ],
             ),
             SwitchListTile(
@@ -149,9 +141,9 @@ class _CoffeeFilterDialogState extends State<CoffeeFilterDialog> {
                 "List of musics",
                 localFilterState['lstMusic'],
                 [
-                  getTranslated(context, "singer"),
-                  getTranslated(context, "Oud"),
-                  getTranslated(context, "DJ"),
+                  "singer",
+                  "Oud",
+                  "DJ",
                 ],
               ),
             SwitchListTile(
@@ -214,7 +206,7 @@ class _CoffeeFilterDialogState extends State<CoffeeFilterDialog> {
           children: options.map((option) {
             final isSelected = selectedOptions.contains(option);
             return ChoiceChip(
-              label: Text(option),
+              label: Text(getTranslated(context, option)),
               selected: isSelected,
               onSelected: (selected) {
                 setState(() {
