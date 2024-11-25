@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:diamond_host_admin/constants/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -21,6 +22,7 @@ class _NotificationScreenState extends State<NotificationScreen>
   List<Map<String, dynamic>> bookings = [];
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   late AnimationController _animationController;
+  String? currentUserId;
 
   @override
   void initState() {
@@ -29,16 +31,44 @@ class _NotificationScreenState extends State<NotificationScreen>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    _fetchBookings();
+    _getCurrentUserId();
+  }
+
+  Future<void> _getCurrentUserId() async {
+    // Fetch the current user's ID using FirebaseAuth
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      setState(() {
+        currentUserId = user.uid;
+      });
+      _fetchBookings();
+    } else {
+      // Handle the case when the user is not authenticated
+      setState(() {
+        isLoading = false;
+      });
+      // Optionally, navigate to the login screen
+    }
   }
 
   Future<void> _fetchBookings() async {
+    if (currentUserId == null) {
+      // If user ID is not available, do not proceed
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
+
     DatabaseEvent event = await bookingRef.once();
     Map<dynamic, dynamic>? bookingsData = event.snapshot.value as Map?;
 
     if (bookingsData != null) {
       List<Map<String, dynamic>> loadedBookings =
-          bookingsData.entries.map((entry) {
+          bookingsData.entries.where((entry) {
+        final bookingData = entry.value as Map<dynamic, dynamic>;
+        return bookingData["IDUser"]?.toString() == currentUserId;
+      }).map((entry) {
         final bookingData = entry.value as Map<dynamic, dynamic>;
         return {
           "bookingId": entry.key ?? "",
