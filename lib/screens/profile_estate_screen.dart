@@ -1,28 +1,33 @@
-import 'package:diamond_host_admin/constants/colors.dart';
-import 'package:diamond_host_admin/constants/styles.dart';
-import 'package:diamond_host_admin/extension/sized_box_extension.dart';
-import 'package:diamond_host_admin/widgets/reused_appbar.dart';
-import 'package:diamond_host_admin/widgets/reused_elevated_button.dart';
-import 'package:firebase_database/firebase_database.dart';
+// lib/screens/profile_estate_screen.dart
+
+import 'dart:async'; // Added for Timer
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Added for SharedPreferences
+import 'package:auto_size_text/auto_size_text.dart';
+
 import '../backend/additional_facility.dart';
 import '../backend/booking_services.dart';
 import '../backend/rooms.dart';
-import '../localization/language_constants.dart';
 import '../backend/customer_rate_services.dart';
+import '../constants/colors.dart';
+import '../constants/styles.dart';
+import '../extension/sized_box_extension.dart';
+import '../localization/language_constants.dart';
 import '../state_management/general_provider.dart';
 import '../utils/success_dialogue.dart';
-import '../utils/failure_dialogue.dart'; // Import FailureDialog
+import '../utils/failure_dialogue.dart';
 import '../widgets/chip_widget.dart';
-import 'package:provider/provider.dart';
-import 'package:auto_size_text/auto_size_text.dart';
-
-import 'feedback_dialog_screen.dart'; // Import FeedbackDialogScreen
+import '../widgets/reused_appbar.dart';
+import '../widgets/reused_elevated_button.dart';
+import 'feedback_dialog_screen.dart';
+import 'qr_scanner_screen.dart';
 
 class ProfileEstateScreen extends StatefulWidget {
   final String nameEn;
@@ -41,24 +46,24 @@ class ProfileEstateScreen extends StatefulWidget {
   final String type;
   final String music;
 
-  const ProfileEstateScreen(
-      {Key? key,
-      required this.nameEn,
-      required this.nameAr,
-      required this.estateId,
-      required this.location,
-      required this.rating,
-      required this.fee,
-      required this.deliveryTime,
-      required this.price,
-      required this.typeOfRestaurant,
-      required this.sessions,
-      required this.menuLink,
-      required this.entry,
-      required this.lstMusic,
-      required this.type,
-      required this.music})
-      : super(key: key);
+  const ProfileEstateScreen({
+    Key? key,
+    required this.nameEn,
+    required this.nameAr,
+    required this.estateId,
+    required this.location,
+    required this.rating,
+    required this.fee,
+    required this.deliveryTime,
+    required this.price,
+    required this.typeOfRestaurant,
+    required this.sessions,
+    required this.menuLink,
+    required this.entry,
+    required this.lstMusic,
+    required this.type,
+    required this.music,
+  }) : super(key: key);
 
   @override
   _ProfileEstateScreenState createState() => _ProfileEstateScreenState();
@@ -69,8 +74,7 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
   TimeOfDay? selectedTime;
   DateTime? selectedDate;
   List<Rooms> LstRoomsSelected = [];
-  final BookingServices bookingServices =
-      BookingServices(); // Instantiate BookingServices
+  final BookingServices bookingServices = BookingServices();
   final _cacheManager = CacheManager(
       Config('customCacheKey', stalePeriod: const Duration(days: 7)));
   double _overallRating = 0.0;
@@ -80,12 +84,64 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
   // Set to keep track of expanded feedback items
   Set<int> _expandedFeedbacks = {};
 
+  // State variables for rate button
+  DateTime? _lastScanTime;
+  bool _isRateButtonActive = false;
+  Timer? _rateButtonTimer;
+
   @override
   void initState() {
     super.initState();
     _fetchImageUrls();
     _fetchUserRatings();
     _fetchFeedback();
+    _loadRateButtonState(); // Load the rate button state on initialization
+  }
+
+  @override
+  void dispose() {
+    _rateButtonTimer?.cancel(); // Cancel the timer if active
+    super.dispose();
+  }
+
+  // Load the rate button state from SharedPreferences
+  Future<void> _loadRateButtonState() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final lastScanMillis = prefs.getInt('lastScanTime_${widget.estateId}');
+    if (lastScanMillis != null) {
+      final lastScanTime = DateTime.fromMillisecondsSinceEpoch(lastScanMillis);
+      final difference = DateTime.now().difference(lastScanTime);
+      if (difference < Duration(minutes: 1)) {
+        setState(() {
+          _isRateButtonActive = true;
+          _lastScanTime = lastScanTime;
+        });
+        // Start a timer for the remaining time
+        _rateButtonTimer = Timer(Duration(minutes: 1) - difference, () {
+          setState(() {
+            _isRateButtonActive = false;
+            _lastScanTime = null;
+          });
+          _removeLastScanTime(); // Remove the stored timestamp
+        });
+      } else {
+        // Time has expired
+        await _removeLastScanTime();
+      }
+    }
+  }
+
+  // Save the last scan time to SharedPreferences
+  Future<void> _saveLastScanTime(DateTime time) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(
+        'lastScanTime_${widget.estateId}', time.millisecondsSinceEpoch);
+  }
+
+  // Remove the last scan time from SharedPreferences
+  Future<void> _removeLastScanTime() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('lastScanTime_${widget.estateId}');
   }
 
   Future<void> _fetchFeedback() async {
@@ -321,37 +377,99 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
           TextButton(
             child: Text(
               getTranslated(context, "Rate"),
-              style: TextStyle(color: kDeepPurpleColor),
+              style: TextStyle(
+                color: _isRateButtonActive ? Colors.green : kDeepPurpleColor,
+              ),
             ),
             onPressed: () async {
-              // Navigate to Feedback Dialog Screen and await the result
-              final result = await Navigator.push(
+              if (_isRateButtonActive && _lastScanTime != null) {
+                final difference = DateTime.now().difference(_lastScanTime!);
+                if (difference.inSeconds < 60) {
+                  // Within one minute, allow direct feedback
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => FeedbackDialogScreen(
+                        estateId: widget.estateId,
+                        estateNameEn: widget.nameEn,
+                        estateNameAr: widget.nameAr,
+                      ),
+                    ),
+                  );
+
+                  if (result == true) {
+                    await _fetchFeedback();
+                    await _fetchUserRatings();
+                  }
+                  return;
+                }
+              }
+
+              // If not active or time expired, require scanning
+              final scanResult = await Navigator.push<bool>(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => FeedbackDialogScreen(
-                    estateId: widget.estateId,
-                    estateNameEn: widget.nameEn,
-                    estateNameAr: widget.nameAr,
+                  builder: (context) => QRScannerScreen(
+                    expectedEstateId: widget.estateId,
                   ),
                 ),
               );
 
-              // If feedback was submitted successfully, refresh the feedback list and ratings
-              if (result == true) {
-                await _fetchFeedback();
-                await _fetchUserRatings();
+              if (scanResult == true) {
+                // If QR code is valid, navigate to Feedback Dialog Screen
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FeedbackDialogScreen(
+                      estateId: widget.estateId,
+                      estateNameEn: widget.nameEn,
+                      estateNameAr: widget.nameAr,
+                    ),
+                  ),
+                );
+
+                // If feedback was submitted successfully, refresh the feedback list and ratings
+                if (result == true) {
+                  await _fetchFeedback();
+                  await _fetchUserRatings();
+
+                  // Activate the rate button for one minute
+                  final now = DateTime.now();
+                  setState(() {
+                    _isRateButtonActive = true;
+                    _lastScanTime = now;
+                  });
+
+                  await _saveLastScanTime(now); // Save the scan time
+
+                  // Start a timer to deactivate the rate button after one minute
+                  _rateButtonTimer?.cancel(); // Cancel any existing timer
+                  _rateButtonTimer = Timer(const Duration(minutes: 1), () {
+                    setState(() {
+                      _isRateButtonActive = false;
+                      _lastScanTime = null;
+                    });
+                    _removeLastScanTime(); // Remove the stored timestamp
+                  });
+                }
+              } else if (scanResult == false) {
+                // Show a SnackBar notifying the user of the invalid scan
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      content: Text(
+                          getTranslated(context, 'Invalid QR code scanned.'))),
+                );
               }
+              // If scanResult is null, user might have cancelled the scan
             },
           ),
         ],
       ),
       body: SafeArea(
-        // Added SafeArea
+        // Added SafeArea for better UI
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(16.0).copyWith(
-                bottom:
-                    80.0), // Adjusted bottom padding to accommodate the fixed button
+            padding: const EdgeInsets.all(16.0).copyWith(bottom: 80.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -506,7 +624,6 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                 ),
 
                 // Feedback Section
-
                 24.kH,
 
                 // Rooms Section
@@ -810,7 +927,6 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                           },
                         ),
                       )
-
                 // Remove the button from here
               ],
             ),
@@ -826,7 +942,8 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
             onPressed: () async {
               if (widget.type == "1") {
                 if (LstRoomsSelected.isEmpty) {
-                  objProvider.FunSnackBarPage("Choose Room Before", context);
+                  objProvider.FunSnackBarPage(
+                      getTranslated(context, "Choose Room Before"), context);
                 } else {
                   Navigator.of(context).push(
                     MaterialPageRoute(

@@ -1,4 +1,5 @@
 import 'package:diamond_host_admin/localization/language_constants.dart';
+import 'package:diamond_host_admin/widgets/hotel_filter_dialog.dart';
 import 'package:diamond_host_admin/widgets/reused_appbar.dart';
 import 'package:flutter/material.dart';
 import '../backend/customer_rate_services.dart';
@@ -51,6 +52,12 @@ class _HotelScreenState extends State<HotelScreen> {
           'Music': estateData['Music'] ?? '',
           'HasValet': estateData['HasValet'] ?? '0',
           'HasKidsArea': estateData['HasKidsArea'] ?? '0',
+          'HasMassage': estateData['HasMassage'] ?? '0',
+          'HasSwimmingPool': estateData['HasSwimmingPool'] ?? '0',
+          'HasBarber': estateData['HasBarber'] ?? '0',
+          'IsThereBreakfastLounge': estateData['IsThereBreakfastLounge'] ?? '0',
+          'IsThereLaunchLounge': estateData['IsThereLaunchLounge'] ?? '0',
+          'IsThereDinnerLounge': estateData['IsThereDinnerLounge'] ?? '0',
         };
 
         estate = await _addAdditionalEstateData(estate);
@@ -171,11 +178,190 @@ class _HotelScreenState extends State<HotelScreen> {
     return estate['Type'] == '1'; // Assuming '1' represents a hotel
   }
 
+  final Map<String, dynamic> filterState = {
+    'entry': <String>[],
+    'sessions': <String>[],
+    'additionals': <String>[],
+    'music': false,
+    'valet': null,
+    'kidsArea': false,
+    'valetWithFees': false,
+    'massage': false,
+    'gym': false,
+    'barber': false,
+    'swimmingPool': false,
+    'isThereBreakfastLounge': false,
+    'isThereLaunchLounge': false,
+    'isThereDinnerLounge': false,
+    'lstMusic': <String>[],
+  };
+  void _showFilterDialog() async {
+    final updatedFilterState = await showModalBottomSheet<Map<String, dynamic>>(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return HotelFilterDialog(
+          initialFilterState: filterState,
+        );
+      },
+    );
+
+    if (updatedFilterState != null) {
+      setState(() {
+        filterState
+          ..['entry'] = updatedFilterState['entry']
+          ..['sessions'] = updatedFilterState['sessions']
+          ..['additionals'] = updatedFilterState['additionals']
+          ..['music'] = updatedFilterState['music']
+          ..['valet'] = updatedFilterState['valet']
+          ..['kidsArea'] = updatedFilterState['kidsArea']
+          ..['valetWithFees'] = updatedFilterState['valetWithFees']
+          ..['lstMusic'] = updatedFilterState['lstMusic']
+          ..['swimmingPool'] = updatedFilterState['swimmingPool']
+          ..['gym'] = updatedFilterState['gym']
+          ..['barber'] = updatedFilterState['barber']
+          ..['massage'] = updatedFilterState['massage']
+          ..['isThereBreakfastLounge'] =
+              updatedFilterState['isThereBreakfastLounge']
+          ..['isThereLaunchLounge'] = updatedFilterState['isThereLaunchLounge']
+          ..['isThereDinnerLounge'] = updatedFilterState['isThereDinnerLounge'];
+
+        _applyFilters();
+      });
+    }
+  }
+
+  void _applyFilters() {
+    setState(() {
+      searchActive = true; // Indicate that filtering is active
+      filteredEstates = hotels.where((estate) {
+        bool matches = true;
+
+        // Helper function to handle both comma-separated strings and lists
+        List<String> parseOptions(dynamic data) {
+          if (data is List) {
+            return data.cast<String>();
+          } else if (data is String) {
+            return data.split(',').map((e) => e.trim()).toList();
+          }
+          return [];
+        }
+
+        // Match Entry filter
+        if (filterState['entry'].isNotEmpty) {
+          matches = matches &&
+              filterState['entry'].any((selectedEntry) {
+                final entryData = parseOptions(estate['Entry']);
+                return entryData.contains(selectedEntry);
+              });
+        }
+
+        // Match Entry filter
+        // if (filterState['lstMusic'].isNotEmpty) {
+        //   matches = matches &&
+        //       filterState['lstMusic'].any((selectedEntry) {
+        //         final lstMusicData = parseOptions(estate['Lstmusic']);
+        //         return lstMusicData.contains(selectedEntry);
+        //       });
+        // }
+
+        // Match Sessions filter
+        if (filterState['sessions'].isNotEmpty) {
+          matches = matches &&
+              filterState['sessions'].any((selectedSession) {
+                final sessionsData = parseOptions(estate['Sessions']);
+                return sessionsData.contains(selectedSession);
+              });
+        }
+
+        // Match Additionals filter
+        if (filterState['additionals'].isNotEmpty) {
+          matches = matches &&
+              filterState['additionals'].any((selectedAdditional) {
+                final additionalsData = parseOptions(estate['additionals']);
+                return additionalsData.contains(selectedAdditional);
+              });
+        }
+
+        // Match Music filter
+        // if (filterState['music']) {
+        //   matches = matches && estate['Music'] == '1';
+        // }
+
+        // Match Valet filter
+        if (filterState['valet'] == true) {
+          if (filterState['valetWithFees'] == false) {
+            // Show all cafes with valet service (both with and without fees)
+            matches = matches && estate['HasValet'] == '1';
+          } else {
+            // Show only cafes with valet service and no fees
+            matches = matches &&
+                estate['HasValet'] == '1' &&
+                estate['ValetWithFees'] == '0';
+          }
+        }
+
+        // Match Kids Area filter
+        if (filterState['kidsArea']) {
+          matches = matches && estate['HasKidsArea'] == '1';
+        }
+        if (filterState['gym']) {
+          matches = matches && estate['HasGym'] == '1';
+        }
+        if (filterState['barber']) {
+          matches = matches && estate['HasBarber'] == '1';
+        }
+        if (filterState['massage']) {
+          matches = matches && estate['HasMassage'] == '1';
+        }
+        if (filterState['swimmingPool']) {
+          matches = matches && estate['HasSwimmingPool'] == '1';
+        }
+        if (filterState['isThereBreakfastLounge']) {
+          matches = matches && estate['IsThereBreakfastLounge'] == '1';
+        }
+        if (filterState['isThereLaunchLounge']) {
+          matches = matches && estate['IsThereLaunchLounge'] == '1';
+        }
+        if (filterState['isThereDinnerLounge']) {
+          matches = matches && estate['IsThereDinnerLounge'] == '1';
+        }
+
+        return matches;
+      }).toList();
+
+      // Sorting Logic: Example by nameEn (alphabetically), then by rating (descending)
+      filteredEstates.sort((a, b) {
+        final locale = Localizations.localeOf(context).languageCode;
+        final nameA = (locale == 'ar' ? a['nameAr'] : a['nameEn']) ?? '';
+        final nameB = (locale == 'ar' ? b['nameAr'] : b['nameEn']) ?? '';
+
+        // Primary sorting by name (alphabetical order)
+        int nameComparison = nameA.compareTo(nameB);
+        if (nameComparison != 0) {
+          return nameComparison;
+        }
+
+        // Secondary sorting by rating (descending)
+        return b['rating'].compareTo(a['rating']);
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: ReusedAppBar(
         title: getTranslated(context, "Hotels"),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.filter_list),
+            onPressed: _showFilterDialog,
+          ),
+        ],
       ),
       body: Column(
         children: [
