@@ -18,6 +18,7 @@ import '../backend/rooms.dart';
 import '../backend/customer_rate_services.dart';
 import '../backend/user_service.dart'; // Import UserService
 import '../constants/colors.dart';
+import '../constants/restaurant_options.dart';
 import '../constants/styles.dart';
 import '../extension/sized_box_extension.dart';
 import '../localization/language_constants.dart';
@@ -236,6 +237,28 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
         selectedDate = pickedDate;
       });
     }
+  }
+
+  /// Method to get the translated value of `typeOfRestaurant`
+  String getTranslatedTypeOfRestaurant(BuildContext context, String types) {
+    // Check the current locale
+    bool isArabic = Localizations.localeOf(context).languageCode == 'ar';
+
+    // Split the `types` by comma and trim whitespace
+    List<String> typeList =
+        types.split(',').map((type) => type.trim()).toList();
+
+    // Translate each type in the list
+    List translatedTypes = typeList.map((type) {
+      final match = restaurantOptions.firstWhere(
+        (option) => option['label'] == type,
+        orElse: () => {'label': type, 'labelAr': type}, // Provide a default map
+      );
+      return isArabic ? match['labelAr'] : match['label'];
+    }).toList();
+
+    // Join the translated types back with a comma
+    return translatedTypes.join(', ');
   }
 
   // Function to pick a time
@@ -640,7 +663,10 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                   runSpacing: 10.0, // Space between rows
                   children: [
                     ChipWidget(
-                        icon: Icons.fastfood, label: widget.typeOfRestaurant),
+                      icon: Icons.fastfood,
+                      label: getTranslatedTypeOfRestaurant(
+                          context, widget.typeOfRestaurant),
+                    ),
                     ChipWidget(icon: Icons.home, label: widget.sessions),
                     ChipWidget(icon: Icons.grain, label: widget.entry),
                     ChipWidget(

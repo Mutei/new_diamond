@@ -1,6 +1,7 @@
 // lib/screens/estate_chat_screen.dart
 
 import 'dart:async';
+import 'package:diamond_host_admin/widgets/reused_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -150,22 +151,15 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
     final displayName = Localizations.localeOf(context).languageCode == 'ar'
         ? widget.estateNameAr
         : widget.estateNameEn;
+    final String chat = Localizations.localeOf(context).languageCode == 'ar'
+        ? "محادثة"
+        : "Chat";
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          getTranslated(context, 'Chat - $displayName'),
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: kPrimaryColor,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ),
+      appBar: ReusedAppBar(
+          title: Localizations.localeOf(context).languageCode == 'en'
+              ? " ${displayName} $chat"
+              : "$chat ${displayName}"),
       body: Column(
         children: [
           Expanded(
@@ -342,6 +336,7 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
                           border: InputBorder.none,
                         ),
                         textCapitalization: TextCapitalization.sentences,
+                        maxLength: 100,
                       ),
                     ),
                   ],
@@ -353,7 +348,7 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
             Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: kPrimaryColor,
+                color: kDeepPurpleColor,
               ),
               child: IconButton(
                 icon: const Icon(Icons.send, color: Colors.white),
