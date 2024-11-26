@@ -74,7 +74,10 @@ dependencies:
   auto_size_text: ^3.0.0
   flutter_rating_bar: ^4.0.0
   qr_code_scanner: ^1.0.1
+  emoji_picker_flutter: ^1.6.4
+  flutter_reaction_button: ^3.0.0
   
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

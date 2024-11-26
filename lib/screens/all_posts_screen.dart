@@ -139,6 +139,7 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
   }
 
   /// Fetches all posts from Firebase
+  /// Fetches all posts from Firebase
   Future<void> _fetchPosts() async {
     try {
       DatabaseEvent event = await _postsRef.once();
@@ -161,9 +162,8 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
             post['RelativeDate'] = 'Invalid Date';
           }
 
-          // Fetch UserName if conditions are met
-          if (post['userType'] == '1' &&
-              (post['typeAccount'] == '2' || post['typeAccount'] == '3')) {
+          // Fetch UserName or EstateName
+          if (post['userType'] == '1') {
             try {
               DataSnapshot userSnapshot =
                   await _userRef.child(post['userId']).get();
@@ -181,7 +181,26 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
               print('Error fetching user data for post ${post['postId']}: $e');
               post['UserName'] = 'Unknown User';
             }
+          } else if (post['userType'] == '2') {
+            // Fetch EstateName for userType 2
+            try {
+              DatabaseReference estateRef = FirebaseDatabase.instance
+                  .ref('App/Estate/${post['EstateType']}/${post['userId']}');
+              DataSnapshot estateSnapshot = await estateRef.get();
+              if (estateSnapshot.exists) {
+                Map<dynamic, dynamic> estateData =
+                    estateSnapshot.value as Map<dynamic, dynamic>;
+                post['UserName'] = estateData['EstateName'] ?? 'Unknown Estate';
+              } else {
+                post['UserName'] = 'Unknown Estate';
+              }
+            } catch (e) {
+              print(
+                  'Error fetching estate data for post ${post['postId']}: $e');
+              post['UserName'] = 'Unknown Estate';
+            }
           }
+
           postsList.add(post);
         }
 

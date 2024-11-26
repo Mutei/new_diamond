@@ -488,6 +488,7 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
   }
 
   // Build the profile section at the top of the post
+  // Build the profile section at the top of the post
   Widget _buildProfileSection(Color usernameTextColor) {
     return ListTile(
       leading: CircleAvatar(
@@ -499,7 +500,7 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
         radius: 20,
       ),
       title: Text(
-        widget.post['Username'] ?? 'Unknown Estate',
+        widget.post['UserName'] ?? 'Unknown Estate',
         style: TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 16,

@@ -16,6 +16,7 @@ import '../backend/additional_facility.dart';
 import '../backend/booking_services.dart';
 import '../backend/rooms.dart';
 import '../backend/customer_rate_services.dart';
+import '../backend/user_service.dart'; // Import UserService
 import '../constants/colors.dart';
 import '../constants/styles.dart';
 import '../extension/sized_box_extension.dart';
@@ -26,8 +27,10 @@ import '../utils/failure_dialogue.dart';
 import '../widgets/chip_widget.dart';
 import '../widgets/reused_appbar.dart';
 import '../widgets/reused_elevated_button.dart';
+import '../widgets/message_bubble.dart'; // Import MessageBubble
 import 'feedback_dialog_screen.dart';
 import 'qr_scanner_screen.dart';
+import 'estate_chat_screen.dart'; // Import EstateChatScreen
 
 class ProfileEstateScreen extends StatefulWidget {
   final String nameEn;
@@ -75,6 +78,7 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
   DateTime? selectedDate;
   List<Rooms> LstRoomsSelected = [];
   final BookingServices bookingServices = BookingServices();
+  final UserService _userService = UserService(); // Initialize UserService
   final _cacheManager = CacheManager(
       Config('customCacheKey', stalePeriod: const Duration(days: 7)));
   double _overallRating = 0.0;
@@ -104,6 +108,16 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
     super.dispose();
   }
 
+  /// Determines the duration for which the Rate button remains active
+  Duration getRateButtonDuration() {
+    if (widget.type == "1") {
+      // Hotel
+      return Duration(minutes: 2);
+    } else {
+      return Duration(minutes: 1);
+    }
+  }
+
   // Load the rate button state from SharedPreferences
   Future<void> _loadRateButtonState() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -111,13 +125,14 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
     if (lastScanMillis != null) {
       final lastScanTime = DateTime.fromMillisecondsSinceEpoch(lastScanMillis);
       final difference = DateTime.now().difference(lastScanTime);
-      if (difference < Duration(minutes: 1)) {
+      final rateDuration = getRateButtonDuration();
+      if (difference < rateDuration) {
         setState(() {
           _isRateButtonActive = true;
           _lastScanTime = lastScanTime;
         });
         // Start a timer for the remaining time
-        _rateButtonTimer = Timer(Duration(minutes: 1) - difference, () {
+        _rateButtonTimer = Timer(rateDuration - difference, () {
           setState(() {
             _isRateButtonActive = false;
             _lastScanTime = null;
@@ -300,8 +315,8 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
           false, // Prevent the dialog from closing if tapped outside
       builder: (BuildContext context) {
         return SuccessDialog(
-          text: 'Booking Status',
-          text1: 'Your booking is under progress.',
+          text: getTranslated(context, 'Booking Status'),
+          text1: getTranslated(context, 'Your booking is under progress.'),
         ); // Use the custom SuccessDialog
       },
     );
@@ -315,8 +330,9 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
           false, // Prevent the dialog from closing if tapped outside
       builder: (BuildContext context) {
         return FailureDialog(
-          text: 'Booking Status',
-          text1: 'Your booking could not be performed. Try Again!',
+          text: getTranslated(context, 'Booking Status'),
+          text1: getTranslated(
+              context, 'Your booking could not be performed. Try Again!'),
         ); // Use the custom FailureDialog
       },
     );
@@ -374,6 +390,7 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
       appBar: ReusedAppBar(
         title: displayName,
         actions: [
+          // Existing Rate Button
           TextButton(
             child: Text(
               getTranslated(context, "Rate"),
@@ -384,8 +401,10 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
             onPressed: () async {
               if (_isRateButtonActive && _lastScanTime != null) {
                 final difference = DateTime.now().difference(_lastScanTime!);
-                if (difference.inSeconds < 60) {
-                  // Within one minute, allow direct feedback
+                if ((widget.type == "1" && difference < Duration(minutes: 2)) ||
+                    ((widget.type != "1") &&
+                        difference < Duration(minutes: 1))) {
+                  // Within the active duration, allow direct feedback
                   final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -433,7 +452,7 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                   await _fetchFeedback();
                   await _fetchUserRatings();
 
-                  // Activate the rate button for one minute
+                  // Activate the rate button for the appropriate duration
                   final now = DateTime.now();
                   setState(() {
                     _isRateButtonActive = true;
@@ -442,9 +461,9 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
 
                   await _saveLastScanTime(now); // Save the scan time
 
-                  // Start a timer to deactivate the rate button after one minute
+                  // Start a timer to deactivate the rate button after the duration
                   _rateButtonTimer?.cancel(); // Cancel any existing timer
-                  _rateButtonTimer = Timer(const Duration(minutes: 1), () {
+                  _rateButtonTimer = Timer(getRateButtonDuration(), () {
                     setState(() {
                       _isRateButtonActive = false;
                       _lastScanTime = null;
@@ -461,6 +480,22 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                 );
               }
               // If scanResult is null, user might have cancelled the scan
+            },
+          ),
+          // New Chat Button
+          IconButton(
+            icon: Icon(Icons.chat, color: kDeepPurpleColor),
+            tooltip: getTranslated(context, "Chat"),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => EstateChatScreen(
+                    estateId: widget.estateId,
+                    estateNameEn: widget.nameEn,
+                    estateNameAr: widget.nameAr,
+                  ),
+                ),
+              );
             },
           ),
         ],
@@ -779,21 +814,40 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                                           CircleAvatar(
                                             radius: 25,
                                             backgroundColor: kDeepPurpleColor,
-                                            child: Text(
-                                              (feedback['userName'] != null &&
-                                                      (feedback['userName']
-                                                              as String)
-                                                          .isNotEmpty)
-                                                  ? (feedback['userName']
-                                                          as String)[0]
-                                                      .toUpperCase()
-                                                  : '?',
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
+                                            backgroundImage: feedback[
+                                                            'profileImageUrl'] !=
+                                                        null &&
+                                                    feedback['profileImageUrl']
+                                                        .toString()
+                                                        .isNotEmpty
+                                                ? CachedNetworkImageProvider(
+                                                    feedback['profileImageUrl'])
+                                                : AssetImage(
+                                                        'assets/images/default_avatar.png')
+                                                    as ImageProvider,
+                                            child: feedback['profileImageUrl'] ==
+                                                        null ||
+                                                    feedback['profileImageUrl']
+                                                        .toString()
+                                                        .isEmpty
+                                                ? Text(
+                                                    (feedback['userName'] !=
+                                                                null &&
+                                                            (feedback['userName']
+                                                                    as String)
+                                                                .isNotEmpty)
+                                                        ? (feedback['userName']
+                                                                as String)[0]
+                                                            .toUpperCase()
+                                                        : '?',
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 20,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  )
+                                                : null,
                                           ),
                                           const SizedBox(width: 10),
                                           Expanded(
