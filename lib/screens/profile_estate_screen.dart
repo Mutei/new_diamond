@@ -1,6 +1,9 @@
 // lib/screens/profile_estate_screen.dart
 
 import 'dart:async'; // Added for Timer
+import 'package:diamond_host_admin/constants/coffee_music_options.dart';
+import 'package:diamond_host_admin/constants/hotel_entry_options.dart';
+import 'package:diamond_host_admin/constants/sessions_options.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -18,6 +21,7 @@ import '../backend/rooms.dart';
 import '../backend/customer_rate_services.dart';
 import '../backend/user_service.dart'; // Import UserService
 import '../constants/colors.dart';
+import '../constants/entry_options.dart';
 import '../constants/restaurant_options.dart';
 import '../constants/styles.dart';
 import '../extension/sized_box_extension.dart';
@@ -251,6 +255,90 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
     // Translate each type in the list
     List translatedTypes = typeList.map((type) {
       final match = restaurantOptions.firstWhere(
+        (option) => option['label'] == type,
+        orElse: () => {'label': type, 'labelAr': type}, // Provide a default map
+      );
+      return isArabic ? match['labelAr'] : match['label'];
+    }).toList();
+
+    // Join the translated types back with a comma
+    return translatedTypes.join(', ');
+  }
+
+  String getTranslatedHotelEntry(BuildContext context, String types) {
+    // Check the current locale
+    bool isArabic = Localizations.localeOf(context).languageCode == 'ar';
+
+    // Split the `types` by comma and trim whitespace
+    List<String> typeList =
+        types.split(',').map((type) => type.trim()).toList();
+
+    // Translate each type in the list
+    List translatedTypes = typeList.map((type) {
+      final match = hotelEntryOptions.firstWhere(
+        (option) => option['label'] == type,
+        orElse: () => {'label': type, 'labelAr': type}, // Provide a default map
+      );
+      return isArabic ? match['labelAr'] : match['label'];
+    }).toList();
+
+    // Join the translated types back with a comma
+    return translatedTypes.join(', ');
+  }
+
+  String getTranslatedEntry(BuildContext context, String types) {
+    // Check the current locale
+    bool isArabic = Localizations.localeOf(context).languageCode == 'ar';
+
+    // Split the `types` by comma and trim whitespace
+    List<String> typeList =
+        types.split(',').map((type) => type.trim()).toList();
+
+    // Translate each type in the list
+    List translatedTypes = typeList.map((type) {
+      final match = entryOptions.firstWhere(
+        (option) => option['label'] == type,
+        orElse: () => {'label': type, 'labelAr': type}, // Provide a default map
+      );
+      return isArabic ? match['labelAr'] : match['label'];
+    }).toList();
+
+    // Join the translated types back with a comma
+    return translatedTypes.join(', ');
+  }
+
+  String getTranslatedSessions(BuildContext context, String types) {
+    // Check the current locale
+    bool isArabic = Localizations.localeOf(context).languageCode == 'ar';
+
+    // Split the `types` by comma and trim whitespace
+    List<String> typeList =
+        types.split(',').map((type) => type.trim()).toList();
+
+    // Translate each type in the list
+    List translatedTypes = typeList.map((type) {
+      final match = sessionsOptions.firstWhere(
+        (option) => option['label'] == type,
+        orElse: () => {'label': type, 'labelAr': type}, // Provide a default map
+      );
+      return isArabic ? match['labelAr'] : match['label'];
+    }).toList();
+
+    // Join the translated types back with a comma
+    return translatedTypes.join(', ');
+  }
+
+  String getTranslatedCoffeeMusicOptions(BuildContext context, String types) {
+    // Check the current locale
+    bool isArabic = Localizations.localeOf(context).languageCode == 'ar';
+
+    // Split the `types` by comma and trim whitespace
+    List<String> typeList =
+        types.split(',').map((type) => type.trim()).toList();
+
+    // Translate each type in the list
+    List translatedTypes = typeList.map((type) {
+      final match = coffeeMusicOptions.firstWhere(
         (option) => option['label'] == type,
         orElse: () => {'label': type, 'labelAr': type}, // Provide a default map
       );
@@ -667,8 +755,17 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                       label: getTranslatedTypeOfRestaurant(
                           context, widget.typeOfRestaurant),
                     ),
-                    ChipWidget(icon: Icons.home, label: widget.sessions),
-                    ChipWidget(icon: Icons.grain, label: widget.entry),
+                    ChipWidget(
+                        icon: Icons.home,
+                        label: getTranslatedSessions(
+                          context,
+                          widget.sessions,
+                        )),
+                    ChipWidget(
+                        icon: Icons.grain,
+                        label: widget.type == "1"
+                            ? getTranslatedHotelEntry(context, widget.entry)
+                            : getTranslatedEntry(context, widget.entry)),
                     ChipWidget(
                       icon: Icons.music_note,
                       label: widget.type == "3" || widget.type == "1"
@@ -677,7 +774,10 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                               : getTranslated(context, "There is no music"))
                           : (widget.type == "2"
                               ? widget.music == "1"
-                                  ? widget.lstMusic
+                                  ? getTranslatedCoffeeMusicOptions(
+                                      context,
+                                      widget.lstMusic,
+                                    )
                                   : getTranslated(context, "There is no music")
                               : getTranslated(context, "There is no music")),
                     ),
