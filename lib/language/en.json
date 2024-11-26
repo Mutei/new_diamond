@@ -218,5 +218,19 @@
   "Is there Barber?":"Is there Barber?",
   "Is there Massage?":"Is there Massage?",
   "Is there Gym?":"Is there Gym?",
-  "Type a message": "Type a message"
+  "Type a message": "Type a message",
+  "We have kids area": "We have kids area",
+  "We dont have kids area": "We dont have kids area",
+  "Valet service available": "Valet service available",
+  "No valet service available": "No valet service available",
+  "Valet is free": "Valet is free",
+  "Valet is not free": "Valet is not free",
+  "We have swimming pool":"We have swimming pool",
+  "We dont have swimming pool":"We dont have swimming pool",
+  "We have massage":"We have massage",
+  "We dont have massage":"We dont have massage",
+  "We have Gym":"We have Gym",
+  "We dont have Gym": "We dont have Gym",
+  "We have barber":"We have barber",
+  "We dont have barber":"We dont have barber"
 }

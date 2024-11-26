@@ -335,6 +335,14 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                                     lstMusic: restaurant['Lstmusic'] ?? '',
                                     music: restaurant['Music'],
                                     type: restaurant['Type'],
+                                    hasKidsArea: restaurant['HasKidsArea'],
+                                    hasValet: restaurant['HasValet'],
+                                    valetWithFees: restaurant['ValetWithFees'],
+                                    hasBarber: restaurant['HasBarber'] ?? '',
+                                    hasGym: restaurant['HasGym'] ?? '',
+                                    hasMassage: restaurant['HasMassage'] ?? '',
+                                    hasSwimmingPool:
+                                        restaurant['HasSwimmingPool'] ?? '',
                                   ),
                                 ),
                               );

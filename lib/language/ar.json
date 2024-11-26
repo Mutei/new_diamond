@@ -217,5 +217,17 @@
   "Is there Barber?": "هل يوجد حلاق؟",
   "Is there Massage?": "هل يوجد مساج؟",
   "Is there Gym?": "هل يوجد صالة رياضية؟",
-  "Type a message": "أكتب رسالة"
+  "Type a message": "أكتب رسالة",
+  "We have kids area": "لدينا منطقة للأطفال",
+  "We dont have kids area": "ليس لدينا منطقة للأطفال",
+  "Valet service available": "تتوفر خدمة صف السيارات",
+  "No valet service available": "لا تتوفر خدمة صف السيارات",
+  "We have swimming pool": "لدينا مسبح",
+  "We dont have swimming pool": "ليس لدينا مسبح",
+  "We have massage": "لدينا جلسات مساج",
+  "We dont have massage": "ليس لدينا جلسات مساج",
+  "We have Gym": "لدينا صالة رياضية",
+  "We dont have Gym": "ليس لدينا صالة رياضية",
+  "We have barber": "لدينا حلاق",
+  "We dont have barber": "ليس لدينا حلاق"
 }

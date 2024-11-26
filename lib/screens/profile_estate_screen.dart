@@ -53,25 +53,39 @@ class ProfileEstateScreen extends StatefulWidget {
   final String lstMusic;
   final String type;
   final String music;
+  final String hasKidsArea;
+  final String hasValet;
+  final String valetWithFees;
+  final String hasSwimmingPool;
+  final String hasGym;
+  final String hasBarber;
+  final String hasMassage;
 
-  const ProfileEstateScreen({
-    Key? key,
-    required this.nameEn,
-    required this.nameAr,
-    required this.estateId,
-    required this.location,
-    required this.rating,
-    required this.fee,
-    required this.deliveryTime,
-    required this.price,
-    required this.typeOfRestaurant,
-    required this.sessions,
-    required this.menuLink,
-    required this.entry,
-    required this.lstMusic,
-    required this.type,
-    required this.music,
-  }) : super(key: key);
+  const ProfileEstateScreen(
+      {Key? key,
+      required this.nameEn,
+      required this.nameAr,
+      required this.estateId,
+      required this.location,
+      required this.rating,
+      required this.fee,
+      required this.deliveryTime,
+      required this.price,
+      required this.typeOfRestaurant,
+      required this.sessions,
+      required this.menuLink,
+      required this.entry,
+      required this.lstMusic,
+      required this.type,
+      required this.music,
+      required this.hasKidsArea,
+      required this.hasValet,
+      required this.valetWithFees,
+      required this.hasBarber,
+      required this.hasGym,
+      required this.hasMassage,
+      required this.hasSwimmingPool})
+      : super(key: key);
 
   @override
   _ProfileEstateScreenState createState() => _ProfileEstateScreenState();
@@ -781,6 +795,69 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                                   : getTranslated(context, "There is no music")
                               : getTranslated(context, "There is no music")),
                     ),
+                    widget.type != "1"
+                        ? ChipWidget(
+                            icon: Icons.boy,
+                            label: widget.type != "1"
+                                ? (widget.hasKidsArea == "1"
+                                    ? getTranslated(
+                                        context, "We have kids area")
+                                    : getTranslated(
+                                        context, "We dont have kids area"))
+                                : '')
+                        : Text(''),
+                    ChipWidget(
+                        icon: Icons.car_rental,
+                        label: (widget.hasValet == "1"
+                            ? getTranslated(context, "Valet service available")
+                            : getTranslated(
+                                context, "No valet service available"))),
+                    ChipWidget(
+                        icon: Icons.money,
+                        label: (widget.valetWithFees == "1"
+                            ? getTranslated(context, "Valet is free")
+                            : getTranslated(context, "Valet is not free"))),
+                    widget.type == "1"
+                        ? ChipWidget(
+                            icon: Icons.pool,
+                            label: widget.type == "1"
+                                ? (widget.hasSwimmingPool == "1"
+                                    ? getTranslated(
+                                        context, "We have swimming pool")
+                                    : getTranslated(
+                                        context, "We dont have swimming pool"))
+                                : '')
+                        : Text(''),
+                    widget.type == "1"
+                        ? ChipWidget(
+                            icon: Icons.spa,
+                            label: widget.type == "1"
+                                ? (widget.hasMassage == "1"
+                                    ? getTranslated(context, "We have massage")
+                                    : getTranslated(
+                                        context, "We dont have massage"))
+                                : '')
+                        : Text(''),
+                    widget.type == "1"
+                        ? ChipWidget(
+                            icon: Icons.fitness_center,
+                            label: widget.type == "1"
+                                ? (widget.hasGym == "1"
+                                    ? getTranslated(context, "We have Gym")
+                                    : getTranslated(
+                                        context, "We dont have Gym"))
+                                : '')
+                        : Text(''),
+                    widget.type == "1"
+                        ? ChipWidget(
+                            icon: Icons.content_cut,
+                            label: widget.type == "1"
+                                ? (widget.hasBarber == "1"
+                                    ? getTranslated(context, "We have barber")
+                                    : getTranslated(
+                                        context, "We dont have barber"))
+                                : '')
+                        : Text(''),
                   ],
                 ),
 

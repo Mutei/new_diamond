@@ -393,6 +393,14 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
                                     entry: coffee['Entry'] ?? '',
                                     lstMusic: coffee['Lstmusic'] ?? '',
                                     type: coffee['Type'],
+                                    hasKidsArea: coffee['HasKidsArea'],
+                                    hasValet: coffee['HasValet'],
+                                    valetWithFees: coffee['ValetWithFees'],
+                                    hasBarber: coffee['HasBarber'] ?? '',
+                                    hasGym: coffee['HasGym'] ?? '',
+                                    hasMassage: coffee['HasMassage'] ?? '',
+                                    hasSwimmingPool:
+                                        coffee['HasSwimmingPool'] ?? '',
                                   ),
                                 ),
                               );

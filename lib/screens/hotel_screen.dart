@@ -411,7 +411,15 @@ class _HotelScreenState extends State<HotelScreen> {
                                     menuLink: hotel['MenuLink'] ?? '',
                                     entry: hotel['Entry'] ?? '',
                                     lstMusic: hotel['Lstmusic'] ?? '',
-                                    type: hotel['Type'],
+                                    type: hotel['Type'] ?? '',
+                                    hasKidsArea: hotel['HasKidsArea'] ?? '',
+                                    hasValet: hotel['HasValet'] ?? '',
+                                    valetWithFees: hotel['ValetWithFees'] ?? '',
+                                    hasBarber: hotel['HasBarber'] ?? '',
+                                    hasGym: hotel['HasGym'] ?? '',
+                                    hasMassage: hotel['HasMassage'] ?? '',
+                                    hasSwimmingPool:
+                                        hotel['HasSwimmingPool'] ?? '',
                                   ),
                                 ),
                               );
