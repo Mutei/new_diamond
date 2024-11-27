@@ -84,6 +84,8 @@ class _MainScreenContentState extends State<MainScreenContent> {
           'HasSwimmingPool':
               estateData['HasSwimmingPool'] ?? "No Swimming Pool",
           'HasGym': estateData['HasGym'] ?? "No Gym",
+          'IsSmokingAllowed':
+              estateData['IsSmokingAllowed'] ?? "Smoking is not allowed",
         };
 
         estate = await _addAdditionalEstateData(estate);
@@ -364,7 +366,8 @@ class _MainScreenContentState extends State<MainScreenContent> {
                             hasGym: estate['HasGym'],
                             hasBarber: estate['HasBarber'],
                             hasMassage: estate['HasMassage'],
-                            hasSwimmingPool: estate['HasSwimmingPool']),
+                            hasSwimmingPool: estate['HasSwimmingPool'],
+                            isSmokingAllowed: estate['IsSmokingAllowed']),
                       ),
                     );
                   },

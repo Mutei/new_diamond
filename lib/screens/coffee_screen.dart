@@ -401,6 +401,8 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
                                     hasMassage: coffee['HasMassage'] ?? '',
                                     hasSwimmingPool:
                                         coffee['HasSwimmingPool'] ?? '',
+                                    isSmokingAllowed:
+                                        coffee['IsSmokingAllowed'] ?? '',
                                   ),
                                 ),
                               );

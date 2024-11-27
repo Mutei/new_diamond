@@ -53,7 +53,6 @@ class _MessageBubbleState extends State<MessageBubble>
     '😮',
     '😢',
     '😡',
-    '🙏',
   ];
 
   late AnimationController _animationController;

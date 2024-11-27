@@ -420,6 +420,8 @@ class _HotelScreenState extends State<HotelScreen> {
                                     hasMassage: hotel['HasMassage'] ?? '',
                                     hasSwimmingPool:
                                         hotel['HasSwimmingPool'] ?? '',
+                                    isSmokingAllowed:
+                                        hotel['IsSmokingAllowed'] ?? '',
                                   ),
                                 ),
                               );

@@ -60,32 +60,34 @@ class ProfileEstateScreen extends StatefulWidget {
   final String hasGym;
   final String hasBarber;
   final String hasMassage;
+  final String isSmokingAllowed;
 
-  const ProfileEstateScreen(
-      {Key? key,
-      required this.nameEn,
-      required this.nameAr,
-      required this.estateId,
-      required this.location,
-      required this.rating,
-      required this.fee,
-      required this.deliveryTime,
-      required this.price,
-      required this.typeOfRestaurant,
-      required this.sessions,
-      required this.menuLink,
-      required this.entry,
-      required this.lstMusic,
-      required this.type,
-      required this.music,
-      required this.hasKidsArea,
-      required this.hasValet,
-      required this.valetWithFees,
-      required this.hasBarber,
-      required this.hasGym,
-      required this.hasMassage,
-      required this.hasSwimmingPool})
-      : super(key: key);
+  const ProfileEstateScreen({
+    Key? key,
+    required this.nameEn,
+    required this.nameAr,
+    required this.estateId,
+    required this.location,
+    required this.rating,
+    required this.fee,
+    required this.deliveryTime,
+    required this.price,
+    required this.typeOfRestaurant,
+    required this.sessions,
+    required this.menuLink,
+    required this.entry,
+    required this.lstMusic,
+    required this.type,
+    required this.music,
+    required this.hasKidsArea,
+    required this.hasValet,
+    required this.valetWithFees,
+    required this.hasBarber,
+    required this.hasGym,
+    required this.hasMassage,
+    required this.hasSwimmingPool,
+    required this.isSmokingAllowed,
+  }) : super(key: key);
 
   @override
   _ProfileEstateScreenState createState() => _ProfileEstateScreenState();
@@ -858,6 +860,11 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                                         context, "We dont have barber"))
                                 : '')
                         : Text(''),
+                    ChipWidget(
+                        icon: Icons.smoking_rooms,
+                        label: (widget.isSmokingAllowed == "1"
+                            ? getTranslated(context, "Smoking is allowed")
+                            : getTranslated(context, "Smoking is not allowed")))
                   ],
                 ),
 

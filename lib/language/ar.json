@@ -231,5 +231,8 @@
   "We have barber": "لدينا حلاق",
   "We dont have barber": "ليس لدينا حلاق",
   "Valet is free": "خدمة صف السيارات مجانية",
-  "Valet is not free": "خدمة صف السيارات ليست مجانية"
+  "Valet is not free": "خدمة صف السيارات ليست مجانية",
+  "Smoking is allowed": "مسموح بالتدخين",
+  "Smoking is not allowed": "غير مسموح بالتدخين"
+
 }
