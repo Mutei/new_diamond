@@ -54,6 +54,7 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
           'HasValet': estateData['HasValet'] ?? '0',
           'HasKidsArea': estateData['HasKidsArea'] ?? '0',
           'ValetWithFees': estateData['ValetWithFees'] ?? '0',
+          'IsSmokingAllowed': estateData['IsSmokingAllowed'] ?? '0',
         };
 
         estate = await _addAdditionalEstateData(estate);
@@ -204,6 +205,7 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
     'valet': null,
     'kidsArea': false,
     'valetWithFees': false,
+    'isSmokingAllowed': false,
     'lstMusic': <String>[],
   };
   void _applyFilters() {
@@ -261,6 +263,9 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
         // Match Music filter
         if (filterState['music']) {
           matches = matches && estate['Music'] == '1';
+        }
+        if (filterState['isSmokingAllowed']) {
+          matches = matches && estate['IsSmokingAllowed'] == '1';
         }
 
         // Match Valet filter
@@ -326,7 +331,9 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
           ..['valet'] = updatedFilterState['valet']
           ..['kidsArea'] = updatedFilterState['kidsArea']
           ..['valetWithFees'] = updatedFilterState['valetWithFees']
+          ..['isSmokingAllowed'] = updatedFilterState['isSmokingAllowed']
           ..['lstMusic'] = updatedFilterState['lstMusic'];
+
         _applyFilters();
       });
     }

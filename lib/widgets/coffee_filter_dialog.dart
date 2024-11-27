@@ -76,6 +76,7 @@ class _CoffeeFilterDialogState extends State<CoffeeFilterDialog> {
       localFilterState['music'] = false;
       localFilterState['valet'] = null;
       localFilterState['kidsArea'] = false;
+      localFilterState['isSmokingAllowed'] = false;
       typeSearchController.clear();
     });
   }
@@ -146,6 +147,19 @@ class _CoffeeFilterDialogState extends State<CoffeeFilterDialog> {
                   "DJ",
                 ],
               ),
+            SwitchListTile(
+              title: Text(getTranslated(context, "Smoking Area?")),
+              value: localFilterState['isSmokingAllowed'] ?? false,
+              onChanged: (value) {
+                setState(() {
+                  localFilterState['isSmokingAllowed'] = value;
+                  if (!value) {
+                    // Reset Valet with Fees when valet service is turned off
+                    localFilterState['IsSmokingAllowed'] = false;
+                  }
+                });
+              },
+            ),
             SwitchListTile(
               title: Text(getTranslated(context, "Kids Area")),
               value: localFilterState['kidsArea'],
