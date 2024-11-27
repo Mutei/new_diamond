@@ -144,7 +144,8 @@ class _HotelFilterDialogState extends State<HotelFilterDialog> {
               },
             ),
             SwitchListTile(
-              title: Text(getTranslated(context, "Smoking Area?")),
+              title: Text(
+                  getTranslated(context, "Is smoking allowed in the room?")),
               value: localFilterState['isSmokingAllowed'] ?? false,
               onChanged: (value) {
                 setState(() {
