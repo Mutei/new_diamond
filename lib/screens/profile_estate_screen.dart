@@ -61,6 +61,7 @@ class ProfileEstateScreen extends StatefulWidget {
   final String hasBarber;
   final String hasMassage;
   final String isSmokingAllowed;
+  final String hasJacuzziInRoom;
 
   const ProfileEstateScreen({
     Key? key,
@@ -87,6 +88,7 @@ class ProfileEstateScreen extends StatefulWidget {
     required this.hasMassage,
     required this.hasSwimmingPool,
     required this.isSmokingAllowed,
+    required this.hasJacuzziInRoom,
   }) : super(key: key);
 
   @override
@@ -806,6 +808,16 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                                         context, "We have kids area")
                                     : getTranslated(
                                         context, "We dont have kids area"))
+                                : '')
+                        : Text(''),
+                    widget.type == "1"
+                        ? ChipWidget(
+                            icon: Icons.bathtub,
+                            label: widget.type == "1"
+                                ? (widget.hasJacuzziInRoom == "1"
+                                    ? getTranslated(context, "We have jaccuzzi")
+                                    : getTranslated(
+                                        context, "We dont have jaccuzzi"))
                                 : '')
                         : Text(''),
                     ChipWidget(

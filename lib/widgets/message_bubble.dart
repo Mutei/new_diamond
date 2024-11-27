@@ -6,10 +6,15 @@ import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart' as emoji_picker;
 import 'reaction_picker.dart'; // Ensure this import path is correct
+import '../backend/private_chat_service.dart'; // New import
+import 'package:provider/provider.dart';
+import '../state_management/general_provider.dart';
+import '../localization/language_constants.dart';
 
 class MessageBubble extends StatefulWidget {
   final String messageId;
   final String estateId;
+  final String senderId; // Updated to include senderId
   final String sender;
   final String text;
   final bool isMe;
@@ -25,6 +30,7 @@ class MessageBubble extends StatefulWidget {
     Key? key,
     required this.messageId,
     required this.estateId,
+    required this.senderId, // Added senderId
     required this.sender,
     required this.text,
     required this.isMe,
@@ -59,6 +65,9 @@ class _MessageBubbleState extends State<MessageBubble>
   late Animation<double> _fadeAnimation;
 
   late StreamSubscription<void> _hideReactionPickersSubscription;
+
+  final PrivateChatService _privateChatService =
+      PrivateChatService(); // New instance
 
   @override
   void initState() {
@@ -134,6 +143,7 @@ class _MessageBubbleState extends State<MessageBubble>
               fontWeight: FontWeight.bold,
               fontSize: 12,
               color: Colors.blueAccent,
+              fontFamily: 'Roboto', // Updated font family
             ),
           ),
           const SizedBox(height: 4),
@@ -145,6 +155,7 @@ class _MessageBubbleState extends State<MessageBubble>
               fontSize: 12,
               color: Colors.black87,
               fontStyle: FontStyle.italic,
+              fontFamily: 'Roboto', // Updated font family
             ),
           ),
         ],
@@ -176,8 +187,9 @@ class _MessageBubbleState extends State<MessageBubble>
             widget.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
           Text(
-            widget.text,
+            widget.text.trim(), // Trim extra spaces from the message text
             style: TextStyle(
+              fontFamily: 'Roboto', // Updated font family
               color: textColor,
               fontSize: 16,
               fontFamilyFallback: [
@@ -185,6 +197,7 @@ class _MessageBubbleState extends State<MessageBubble>
                 'Segoe UI Emoji',
                 'Apple Color Emoji'
               ],
+              wordSpacing: 0, // Adjust word spacing if needed
             ),
           ),
           const SizedBox(height: 4),
@@ -193,6 +206,7 @@ class _MessageBubbleState extends State<MessageBubble>
             style: TextStyle(
               fontSize: 10,
               color: widget.isMe ? Colors.white70 : Colors.black54,
+              fontFamily: 'Roboto', // Updated font family
             ),
           ),
         ],
@@ -226,12 +240,19 @@ class _MessageBubbleState extends State<MessageBubble>
               children: [
                 Text(
                   entry.key,
-                  style: const TextStyle(fontSize: 16),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'Roboto', // Updated font family
+                  ),
                 ),
                 const SizedBox(width: 4),
                 Text(
                   entry.value.toString(),
-                  style: const TextStyle(fontSize: 12, color: Colors.black54),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.black54,
+                    fontFamily: 'Roboto', // Updated font family
+                  ),
                 ),
               ],
             ),
@@ -257,7 +278,7 @@ class _MessageBubbleState extends State<MessageBubble>
         IconButton(
           icon: Icon(Icons.reply, size: 24, color: Colors.grey[600]),
           onPressed: () => widget.onReply({
-            'senderId': widget.sender,
+            'senderId': widget.senderId, // Updated senderId
             'senderName': widget.sender,
             'text': widget.text,
           }),
@@ -341,6 +362,47 @@ class _MessageBubbleState extends State<MessageBubble>
     );
   }
 
+  void _showPrivateChatRequestDialog(String recipientId, String recipientName) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(getTranslated(context, "Send Private Chat Request")),
+          content: Text(
+              "${getTranslated(context, "Do you want to send a private chat request to")} $recipientName?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(getTranslated(context, "Cancel")),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _sendPrivateChatRequest(recipientId, recipientName);
+              },
+              child: Text(getTranslated(context, "Send")),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _sendPrivateChatRequest(String recipientId, String recipientName) async {
+    final provider = Provider.of<GeneralProvider>(context, listen: false);
+    await _privateChatService.sendPrivateChatRequest(
+      senderId: provider.userId,
+      senderName: provider.userName,
+      recipientId: recipientId,
+      recipientName: recipientName,
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+          content: Text(getTranslated(context, 'Request sent successfully.'))),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final formattedTime = widget.timestamp.isNotEmpty
@@ -371,12 +433,18 @@ class _MessageBubbleState extends State<MessageBubble>
                 widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
             children: [
               if (!widget.isMe)
-                CircleAvatar(
-                  radius: 16,
-                  backgroundImage: widget.profileImageUrl.isNotEmpty
-                      ? CachedNetworkImageProvider(widget.profileImageUrl)
-                      : const AssetImage('assets/images/default_avatar.png')
-                          as ImageProvider,
+                GestureDetector(
+                  onTap: () {
+                    _showPrivateChatRequestDialog(
+                        widget.senderId, widget.sender);
+                  },
+                  child: CircleAvatar(
+                    radius: 16,
+                    backgroundImage: widget.profileImageUrl.isNotEmpty
+                        ? CachedNetworkImageProvider(widget.profileImageUrl)
+                        : const AssetImage('assets/images/default_avatar.png')
+                            as ImageProvider,
+                  ),
                 ),
               if (!widget.isMe) const SizedBox(width: 8),
               Flexible(
@@ -388,14 +456,22 @@ class _MessageBubbleState extends State<MessageBubble>
                     if (!widget.isMe)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 4.0),
-                        child: Text(
-                          widget.sender,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: theme.brightness == Brightness.dark
-                                ? Colors.white70
-                                : Colors.grey[700],
-                            fontSize: 12,
+                        child: GestureDetector(
+                          onTap: () {
+                            _showPrivateChatRequestDialog(
+                                widget.senderId, widget.sender);
+                          },
+                          child: Text(
+                            widget.sender,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: theme.brightness == Brightness.dark
+                                  ? Colors.white70
+                                  : Colors.grey[700],
+                              fontSize: 12,
+                              fontFamily: 'Roboto', // Updated font family
+                              decoration: TextDecoration.underline,
+                            ),
                           ),
                         ),
                       ),

@@ -1,4 +1,5 @@
-// backend/chat_service.dart
+// lib/backend/chat_service.dart
+
 import 'package:firebase_database/firebase_database.dart';
 
 class ChatService {
@@ -16,6 +17,13 @@ class ChatService {
         .set(reaction);
   }
 
+  Future<void> removeReaction(
+      String estateId, String messageId, String userId) async {
+    await _database
+        .child('App/EstateChats/$estateId/$messageId/reactions/$userId')
+        .remove();
+  }
+
   Stream<DatabaseEvent> getMessagesStream(String estateId) {
     return _database
         .child('App/EstateChats/$estateId')
@@ -29,6 +37,5 @@ class ChatService {
     return await _database.child('App/EstateChats/$estateId/$messageId').once();
   }
 
-  removeReaction(
-      String estateId, String messageId, String uid, String reaction) {}
+// Private chat methods can be added similarly or handled in a separate service
 }

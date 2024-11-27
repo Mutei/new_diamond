@@ -1,38 +1,34 @@
-// lib/screens/estate_chat_screen.dart
+// lib/screens/private_chat_screen.dart
 
 import 'dart:async';
-import 'package:diamond_host_admin/widgets/reused_appbar.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../backend//chat_service.dart';
-import '../backend//user_service.dart';
-import '../constants/colors.dart';
+import 'package:firebase_database/firebase_database.dart';
+import '../backend/private_chat_service.dart';
+import '../backend/user_service.dart';
 import '../widgets/message_bubble.dart';
 import '../localization/language_constants.dart';
 import 'package:provider/provider.dart';
 import '../state_management/general_provider.dart';
 
-class EstateChatScreen extends StatefulWidget {
-  final String estateId;
-  final String estateNameEn;
-  final String estateNameAr;
+class PrivateChatScreen extends StatefulWidget {
+  final String chatId;
+  final String otherUserId;
 
-  const EstateChatScreen({
+  const PrivateChatScreen({
     Key? key,
-    required this.estateId,
-    required this.estateNameEn,
-    required this.estateNameAr,
+    required this.chatId,
+    required this.otherUserId,
   }) : super(key: key);
 
   @override
-  _EstateChatScreenState createState() => _EstateChatScreenState();
+  _PrivateChatScreenState createState() => _PrivateChatScreenState();
 }
 
-class _EstateChatScreenState extends State<EstateChatScreen> {
+class _PrivateChatScreenState extends State<PrivateChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final ChatService _chatService = ChatService();
+  final PrivateChatService _privateChatService = PrivateChatService();
   final UserService _userService = UserService();
   late DatabaseReference _chatRef;
 
@@ -49,8 +45,8 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
   @override
   void initState() {
     super.initState();
-    _chatRef =
-        FirebaseDatabase.instance.ref('App/EstateChats/${widget.estateId}');
+    _chatRef = FirebaseDatabase.instance
+        .ref('App/privateChats/${widget.chatId}/messages');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToBottom();
     });
@@ -67,7 +63,7 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
   void _scrollToBottom() {
     if (_scrollController.hasClients) {
       _scrollController.animateTo(
-        0.0, // Since ListView is reversed, minScrollExtent is 0.0
+        0.0,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
       );
@@ -115,7 +111,8 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
     };
 
     try {
-      await _chatService.sendMessage(widget.estateId, message);
+      await _privateChatService.sendMessage(
+          chatId: widget.chatId, message: message);
       _messageController.clear();
       setState(() {
         _replyMessage = null; // Clear the reply state
@@ -134,7 +131,6 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
     setState(() {
       _replyMessage = message;
     });
-    // Optionally, scroll to input field when replying
     _scrollController.animateTo(
       0.0,
       duration: const Duration(milliseconds: 300),
@@ -165,10 +161,14 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
 
     try {
       if (toggle) {
-        await _chatService.removeReaction(widget.estateId, messageId, user.uid);
+        await _privateChatService.removeReaction(
+            widget.chatId, messageId, user.uid);
       } else {
-        await _chatService.addReaction(
-            widget.estateId, messageId, user.uid, reaction);
+        await _privateChatService.addReaction(
+            chatId: widget.chatId,
+            messageId: messageId,
+            userId: user.uid,
+            reaction: reaction);
       }
       print(
           'Updated reaction "$reaction" on message "$messageId" by user "${user.uid}"');
@@ -186,18 +186,25 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final displayName = Localizations.localeOf(context).languageCode == 'ar'
-        ? widget.estateNameAr
-        : widget.estateNameEn;
-    final String chat = Localizations.localeOf(context).languageCode == 'ar'
-        ? "محادثة"
-        : "Chat";
-
     return Scaffold(
-      appBar: ReusedAppBar(
-          title: Localizations.localeOf(context).languageCode == 'en'
-              ? " ${displayName} $chat"
-              : "$chat ${displayName}"),
+      appBar: AppBar(
+        title: FutureBuilder<UserProfile?>(
+          future: _userService.getUserProfile(widget.otherUserId),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              );
+            } else if (snapshot.hasData) {
+              return Text(snapshot.data != null
+                  ? '${snapshot.data!.firstName} ${snapshot.data!.lastName}'
+                  : 'Anonymous');
+            } else {
+              return Text(getTranslated(context, "Private Chat"));
+            }
+          },
+        ),
+      ),
       body: Column(
         children: [
           Expanded(
@@ -205,9 +212,10 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
               onTap: () {
                 _hideReactionPickersStream.add(null); // Broadcast hide event
               },
-              behavior: HitTestBehavior.translucent, // Ensure taps pass through
+              behavior: HitTestBehavior.translucent,
               child: StreamBuilder<DatabaseEvent>(
-                stream: _chatService.getMessagesStream(widget.estateId),
+                stream:
+                    _privateChatService.getPrivateMessagesStream(widget.chatId),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     List<Map<dynamic, dynamic>> messages = [];
@@ -257,8 +265,6 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
                           if (value is String) {
                             reactionCounts[value] =
                                 (reactionCounts[value] ?? 0) + 1;
-                          } else {
-                            // Handle invalid reaction format if necessary
                           }
                         });
 
@@ -269,8 +275,8 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
 
                         return MessageBubble(
                           messageId: msg['messageId'],
-                          estateId: widget.estateId,
-                          senderId: msg['senderId'], // Pass senderId
+                          estateId: widget.chatId,
+                          senderId: msg['senderId'],
                           sender: msg['senderName'] ?? 'Anonymous',
                           text: msg['text'] ?? '',
                           isMe: isMe,
@@ -375,12 +381,10 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
                           border: InputBorder.none,
                         ),
                         textCapitalization: TextCapitalization.sentences,
-                        keyboardType:
-                            TextInputType.multiline, // Allow multi-line input
-                        maxLines: null, // Let the TextField expand vertically
-                        minLines: 1, // Minimum number of lines
-                        textInputAction: TextInputAction
-                            .newline, // Change the action button to newline
+                        keyboardType: TextInputType.multiline,
+                        maxLines: null,
+                        minLines: 1,
+                        textInputAction: TextInputAction.newline,
                         maxLength: 100,
                       ),
                     ),
@@ -393,7 +397,7 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
             Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: kDeepPurpleColor,
+                color: Colors.deepPurple,
               ),
               child: IconButton(
                 icon: const Icon(Icons.send, color: Colors.white),

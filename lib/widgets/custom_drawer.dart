@@ -1,25 +1,23 @@
-import 'package:diamond_host_admin/extension/sized_box_extension.dart';
-import 'package:diamond_host_admin/localization/language_constants.dart';
-import 'package:diamond_host_admin/screens/language_settings_screen.dart';
-import 'package:diamond_host_admin/screens/notification_screen.dart';
-import 'package:diamond_host_admin/screens/profile_screen.dart';
-import 'package:diamond_host_admin/screens/upgrade_account_screen.dart';
+// lib/widgets/custom_drawer.dart
+
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sizer/sizer.dart';
-import '../backend/log_out_method.dart';
-import '../constants/colors.dart';
-import '../main.dart';
+import 'package:badges/badges.dart' as badges;
+import '../screens/private_chat_request_screen.dart';
+import '../state_management/general_provider.dart';
+import '../localization/language_constants.dart';
+import '../screens/notification_screen.dart';
+import '../screens/profile_screen.dart';
+import '../screens/upgrade_account_screen.dart';
 import '../screens/all_posts_screen.dart';
 import '../screens/customer_points_screen.dart';
 import '../screens/settings_screen.dart';
-import '../screens/theme_settings_screen.dart';
-import '../state_management/general_provider.dart';
+import '../backend/log_out_method.dart';
+import '../constants/colors.dart';
 import '../utils/global_methods.dart';
 import 'item_drawer.dart';
-import 'package:badges/badges.dart' as badges;
+import '../extension/sized_box_extension.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});
@@ -54,25 +52,6 @@ class CustomDrawer extends StatelessWidget {
               },
               hint: '',
             ),
-
-            // DrawerItem(
-            //   text: getTranslated(context, "Theme Settings"),
-            //   icon: Icon(Icons.settings, color: kDeepPurpleColor),
-            //   onTap: () {
-            //     Navigator.of(context).push(MaterialPageRoute(
-            //         builder: (context) => ThemeSettingsScreen()));
-            //   },
-            //   hint: '',
-            // ),
-            // DrawerItem(
-            //   text: getTranslated(context, "Language Settings"),
-            //   icon: Icon(Icons.language, color: kDeepPurpleColor),
-            //   onTap: () {
-            //     Navigator.of(context).push(MaterialPageRoute(
-            //         builder: (context) => LanguageSettings()));
-            //   },
-            //   hint: '',
-            // ),
             DrawerItem(
               text: getTranslated(context, "Profile"),
               icon: Icon(Icons.person, color: kDeepPurpleColor),
@@ -106,7 +85,10 @@ class CustomDrawer extends StatelessWidget {
             ),
             DrawerItem(
               icon: Icon(Icons.message, color: kDeepPurpleColor),
-              onTap: () {},
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const PrivateChatRequestsScreen()));
+              },
               hint: getTranslated(
                   context, "From here you can chat privately with other users"),
               text: getTranslated(context, "Private Chat"),
@@ -146,49 +128,8 @@ class CustomDrawer extends StatelessWidget {
               hint: getTranslated(
                   context, "From here you can upgrade account to Vip"),
             ),
-            // DrawerItem(
-            //   text: getTranslated(context, "Arabic"),
-            //   icon: Icon(Icons.language, color: kDeepPurpleColor),
-            //   onTap: () async {
-            //     SharedPreferences sharedPreferences =
-            //         await SharedPreferences.getInstance();
-            //     sharedPreferences.setString("Language", "ar");
-            //     Locale newLocale = const Locale("ar", "SA");
-            //     MyApp.setLocale(context, newLocale);
-            //     Provider.of<GeneralProvider>(context, listen: false)
-            //         .updateLanguage(false);
-            //   },
-            //   hint: "",
-            // ),
-            // DrawerItem(
-            //   text: getTranslated(context, "English"),
-            //   icon: Icon(Icons.language, color: kDeepPurpleColor),
-            //   onTap: () async {
-            //     SharedPreferences sharedPreferences =
-            //         await SharedPreferences.getInstance();
-            //     sharedPreferences.setString("Language", "en");
-            //     Locale newLocale = const Locale("en", "SA");
-            //     MyApp.setLocale(context, newLocale);
-            //     Provider.of<GeneralProvider>(context, listen: false)
-            //         .updateLanguage(true);
-            //   },
-            //   hint: '',
-            // ),
-            // DrawerItem(
-            //     text: Provider.of<GeneralProvider>(context).isDarkMode
-            //         ? getTranslated(context, "Light Mode")
-            //         : getTranslated(context, "Dark Mode"), // Text for dark mode
-            //     icon: Icon(
-            //       Provider.of<GeneralProvider>(context).isDarkMode
-            //           ? Icons.light_mode
-            //           : Icons.dark_mode,
-            //       color: kDeepPurpleColor,
-            //     ),
-            //     onTap: () {
-            //       Provider.of<GeneralProvider>(context, listen: false)
-            //           .toggleTheme();
-            //     },
-            //     hint: ''),
+            // New DrawerItem for Private Chat Requests
+
             DrawerItem(
               text: getTranslated(context, "Logout"),
               icon: Icon(Icons.logout, color: kDeepPurpleColor),

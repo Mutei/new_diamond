@@ -59,6 +59,7 @@ class _HotelScreenState extends State<HotelScreen> {
           'IsThereLaunchLounge': estateData['IsThereLaunchLounge'] ?? '0',
           'IsThereDinnerLounge': estateData['IsThereDinnerLounge'] ?? '0',
           'IsSmokingAllowed': estateData['IsSmokingAllowed'] ?? '0',
+          'HasJacuzziInRoom': estateData['HasJacuzziInRoom'] ?? '0',
         };
 
         estate = await _addAdditionalEstateData(estate);
@@ -195,6 +196,7 @@ class _HotelScreenState extends State<HotelScreen> {
     'isThereBreakfastLounge': false,
     'isThereLaunchLounge': false,
     'isThereDinnerLounge': false,
+    'hasJacuzziInRoom': false,
     'lstMusic': <String>[],
   };
   void _showFilterDialog() async {
@@ -230,6 +232,7 @@ class _HotelScreenState extends State<HotelScreen> {
               updatedFilterState['isThereBreakfastLounge']
           ..['isThereLaunchLounge'] = updatedFilterState['isThereLaunchLounge']
           ..['isSmokingAllowed'] = updatedFilterState['isSmokingAllowed']
+          ..['hasJacuzziInRoom'] = updatedFilterState['hasJacuzziInRoom']
           ..['isThereDinnerLounge'] = updatedFilterState['isThereDinnerLounge'];
 
         _applyFilters();
@@ -310,6 +313,9 @@ class _HotelScreenState extends State<HotelScreen> {
         // Match Kids Area filter
         if (filterState['kidsArea']) {
           matches = matches && estate['HasKidsArea'] == '1';
+        }
+        if (filterState['hasJacuzziInRoom']) {
+          matches = matches && estate['HasJacuzziInRoom'] == '1';
         }
         if (filterState['gym']) {
           matches = matches && estate['HasGym'] == '1';
@@ -428,6 +434,7 @@ class _HotelScreenState extends State<HotelScreen> {
                                         hotel['HasSwimmingPool'] ?? '',
                                     isSmokingAllowed:
                                         hotel['IsSmokingAllowed'] ?? '',
+                                    hasJacuzziInRoom: hotel['HasJacuzziInRoom'],
                                   ),
                                 ),
                               );

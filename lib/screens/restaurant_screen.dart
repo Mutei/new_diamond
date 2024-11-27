@@ -351,6 +351,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                                         restaurant['HasSwimmingPool'] ?? '',
                                     isSmokingAllowed:
                                         restaurant['IsSmokingAllowed'] ?? '',
+                                    hasJacuzziInRoom: restaurant['HasJacuzziInRoom'],
                                   ),
                                 ),
                               );

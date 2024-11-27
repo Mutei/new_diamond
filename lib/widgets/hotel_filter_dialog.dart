@@ -82,6 +82,7 @@ class _HotelFilterDialogState extends State<HotelFilterDialog> {
       localFilterState['isThereDinnerLounge'] = false;
       localFilterState['isThereLaunchLounge'] = false;
       localFilterState['isSmokingAllowed'] = false;
+      localFilterState['hasJacuzziInRoom'] = false;
       typeSearchController.clear();
     });
   }
@@ -126,6 +127,20 @@ class _HotelFilterDialogState extends State<HotelFilterDialog> {
                   if (!value) {
                     // Reset Valet with Fees when valet service is turned off
                     localFilterState['HasSwimmingPool'] = false;
+                  }
+                });
+              },
+            ),
+            SwitchListTile(
+              title: Text(getTranslated(
+                  context, "Is there jaccuzzi in the hotel room?")),
+              value: localFilterState['hasJacuzziInRoom'] ?? false,
+              onChanged: (value) {
+                setState(() {
+                  localFilterState['hasJacuzziInRoom'] = value;
+                  if (!value) {
+                    // Reset Valet with Fees when valet service is turned off
+                    localFilterState['HasJacuzziInRoom'] = false;
                   }
                 });
               },
