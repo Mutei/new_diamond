@@ -363,6 +363,18 @@ class _MessageBubbleState extends State<MessageBubble>
   }
 
   void _showPrivateChatRequestDialog(String recipientId, String recipientName) {
+    final provider = Provider.of<GeneralProvider>(context, listen: false);
+
+    // Ensure senderId and senderName are not empty
+    if (provider.userId.isEmpty || provider.userName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content:
+                Text(getTranslated(context, "User information is missing."))),
+      );
+      return;
+    }
+
     showDialog(
       context: context,
       builder: (context) {
@@ -378,7 +390,8 @@ class _MessageBubbleState extends State<MessageBubble>
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                _sendPrivateChatRequest(recipientId, recipientName);
+                _sendPrivateChatRequest(provider.userId, provider.userName,
+                    recipientId, recipientName);
               },
               child: Text(getTranslated(context, "Send")),
             ),
@@ -388,19 +401,27 @@ class _MessageBubbleState extends State<MessageBubble>
     );
   }
 
-  void _sendPrivateChatRequest(String recipientId, String recipientName) async {
-    final provider = Provider.of<GeneralProvider>(context, listen: false);
-    await _privateChatService.sendPrivateChatRequest(
-      senderId: provider.userId,
-      senderName: provider.userName,
-      recipientId: recipientId,
-      recipientName: recipientName,
-    );
+  void _sendPrivateChatRequest(String senderId, String senderName,
+      String recipientId, String recipientName) async {
+    try {
+      await _privateChatService.sendPrivateChatRequest(
+        senderId: senderId,
+        senderName: senderName,
+        recipientId: recipientId,
+        recipientName: recipientName,
+      );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-          content: Text(getTranslated(context, 'Request sent successfully.'))),
-    );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content:
+                Text(getTranslated(context, 'Request sent successfully.'))),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(getTranslated(context, 'Failed to send request.'))),
+      );
+    }
   }
 
   @override

@@ -237,5 +237,23 @@
   "Smoking Area?": "منطقة تدخين؟",
   "We have jaccuzzi": "لدينا جاكوزي",
   "We dont have jaccuzzi": "ليس لدينا جاكوزي",
-  "Is there jaccuzzi in the hotel room?": "هل يوجد جاكوزي في غرفة الفندق؟"
+  "Is there jaccuzzi in the hotel room?": "هل يوجد جاكوزي في غرفة الفندق؟",
+  "Send Private Chat Request": "إرسال طلب دردشة خاصة",
+  "Do you want to send a private chat request to": "هل تريد إرسال طلب دردشة خاصة إلى",
+  "Request sent successfully.": "تم إرسال الطلب بنجاح.",
+  "Please log in to send messages.": "يرجى تسجيل الدخول لإرسال الرسائل.",
+  "Failed to send message. Please try again.": "فشل في إرسال الرسالة. يرجى المحاولة مرة أخرى.",
+  "Please log in to react.": "يرجى تسجيل الدخول للتفاعل.",
+  "No messages yet. Start the conversation!": "لا توجد رسائل بعد. ابدأ المحادثة!",
+  "Error loading messages.": "حدث خطأ أثناء تحميل الرسائل.",
+  "Private Chat Requests": "طلبات الدردشة الخاصة",
+  "Please log in to view requests.": "يرجى تسجيل الدخول لعرض الطلبات.",
+  "No private chat requests.": "لا توجد طلبات دردشة خاصة.",
+  "wants to start a private chat with you.": "يريد بدء دردشة خاصة معك.",
+  "Error loading requests.": "حدث خطأ أثناء تحميل الطلبات.",
+  "Failed to accept request. Please try again.": "فشل في قبول الطلب. يرجى المحاولة مرة أخرى.",
+  "Request rejected.": "تم رفض الطلب.",
+  "Failed to reject request. Please try again.": "فشل في رفض الطلب. يرجى المحاولة مرة أخرى.",
+  "User information is missing.": "معلومات المستخدم مفقودة."
+
 }

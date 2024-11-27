@@ -1,5 +1,6 @@
 // lib/screens/private_chat_requests_screen.dart
 
+import 'package:diamond_host_admin/widgets/reused_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -36,12 +37,12 @@ class _PrivateChatRequestsScreenState extends State<PrivateChatRequestsScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(getTranslated(context, "Private Chat Requests")),
+      appBar: ReusedAppBar(
+        title: (getTranslated(context, "Private Chat Requests")),
       ),
       body: StreamBuilder<DatabaseEvent>(
         stream: _dbRef
-            .child('App/privateChatRequests/${_currentUser!.uid}')
+            .child('App/PrivateChatRequests/${_currentUser!.uid}')
             .onValue,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
@@ -60,7 +61,7 @@ class _PrivateChatRequestsScreenState extends State<PrivateChatRequestsScreen> {
             if (requests.isEmpty) {
               return Center(
                 child: Text(
-                  getTranslated(context, 'No private chat requests.'),
+                  getTranslated(context, "No private chat requests."),
                 ),
               );
             }
@@ -99,7 +100,7 @@ class _PrivateChatRequestsScreenState extends State<PrivateChatRequestsScreen> {
                       ),
                       title: Text(senderName),
                       subtitle: Text(getTranslated(
-                          context, 'wants to start a private chat with you.')),
+                          context, "wants to start a private chat with you.")),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -126,7 +127,7 @@ class _PrivateChatRequestsScreenState extends State<PrivateChatRequestsScreen> {
             );
           } else if (snapshot.hasError) {
             return Center(
-                child: Text(getTranslated(context, 'Error loading requests.')));
+                child: Text(getTranslated(context, "Error loading requests.")));
           } else {
             return const Center(child: CircularProgressIndicator());
           }
@@ -162,7 +163,7 @@ class _PrivateChatRequestsScreenState extends State<PrivateChatRequestsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(getTranslated(
-                context, 'Failed to accept request. Please try again.'))),
+                context, "Failed to accept request. Please try again."))),
       );
       print('Error accepting request: $e');
     }
@@ -176,13 +177,13 @@ class _PrivateChatRequestsScreenState extends State<PrivateChatRequestsScreen> {
           recipientId: _currentUser!.uid, requestId: requestId);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(getTranslated(context, 'Request rejected.'))),
+        SnackBar(content: Text(getTranslated(context, "Request rejected."))),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(getTranslated(
-                context, 'Failed to reject request. Please try again.'))),
+                context, "Failed to reject request. Please try again."))),
       );
       print('Error rejecting request: $e');
     }

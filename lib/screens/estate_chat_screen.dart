@@ -175,8 +175,7 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(getTranslated(
-                context, 'Failed to update reaction. Please try again.'))),
+            content: Text(getTranslated(context, 'Please log in to react.'))),
       );
       print('Error updating reaction: $e');
     } finally {

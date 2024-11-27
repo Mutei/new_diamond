@@ -238,5 +238,22 @@
   "Smoking Area?":"Smoking Area?",
   "We have jaccuzzi":"We have jaccuzzi",
   "We dont have jaccuzzi":"We dont have jaccuzzi",
-  "Is there jaccuzzi in the hotel room?":"Is there jaccuzzi in the hotel room?"
+  "Is there jaccuzzi in the hotel room?":"Is there jaccuzzi in the hotel room?",
+  "Send Private Chat Request":"Send Private Chat Request",
+  "Do you want to send a private chat request to":"Do you want to send a private chat request to",
+  "Request sent successfully.":"Request sent successfully.",
+  "Please log in to send messages.":"Please log in to send messages.",
+  "Failed to send message. Please try again.":"Failed to send message. Please try again.",
+  "Please log in to react.":"Please log in to react.",
+  "No messages yet. Start the conversation!":"No messages yet. Start the conversation!",
+  "Error loading messages.":"Error loading messages.",
+  "Private Chat Requests":"Private Chat Requests",
+  "Please log in to view requests.":"Please log in to view requests.",
+  "No private chat requests.":"No private chat requests.",
+  "wants to start a private chat with you.":"wants to start a private chat with you.",
+  "Error loading requests.":"Error loading requests.",
+  "Failed to accept request. Please try again.":"Failed to accept request. Please try again.",
+  "Request rejected.":"Request rejected.",
+  "Failed to reject request. Please try again.":"Failed to reject request. Please try again.",
+  "User information is missing.":"User information is missing."
 }

@@ -1,5 +1,3 @@
-// lib/state_management/general_provider.dart
-
 import 'package:diamond_host_admin/constants/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -44,10 +42,28 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     fetchApprovalCount();
     fetchNewRequestCount();
     CheckLogin();
-    loadUserInfo(); // Initialize user info
+    loadUserInfo(); // Initialize user info from SharedPreferences
+    fetchAndSetUserInfo(); // Fetch user info from Firebase
+  }
+  void loadLastSeenApprovalCount() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _lastSeenApprovalCount =
+        prefs.getInt('lastSeenApprovalCount') ?? 0; // Default to 0
   }
 
-  // Existing methods...
+  void CheckLogin() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    if (sharedPreferences.getString("TypeUser") == "1") {
+      CheckLoginValue = false;
+    } else {
+      CheckLoginValue = true;
+    }
+  }
+
+  void updateLanguage(bool isEnglish) {
+    CheckLangValue = isEnglish;
+    notifyListeners();
+  }
 
   // Method to load user information from SharedPreferences
   Future<void> loadUserInfo() async {
@@ -55,6 +71,41 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     _userId = prefs.getString('userId') ?? '';
     _userName = prefs.getString('userName') ?? 'Anonymous';
     notifyListeners();
+  }
+
+  // Method to fetch user info from Firebase and update state
+  Future<void> fetchAndSetUserInfo() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return; // No user is logged in
+    }
+
+    try {
+      final userRef = FirebaseDatabase.instance.ref('App/User/${user.uid}');
+      final snapshot = await userRef.get();
+      if (snapshot.exists) {
+        final data = snapshot.value as Map;
+        final userId = data['userId'] ?? '';
+        final firstName = data['FirstName'] ?? 'Anonymous';
+        final lastName = data['LastName'] ?? '';
+
+        // Update userName
+        final userName = '$firstName $lastName';
+
+        // Save in SharedPreferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('userId', userId);
+        await prefs.setString('userName', userName);
+
+        // Update provider state
+        _userId = userId;
+        _userName = userName;
+
+        notifyListeners();
+      }
+    } catch (e) {
+      print('Error fetching user info: $e');
+    }
   }
 
   // Method to update user information (call this upon user login)
@@ -67,31 +118,11 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     notifyListeners();
   }
 
-  // ... Rest of your GeneralProvider methods
-
-  void loadLastSeenApprovalCount() async {
+  // Method to load theme preference
+  void loadThemePreference() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    _lastSeenApprovalCount =
-        prefs.getInt('lastSeenApprovalCount') ?? 0; // Default to 0
-  }
-
-  void FunSnackBarPage(String hint, BuildContext context) {
-    final snackBar = SnackBar(
-      content: Text(
-        hint,
-        style: TextStyle(
-          color: kDeepPurpleColor,
-        ),
-      ),
-      action: SnackBarAction(
-        label: 'Undo',
-        onPressed: () {
-          // Some code to undo the change.
-        },
-      ),
-    );
-
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    _themeMode = ThemeModeType.values[prefs.getInt('themeMode') ?? 0];
+    notifyListeners();
   }
 
   void toggleTheme(ThemeModeType themeModeType) async {
@@ -99,12 +130,6 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     notifyListeners();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setInt('themeMode', themeModeType.index);
-  }
-
-  void loadThemePreference() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    _themeMode = ThemeModeType.values[prefs.getInt('themeMode') ?? 0];
-    notifyListeners();
   }
 
   ThemeData getTheme(BuildContext context) {
@@ -159,7 +184,7 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
           .ref("App/Booking/Book")
           .orderByChild("IDOwner")
           .equalTo(id)
-          .onValue // Use onValue for real-time updates
+          .onValue
           .listen((DatabaseEvent event) {
         int count = 0;
         if (event.snapshot.value != null) {
@@ -171,7 +196,7 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
           });
         }
         _newRequestCount = count;
-        notifyListeners(); // Update listeners directly when there's a new request
+        notifyListeners();
       });
     }
   }
@@ -185,81 +210,28 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     notifyListeners();
   }
 
-  Future getUer() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    DatabaseReference starCountRef = FirebaseDatabase.instance
-        .ref("App")
-        .child("User")
-        .child(sharedPreferences.getString("ID")!);
-    starCountRef.onValue.listen((DatabaseEvent event) {
-      UserMap = event.snapshot.value as Map;
-    });
-    notifyListeners();
-  }
-
-  List<CustomerType> TypeService(BuildContext context) {
-    List<CustomerType> LstCustomerType = [];
-
-    LstCustomerType.add(CustomerType(
-      icon: Icons.restaurant,
-      name: getTranslated(context, "Restaurant"), // Key for translation
-      type: "3",
-      subtext: getTranslated(
-          context, "Add your restaurant from here"), // Key for translation
-    ));
-
-    LstCustomerType.add(CustomerType(
-      icon: Icons.local_cafe,
-      name: getTranslated(context, "Coffee"), // Key for translation
-      type: "2",
-      subtext: getTranslated(
-          context, "Add your Coffee from here"), // Key for translation
-    ));
-
-    LstCustomerType.add(CustomerType(
-      icon: Icons.hotel,
-      name: getTranslated(context, "Hotel"), // Key for translation
-      type: "1",
-      subtext: getTranslated(
-          context, "Add your Hotel from here"), // Key for translation
-    ));
-
-    return LstCustomerType;
-  }
-
-  Future<bool> CheckLang() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    String? lang = sharedPreferences.getString("Language");
-    if (lang == null || lang.isEmpty) {
-      CheckLangValue = true;
-      return true;
-    } else if (lang == "en") {
-      CheckLangValue = true;
-      return true;
-    } else if (lang == "ar") {
-      CheckLangValue = false;
-      return false;
-    }
-    return true;
-  }
-
-  void updateLanguage(bool isEnglish) {
-    CheckLangValue = isEnglish;
-    notifyListeners();
-  }
-
-  void CheckLogin() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    if (sharedPreferences.getString("TypeUser") == "1") {
-      CheckLoginValue = false;
-    } else {
-      CheckLoginValue = true;
-    }
-  }
-
   void resetNewRequestCount() {
     _newRequestCount = 0;
     notifyListeners();
+  }
+
+  void FunSnackBarPage(String hint, BuildContext context) {
+    final snackBar = SnackBar(
+      content: Text(
+        hint,
+        style: TextStyle(
+          color: kDeepPurpleColor,
+        ),
+      ),
+      action: SnackBarAction(
+        label: 'Undo',
+        onPressed: () {
+          // Some code to undo the change.
+        },
+      ),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }
 

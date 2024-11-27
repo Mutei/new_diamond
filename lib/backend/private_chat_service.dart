@@ -12,10 +12,14 @@ class PrivateChatService {
     required String recipientId,
     required String recipientName,
   }) async {
+    if (senderId.isEmpty || senderName.isEmpty) {
+      throw ArgumentError('Sender ID or name cannot be empty');
+    }
+
     String requestId =
-        _database.child('App/privateChatRequests/$recipientId').push().key!;
+        _database.child('App/PrivateChatRequests/$recipientId').push().key!;
     await _database
-        .child('App/privateChatRequests/$recipientId/$requestId')
+        .child('App/PrivateChatRequests/$recipientId/$requestId')
         .set({
       'senderId': senderId,
       'senderName': senderName,
@@ -33,14 +37,14 @@ class PrivateChatService {
     String chatId = generateChatId(senderId, recipientId);
 
     // Create the private chat room
-    await _database.child('App/privateChats/$chatId/participants').set({
+    await _database.child('App/PrivateChats/$chatId/participants').set({
       senderId: true,
       recipientId: true,
     });
 
     // Remove the request
     await _database
-        .child('App/privateChatRequests/$recipientId/$requestId')
+        .child('App/PrivateChatRequests/$recipientId/$requestId')
         .remove();
 
     return chatId;
@@ -52,7 +56,7 @@ class PrivateChatService {
     required String requestId,
   }) async {
     await _database
-        .child('App/privateChatRequests/$recipientId/$requestId')
+        .child('App/PrivateChatRequests/$recipientId/$requestId')
         .remove();
   }
 
@@ -69,9 +73,9 @@ class PrivateChatService {
     required Map<String, dynamic> message,
   }) async {
     String messageId =
-        _database.child('App/privateChats/$chatId/messages').push().key!;
+        _database.child('App/PrivateChats/$chatId/messages').push().key!;
     await _database
-        .child('App/privateChats/$chatId/messages/$messageId')
+        .child('App/PrivateChats/$chatId/messages/$messageId')
         .set(message);
   }
 
@@ -83,7 +87,7 @@ class PrivateChatService {
     required String reaction,
   }) async {
     await _database
-        .child('App/privateChats/$chatId/messages/$messageId/reactions/$userId')
+        .child('App/PrivateChats/$chatId/messages/$messageId/reactions/$userId')
         .set(reaction);
   }
 
@@ -91,14 +95,14 @@ class PrivateChatService {
   Future<void> removeReaction(
       String chatId, String messageId, String userId) async {
     await _database
-        .child('App/privateChats/$chatId/messages/$messageId/reactions/$userId')
+        .child('App/PrivateChats/$chatId/messages/$messageId/reactions/$userId')
         .remove();
   }
 
   // Stream for private chat messages
   Stream<DatabaseEvent> getPrivateMessagesStream(String chatId) {
     return _database
-        .child('App/privateChats/$chatId/messages')
+        .child('App/PrivateChats/$chatId/messages')
         .orderByChild('timestamp')
         .onValue;
   }
