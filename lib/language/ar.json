@@ -229,5 +229,7 @@
   "We have Gym": "لدينا صالة رياضية",
   "We dont have Gym": "ليس لدينا صالة رياضية",
   "We have barber": "لدينا حلاق",
-  "We dont have barber": "ليس لدينا حلاق"
+  "We dont have barber": "ليس لدينا حلاق",
+  "Valet is free": "خدمة صف السيارات مجانية",
+  "Valet is not free": "خدمة صف السيارات ليست مجانية"
 }
