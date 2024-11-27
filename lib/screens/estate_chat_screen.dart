@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../backend//chat_service.dart';
 import '../backend//user_service.dart';
 import '../constants/colors.dart';
+import '../utils/censor_message.dart';
 import '../widgets/message_bubble.dart';
 import '../localization/language_constants.dart';
 import 'package:provider/provider.dart';
@@ -85,8 +86,11 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
       return;
     }
 
+    // Get the message text and censor it
     final messageText = _messageController.text.trim();
     if (messageText.isEmpty) return;
+
+    final censoredMessageText = censorMessage(messageText);
 
     final userProfile = await _userService.getUserProfile(user.uid);
     final senderName = userProfile != null
@@ -108,7 +112,7 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
       'senderId': user.uid,
       'senderName': senderName,
       'profileImageUrl': profileImageUrl,
-      'text': messageText,
+      'text': censoredMessageText, // Use the censored message text here
       'timestamp': DateTime.now().toIso8601String(),
       'reactions': {}, // Initialize reactions as an empty map
       if (replyTo != null) 'replyTo': replyTo,

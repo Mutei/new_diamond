@@ -110,6 +110,15 @@ class _PrivateChatRequestsScreenState extends State<PrivateChatRequestsScreen> {
                             onPressed: () async {
                               await _acceptRequest(
                                   request['requestId'], request['senderId']);
+                              Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => PrivateChatScreen(
+                                  chatId: _privateChatService.generateChatId(
+                                    _currentUser!.uid,
+                                    request['senderId'],
+                                  ),
+                                  otherUserId: request['senderId'],
+                                ),
+                              ));
                             },
                           ),
                           IconButton(

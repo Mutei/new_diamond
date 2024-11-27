@@ -36,13 +36,15 @@ class PrivateChatService {
   }) async {
     String chatId = generateChatId(senderId, recipientId);
 
-    // Create the private chat room
-    await _database.child('App/PrivateChats/$chatId/participants').set({
-      senderId: true,
-      recipientId: true,
+    await _database.child('App/PrivateChats/$chatId').set({
+      'participants': {senderId: true, recipientId: true},
+      'lastMessage': {
+        'text': 'Chat started.',
+        'timestamp': DateTime.now().toIso8601String(),
+        'senderId': '',
+      },
     });
 
-    // Remove the request
     await _database
         .child('App/PrivateChatRequests/$recipientId/$requestId')
         .remove();

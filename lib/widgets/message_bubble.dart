@@ -433,12 +433,12 @@ class _MessageBubbleState extends State<MessageBubble>
     final ThemeData theme = Theme.of(context);
     final bubbleColor = widget.isMe
         ? theme.primaryColor
-        : theme.brightness == Brightness.dark
+        : Theme.of(context).brightness == Brightness.dark
             ? Colors.grey[700]
             : Colors.grey[300];
     final textColor = widget.isMe
         ? Colors.white
-        : theme.brightness == Brightness.dark
+        : Theme.of(context).brightness == Brightness.dark
             ? Colors.white
             : Colors.black87;
 
