@@ -33,6 +33,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
     'music': false,
     'valet': null,
     'valetWithFees': false,
+    'isSmokingAllowed': false,
     'kidsArea': false,
   };
 
@@ -139,6 +140,9 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
         if (filterState['kidsArea']) {
           matches = matches && estate['HasKidsArea'] == '1';
         }
+        if (filterState['isSmokingAllowed']) {
+          matches = matches && estate['IsSmokingAllowed'] == '1';
+        }
 
         return matches;
       }).toList();
@@ -200,6 +204,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
           'HasValet': estateData['HasValet'] ?? '0',
           'HasKidsArea': estateData['HasKidsArea'] ?? '0',
           'ValetWithFees': estateData['ValetWithFees'] ?? '0',
+          'IsSmokingAllowed': estateData['IsSmokingAllowed'] ?? '0',
         };
 
         estate = await _addAdditionalEstateData(estate);
@@ -261,6 +266,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
           ..['music'] = updatedFilterState['music']
           ..['valet'] = updatedFilterState['valet']
           ..['valetWithFees'] = updatedFilterState['valetWithFees']
+          ..['isSmokingAllowed'] = updatedFilterState['isSmokingAllowed']
           ..['kidsArea'] = updatedFilterState['kidsArea'];
         _applyFilters();
       });
