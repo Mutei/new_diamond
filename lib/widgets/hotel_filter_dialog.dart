@@ -81,6 +81,7 @@ class _HotelFilterDialogState extends State<HotelFilterDialog> {
       localFilterState['isThereBreakfastLounge'] = false;
       localFilterState['isThereDinnerLounge'] = false;
       localFilterState['isThereLaunchLounge'] = false;
+      localFilterState['isSmokingAllowed'] = false;
       typeSearchController.clear();
     });
   }
@@ -138,6 +139,19 @@ class _HotelFilterDialogState extends State<HotelFilterDialog> {
                   if (!value) {
                     // Reset Valet with Fees when valet service is turned off
                     localFilterState['HasBarber'] = false;
+                  }
+                });
+              },
+            ),
+            SwitchListTile(
+              title: Text(getTranslated(context, "Smoking Area?")),
+              value: localFilterState['isSmokingAllowed'] ?? false,
+              onChanged: (value) {
+                setState(() {
+                  localFilterState['isSmokingAllowed'] = value;
+                  if (!value) {
+                    // Reset Valet with Fees when valet service is turned off
+                    localFilterState['IsSmokingAllowed'] = false;
                   }
                 });
               },

@@ -58,6 +58,7 @@ class _HotelScreenState extends State<HotelScreen> {
           'IsThereBreakfastLounge': estateData['IsThereBreakfastLounge'] ?? '0',
           'IsThereLaunchLounge': estateData['IsThereLaunchLounge'] ?? '0',
           'IsThereDinnerLounge': estateData['IsThereDinnerLounge'] ?? '0',
+          'IsSmokingAllowed': estateData['IsSmokingAllowed'] ?? '0',
         };
 
         estate = await _addAdditionalEstateData(estate);
@@ -185,6 +186,7 @@ class _HotelScreenState extends State<HotelScreen> {
     'music': false,
     'valet': null,
     'kidsArea': false,
+    'isSmokingAllowed': false,
     'valetWithFees': false,
     'massage': false,
     'gym': false,
@@ -227,6 +229,7 @@ class _HotelScreenState extends State<HotelScreen> {
           ..['isThereBreakfastLounge'] =
               updatedFilterState['isThereBreakfastLounge']
           ..['isThereLaunchLounge'] = updatedFilterState['isThereLaunchLounge']
+          ..['isSmokingAllowed'] = updatedFilterState['isSmokingAllowed']
           ..['isThereDinnerLounge'] = updatedFilterState['isThereDinnerLounge'];
 
         _applyFilters();
@@ -310,6 +313,9 @@ class _HotelScreenState extends State<HotelScreen> {
         }
         if (filterState['gym']) {
           matches = matches && estate['HasGym'] == '1';
+        }
+        if (filterState['isSmokingAllowed']) {
+          matches = matches && estate['IsSmokingAllowed'] == '1';
         }
         if (filterState['barber']) {
           matches = matches && estate['HasBarber'] == '1';
