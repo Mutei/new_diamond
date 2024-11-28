@@ -254,6 +254,10 @@
   "Failed to accept request. Please try again.": "فشل في قبول الطلب. يرجى المحاولة مرة أخرى.",
   "Request rejected.": "تم رفض الطلب.",
   "Failed to reject request. Please try again.": "فشل في رفض الطلب. يرجى المحاولة مرة أخرى.",
-  "User information is missing.": "معلومات المستخدم مفقودة."
+  "User information is missing.": "معلومات المستخدم مفقودة.",
+  "Accepted Chat Requests": "الطلبات المقبولة للدردشة",
+  "New Chat Requests": "طلبات دردشة جديدة",
+  "Chat accepted.": "تم قبول الدردشة.",
+  "Request accepted. Chat is now available.": "تم قبول الطلب. الدردشة متاحة الآن."
 
 }

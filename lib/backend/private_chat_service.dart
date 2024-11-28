@@ -29,6 +29,7 @@ class PrivateChatService {
 
   // Accept a private chat request
   // Accept a private chat request
+  // Accept a private chat request
   Future<void> acceptPrivateChatRequest({
     required String recipientId,
     required String requestId,
@@ -51,6 +52,34 @@ class PrivateChatService {
         'senderId': '',
       },
     });
+
+    // Save chat details for the sender
+    await _database.child('App/Users/$senderId/Chats/$chatId').set({
+      'recipientId': recipientId,
+      'recipientName': await _getUserName(recipientId),
+      'chatId': chatId,
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+
+    // Save chat details for the recipient
+    await _database.child('App/Users/$recipientId/Chats/$chatId').set({
+      'recipientId': senderId,
+      'recipientName': senderName,
+      'chatId': chatId,
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+  }
+
+// Helper function to fetch a user's name from their ID
+  Future<String> _getUserName(String userId) async {
+    final snapshot = await _database.child('App/User/$userId').get();
+    if (snapshot.exists) {
+      final data = snapshot.value as Map<dynamic, dynamic>;
+      final firstName = data['FirstName'] ?? 'Anonymous';
+      final lastName = data['LastName'] ?? '';
+      return '$firstName $lastName';
+    }
+    return 'Anonymous';
   }
 
   // Reject a private chat request

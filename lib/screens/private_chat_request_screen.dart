@@ -190,7 +190,7 @@ class _PrivateChatRequestsScreenState extends State<PrivateChatRequestsScreen> {
           ? '${senderProfile.firstName} ${senderProfile.lastName}'
           : 'Anonymous';
 
-      // Accept the request and update its status to accepted
+      // Accept the request and update the chat details for both users
       await _privateChatService.acceptPrivateChatRequest(
         recipientId: _currentUser!.uid,
         requestId: requestId,
