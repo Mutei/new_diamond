@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'package:diamond_host_admin/constants/colors.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -363,43 +364,73 @@ class _MessageBubbleState extends State<MessageBubble>
     );
   }
 
-  void _showPrivateChatRequestDialog(String recipientId, String recipientName) {
+  void _showPrivateChatRequestDialog(
+      String recipientId, String recipientName) async {
     final provider = Provider.of<GeneralProvider>(context, listen: false);
 
     // Ensure senderId and senderName are not empty
     if (provider.userId.isEmpty || provider.userName.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content:
-                Text(getTranslated(context, "User information is missing."))),
+          content: Text(getTranslated(context, "User information is missing.")),
+        ),
       );
       return;
     }
 
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(getTranslated(context, "Send Private Chat Request")),
-          content: Text(
-              "${getTranslated(context, "Do you want to send a private chat request to")} $recipientName?"),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(getTranslated(context, "Cancel")),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _sendPrivateChatRequest(
-                    provider.userId, recipientId, recipientName);
-              },
-              child: Text(getTranslated(context, "Send")),
-            ),
-          ],
+    // Fetch the TypeAccount of the current user from Firebase
+    final userRef =
+        FirebaseDatabase.instance.ref('App/User/${provider.userId}');
+    final snapshot = await userRef.get();
+
+    if (snapshot.exists) {
+      final data = snapshot.value as Map;
+      final typeAccount = data['TypeAccount']?.toString() ?? '';
+
+      // Check if TypeAccount is "1" and show an error message
+      if (typeAccount == "1") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(getTranslated(context,
+                "Upgrade to Premium or Premium Plus to send private chat requests")),
+          ),
         );
-      },
-    );
+        return;
+      }
+
+      // If TypeAccount is not "1", proceed to show the chat request dialog
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(getTranslated(context, "Send Private Chat Request")),
+            content: Text(
+                "${getTranslated(context, "Do you want to send a private chat request to")} $recipientName?"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(getTranslated(context, "Cancel")),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _sendPrivateChatRequest(
+                      provider.userId, recipientId, recipientName);
+                },
+                child: Text(getTranslated(context, "Send")),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content:
+              Text(getTranslated(context, "Failed to fetch user information.")),
+        ),
+      );
+    }
   }
 
   void _sendPrivateChatRequest(
