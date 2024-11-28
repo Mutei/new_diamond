@@ -28,7 +28,8 @@ class PrivateChatService {
   }
 
   // Accept a private chat request
-  Future<String> acceptPrivateChatRequest({
+  // Accept a private chat request
+  Future<void> acceptPrivateChatRequest({
     required String recipientId,
     required String requestId,
     required String senderId,
@@ -36,6 +37,12 @@ class PrivateChatService {
   }) async {
     String chatId = generateChatId(senderId, recipientId);
 
+    // Update the request status to "accepted"
+    await _database
+        .child('App/PrivateChatRequests/$recipientId/$requestId')
+        .update({'status': 'accepted'});
+
+    // Add chat information to both participants
     await _database.child('App/PrivateChats/$chatId').set({
       'participants': {senderId: true, recipientId: true},
       'lastMessage': {
@@ -44,12 +51,6 @@ class PrivateChatService {
         'senderId': '',
       },
     });
-
-    await _database
-        .child('App/PrivateChatRequests/$recipientId/$requestId')
-        .remove();
-
-    return chatId;
   }
 
   // Reject a private chat request
