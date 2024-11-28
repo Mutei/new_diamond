@@ -258,5 +258,6 @@
   "User information is missing.":"User information is missing.",
   "Accepted Chat Requests":"Accepted Chat Requests",
   "Chat accepted.":"Chat accepted.",
-  "Request accepted. Chat is now available.":"Request accepted. Chat is now available."
+  "Request accepted. Chat is now available.":"Request accepted. Chat is now available.",
+  "New Chat Requests": "New Chat Requests"
 }
