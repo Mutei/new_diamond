@@ -1,5 +1,6 @@
 // lib/widgets/custom_drawer.dart
 
+import 'package:diamond_host_admin/screens/accepted_private_chat_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:provider/provider.dart';
@@ -88,6 +89,16 @@ class CustomDrawer extends StatelessWidget {
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => const PrivateChatRequestsScreen()));
+              },
+              hint: getTranslated(
+                  context, "From here you can receive chat request."),
+              text: getTranslated(context, "Private Chat Request."),
+            ),
+            DrawerItem(
+              icon: Icon(Icons.message, color: kDeepPurpleColor),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const AcceptedPrivateChatScreen()));
               },
               hint: getTranslated(
                   context, "From here you can chat privately with other users"),

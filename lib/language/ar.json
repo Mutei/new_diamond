@@ -259,6 +259,11 @@
   "New Chat Requests": "طلبات دردشة جديدة",
   "Chat accepted.": "تم قبول الدردشة.",
   "Request accepted. Chat is now available.": "تم قبول الطلب. الدردشة متاحة الآن.",
-
+  "Accepted Private Chats": "المحادثات الخاصة المقبولة",
+  "No accepted private chats.": "لا توجد محادثات خاصة مقبولة.",
+  "Tap to open chat": "اضغط لفتح المحادثة",
+  "Error loading chats.": "خطأ في تحميل المحادثات.",
+  "Private Chat Request.": "طلب محادثة خاصة.",
+  "From here you can receive chat request.": "من هنا يمكنك استلام طلبات المحادثة."
 
 }

@@ -259,5 +259,11 @@
   "Accepted Chat Requests":"Accepted Chat Requests",
   "Chat accepted.":"Chat accepted.",
   "Request accepted. Chat is now available.":"Request accepted. Chat is now available.",
-  "New Chat Requests": "New Chat Requests"
+  "New Chat Requests": "New Chat Requests",
+  "Accepted Private Chats":"Accepted Private Chats",
+  "No accepted private chats.":"No accepted private chats.",
+  "Tap to open chat":"Tap to open chat",
+  "Error loading chats.":"Error loading chats.",
+  "Private Chat Request.":"Private Chat Request.",
+  "From here you can receive chat request.":"From here you can receive chat request."
 }

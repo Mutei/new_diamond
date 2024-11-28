@@ -1,95 +1,86 @@
 // lib/backend/private_chat_service.dart
 
 import 'package:firebase_database/firebase_database.dart';
+import 'user_service.dart'; // Ensure you have a UserService to fetch user details
 
 class PrivateChatService {
   final DatabaseReference _database = FirebaseDatabase.instance.ref();
+  final UserService _userService = UserService(); // Initialize UserService
 
   // Send a private chat request
   Future<void> sendPrivateChatRequest({
     required String senderId,
-    required String senderName,
-    required String recipientId,
-    required String recipientName,
+    required String receiverId,
   }) async {
-    if (senderId.isEmpty || senderName.isEmpty) {
-      throw ArgumentError('Sender ID or name cannot be empty');
+    if (senderId.isEmpty || receiverId.isEmpty) {
+      throw ArgumentError('Sender ID or Receiver ID cannot be empty');
     }
 
-    String requestId =
-        _database.child('App/PrivateChatRequests/$recipientId').push().key!;
-    await _database
-        .child('App/PrivateChatRequests/$recipientId/$requestId')
-        .set({
+    // Fetch sender and receiver names
+    final senderProfile = await _userService.getUserProfile(senderId);
+    final receiverProfile = await _userService.getUserProfile(receiverId);
+
+    final senderName = senderProfile != null
+        ? '${senderProfile.firstName} ${senderProfile.lastName}'
+        : 'Anonymous';
+    final receiverName = receiverProfile != null
+        ? '${receiverProfile.firstName} ${receiverProfile.lastName}'
+        : 'Anonymous';
+
+    // Create a new request ID
+    String requestId = _database.child('App/PrivateChatRequest').push().key!;
+
+    // Set the private chat request
+    await _database.child('App/PrivateChatRequest/$requestId').set({
       'senderId': senderId,
+      'receiverId': receiverId,
       'senderName': senderName,
-      'timestamp': DateTime.now().toIso8601String(),
+      'receiverName': receiverName,
+      'time': DateTime.now().toIso8601String(),
+      'status': 2, // 2 indicates pending
     });
   }
 
   // Accept a private chat request
-  // Accept a private chat request
-  // Accept a private chat request
-  Future<void> acceptPrivateChatRequest({
-    required String recipientId,
-    required String requestId,
-    required String senderId,
-    required String senderName,
-  }) async {
-    String chatId = generateChatId(senderId, recipientId);
+  Future<void> acceptPrivateChatRequest({required String requestId}) async {
+    // Fetch the request details
+    DataSnapshot snapshot =
+        await _database.child('App/PrivateChatRequest/$requestId').get();
 
-    // Update the request status to "accepted"
-    await _database
-        .child('App/PrivateChatRequests/$recipientId/$requestId')
-        .update({'status': 'accepted'});
-
-    // Add chat information to both participants
-    await _database.child('App/PrivateChats/$chatId').set({
-      'participants': {senderId: true, recipientId: true},
-      'lastMessage': {
-        'text': 'Chat started.',
-        'timestamp': DateTime.now().toIso8601String(),
-        'senderId': '',
-      },
-    });
-
-    // Save chat details for the sender
-    await _database.child('App/Users/$senderId/Chats/$chatId').set({
-      'recipientId': recipientId,
-      'recipientName': await _getUserName(recipientId),
-      'chatId': chatId,
-      'timestamp': DateTime.now().toIso8601String(),
-    });
-
-    // Save chat details for the recipient
-    await _database.child('App/Users/$recipientId/Chats/$chatId').set({
-      'recipientId': senderId,
-      'recipientName': senderName,
-      'chatId': chatId,
-      'timestamp': DateTime.now().toIso8601String(),
-    });
-  }
-
-// Helper function to fetch a user's name from their ID
-  Future<String> _getUserName(String userId) async {
-    final snapshot = await _database.child('App/User/$userId').get();
-    if (snapshot.exists) {
-      final data = snapshot.value as Map<dynamic, dynamic>;
-      final firstName = data['FirstName'] ?? 'Anonymous';
-      final lastName = data['LastName'] ?? '';
-      return '$firstName $lastName';
+    if (!snapshot.exists) {
+      throw ArgumentError('Private chat request does not exist.');
     }
-    return 'Anonymous';
+
+    Map<dynamic, dynamic> requestData = snapshot.value as Map<dynamic, dynamic>;
+
+    String senderId = requestData['senderId'];
+    String receiverId = requestData['receiverId'];
+    String senderName = requestData['senderName'];
+    String receiverName = requestData['receiverName'];
+
+    // Update the status to 1 (Accepted)
+    await _database.child('App/PrivateChatRequest/$requestId/status').set(1);
+
+    // Generate a unique chat ID
+    String chatId = generateChatId(senderId, receiverId);
+
+    // Create the PrivateChat node
+    await _database.child('App/PrivateChat/$chatId').set({
+      'participants': {
+        senderId: true,
+        receiverId: true,
+      },
+      'time': DateTime.now().toIso8601String(),
+      'messages': {}, // Initialize an empty messages node
+    });
   }
 
   // Reject a private chat request
   Future<void> rejectPrivateChatRequest({
-    required String recipientId,
     required String requestId,
   }) async {
-    await _database
-        .child('App/PrivateChatRequests/$recipientId/$requestId')
-        .remove();
+    // Update the status to 0 (Rejected)
+    await _database.child('App/PrivateChatRequest/$requestId/status').set(0);
   }
 
   // Generate a unique chat ID based on user IDs
@@ -105,9 +96,9 @@ class PrivateChatService {
     required Map<String, dynamic> message,
   }) async {
     String messageId =
-        _database.child('App/PrivateChats/$chatId/messages').push().key!;
+        _database.child('App/PrivateChat/$chatId/messages').push().key!;
     await _database
-        .child('App/PrivateChats/$chatId/messages/$messageId')
+        .child('App/PrivateChat/$chatId/messages/$messageId')
         .set(message);
   }
 
@@ -119,7 +110,7 @@ class PrivateChatService {
     required String reaction,
   }) async {
     await _database
-        .child('App/PrivateChats/$chatId/messages/$messageId/reactions/$userId')
+        .child('App/PrivateChat/$chatId/messages/$messageId/reactions/$userId')
         .set(reaction);
   }
 
@@ -127,15 +118,68 @@ class PrivateChatService {
   Future<void> removeReaction(
       String chatId, String messageId, String userId) async {
     await _database
-        .child('App/PrivateChats/$chatId/messages/$messageId/reactions/$userId')
+        .child('App/PrivateChat/$chatId/messages/$messageId/reactions/$userId')
         .remove();
   }
 
   // Stream for private chat messages
   Stream<DatabaseEvent> getPrivateMessagesStream(String chatId) {
     return _database
-        .child('App/PrivateChats/$chatId/messages')
+        .child('App/PrivateChat/$chatId/messages')
         .orderByChild('timestamp')
         .onValue;
   }
+
+  // Stream for incoming private chat requests
+  Stream<List<PrivateChatRequest>> getIncomingRequests(String receiverId) {
+    return _database
+        .child('App/PrivateChatRequest')
+        .orderByChild('receiverId')
+        .equalTo(receiverId)
+        .onValue
+        .map((event) {
+      List<PrivateChatRequest> requests = [];
+      if (event.snapshot.value != null) {
+        Map<dynamic, dynamic> map =
+            event.snapshot.value as Map<dynamic, dynamic>;
+        map.forEach((key, value) {
+          Map<String, dynamic> data = Map<String, dynamic>.from(value);
+          if (data['status'] == 2) {
+            // Only pending requests
+            requests.add(PrivateChatRequest(
+              requestId: key,
+              senderId: data['senderId'],
+              receiverId: data['receiverId'],
+              senderName: data['senderName'],
+              receiverName: data['receiverName'],
+              time: DateTime.parse(data['time']),
+              status: data['status'],
+            ));
+          }
+        });
+      }
+      return requests;
+    });
+  }
+}
+
+// Define a model for PrivateChatRequest
+class PrivateChatRequest {
+  final String requestId;
+  final String senderId;
+  final String receiverId;
+  final String senderName;
+  final String receiverName;
+  final DateTime time;
+  final int status;
+
+  PrivateChatRequest({
+    required this.requestId,
+    required this.senderId,
+    required this.receiverId,
+    required this.senderName,
+    required this.receiverName,
+    required this.time,
+    required this.status,
+  });
 }

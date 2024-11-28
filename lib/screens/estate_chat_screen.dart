@@ -352,7 +352,9 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
 
   Widget _buildMessageInput() {
     return Container(
-      color: Colors.white,
+      color: Theme.of(context).brightness == Brightness.dark
+          ? Colors.black
+          : Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
       child: SafeArea(
         child: Row(
@@ -363,7 +365,9 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
                 decoration: BoxDecoration(
-                  color: Colors.grey[50],
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.black
+                      : Colors.grey[50],
                   borderRadius: BorderRadius.circular(24.0),
                   border: Border.all(color: Colors.grey[300]!),
                 ),

@@ -1,3 +1,5 @@
+// lib/screens/private_chat_requests_screen.dart
+
 import 'package:diamond_host_admin/widgets/reused_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -6,6 +8,8 @@ import '../backend/private_chat_service.dart';
 import '../screens/private_chat_screen.dart';
 import '../backend/user_service.dart';
 import '../localization/language_constants.dart';
+import '../backend/user_service.dart';
+import '../backend/private_chat_service.dart';
 
 class PrivateChatRequestsScreen extends StatefulWidget {
   const PrivateChatRequestsScreen({Key? key}) : super(key: key);
@@ -19,7 +23,13 @@ class _PrivateChatRequestsScreenState extends State<PrivateChatRequestsScreen> {
   final DatabaseReference _dbRef = FirebaseDatabase.instance.ref();
   final PrivateChatService _privateChatService = PrivateChatService();
   final UserService _userService = UserService();
-  final User? _currentUser = FirebaseAuth.instance.currentUser;
+  late User? _currentUser;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentUser = FirebaseAuth.instance.currentUser;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,45 +39,45 @@ class _PrivateChatRequestsScreenState extends State<PrivateChatRequestsScreen> {
           title: Text(getTranslated(context, "Private Chat Requests")),
         ),
         body: Center(
-            child: Text(
-                getTranslated(context, "Please log in to view requests."))),
+          child: Text(
+            getTranslated(context, "Please log in to view requests."),
+            style: const TextStyle(fontSize: 16, color: Colors.grey),
+          ),
+        ),
       );
     }
 
     return Scaffold(
       appBar: ReusedAppBar(
-        title: (getTranslated(context, "Private Chat Requests")),
+        title: getTranslated(context, "Private Chat Requests"),
       ),
-      body: StreamBuilder<DatabaseEvent>(
-        stream: _dbRef
-            .child('App/PrivateChatRequests/${_currentUser!.uid}')
-            .onValue,
+      body: StreamBuilder<List<PrivateChatRequest>>(
+        stream: _privateChatService.getIncomingRequests(_currentUser!.uid),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            List<Map<dynamic, dynamic>> newRequests = [];
-            List<Map<dynamic, dynamic>> acceptedRequests = [];
-            DataSnapshot dataValues = snapshot.data!.snapshot;
+            List<PrivateChatRequest> requests = snapshot.data!;
 
-            if (dataValues.value != null) {
-              Map<dynamic, dynamic> map =
-                  dataValues.value as Map<dynamic, dynamic>;
-              map.forEach((key, value) {
-                Map<String, dynamic> request = Map<String, dynamic>.from(value);
-                request['requestId'] = key;
-                if (request['status'] == 'accepted') {
-                  acceptedRequests.add(request);
-                } else {
-                  newRequests.add(request);
-                }
-              });
+            // Separate requests based on status
+            List<PrivateChatRequest> pendingRequests =
+                requests.where((req) => req.status == 2).toList();
+            List<PrivateChatRequest> acceptedRequests =
+                requests.where((req) => req.status == 1).toList();
+
+            if (requests.isEmpty) {
+              return Center(
+                child: Text(
+                  getTranslated(context, "No private chat requests."),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                ),
+              );
             }
 
             return ListView(
               children: [
-                // New Requests Section
-                if (newRequests.isNotEmpty)
+                // Pending Requests Section
+                if (pendingRequests.isNotEmpty)
                   _buildRequestSection(
-                      context, newRequests, "New Chat Requests"),
+                      context, pendingRequests, "New Chat Requests"),
 
                 // Accepted Requests Section
                 if (acceptedRequests.isNotEmpty)
@@ -77,7 +87,11 @@ class _PrivateChatRequestsScreenState extends State<PrivateChatRequestsScreen> {
             );
           } else if (snapshot.hasError) {
             return Center(
-                child: Text(getTranslated(context, "Error loading requests.")));
+              child: Text(
+                getTranslated(context, "Error loading requests."),
+                style: TextStyle(color: Colors.red),
+              ),
+            );
           } else {
             return const Center(child: CircularProgressIndicator());
           }
@@ -87,18 +101,23 @@ class _PrivateChatRequestsScreenState extends State<PrivateChatRequestsScreen> {
   }
 
   Widget _buildRequestSection(
-      BuildContext context, List requests, String title) {
+      BuildContext context, List<PrivateChatRequest> requests, String title) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Section Title
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Text(
             getTranslated(context, title),
             style: const TextStyle(
-                fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
           ),
         ),
+        // List of Requests
         ListView.builder(
           itemCount: requests.length,
           shrinkWrap: true,
@@ -106,7 +125,7 @@ class _PrivateChatRequestsScreenState extends State<PrivateChatRequestsScreen> {
           itemBuilder: (context, index) {
             final request = requests[index];
             return FutureBuilder<UserProfile?>(
-              future: _userService.getUserProfile(request['senderId']),
+              future: _userService.getUserProfile(request.senderId),
               builder: (context, userSnapshot) {
                 if (userSnapshot.connectionState == ConnectionState.waiting) {
                   return ListTile(
@@ -140,19 +159,20 @@ class _PrivateChatRequestsScreenState extends State<PrivateChatRequestsScreen> {
                       ? Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            // Accept Button
                             IconButton(
                               icon: Icon(Icons.check,
                                   color: Colors.green.shade700),
                               onPressed: () async {
-                                await _acceptRequest(
-                                    request['requestId'], request['senderId']);
+                                await _acceptRequest(request.requestId);
                               },
                             ),
+                            // Reject Button
                             IconButton(
                               icon:
                                   Icon(Icons.close, color: Colors.red.shade700),
                               onPressed: () async {
-                                await _rejectRequest(request['requestId']);
+                                await _rejectRequest(request.requestId);
                               },
                             ),
                           ],
@@ -164,9 +184,9 @@ class _PrivateChatRequestsScreenState extends State<PrivateChatRequestsScreen> {
                               builder: (context) => PrivateChatScreen(
                                 chatId: _privateChatService.generateChatId(
                                   _currentUser!.uid,
-                                  request['senderId'],
+                                  request.senderId,
                                 ),
-                                otherUserId: request['senderId'],
+                                otherUserId: request.senderId,
                               ),
                             ));
                           },
@@ -180,54 +200,52 @@ class _PrivateChatRequestsScreenState extends State<PrivateChatRequestsScreen> {
     );
   }
 
-  Future<void> _acceptRequest(String requestId, String senderId) async {
+  Future<void> _acceptRequest(String requestId) async {
     if (_currentUser == null) return;
 
     try {
-      // Fetch sender's profile to get senderName
-      UserProfile? senderProfile = await _userService.getUserProfile(senderId);
-      String senderName = senderProfile != null
-          ? '${senderProfile.firstName} ${senderProfile.lastName}'
-          : 'Anonymous';
-
-      // Accept the request and update the chat details for both users
-      await _privateChatService.acceptPrivateChatRequest(
-        recipientId: _currentUser!.uid,
-        requestId: requestId,
-        senderId: senderId,
-        senderName: senderName,
-      );
+      // Accept the request and update the chat details
+      await _privateChatService.acceptPrivateChatRequest(requestId: requestId);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(getTranslated(
-                context, "Request accepted. Chat is now available."))),
+          content: Text(
+            getTranslated(context, "Request accepted. Chat is now available."),
+          ),
+        ),
       );
+
+      setState(() {
+        // Trigger UI update to reflect the changes
+      });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(getTranslated(
-                context, "Failed to accept request. Please try again."))),
+          content: Text(
+            getTranslated(
+                context, "Failed to accept request. Please try again."),
+          ),
+        ),
       );
       print('Error accepting request: $e');
     }
   }
 
   Future<void> _rejectRequest(String requestId) async {
-    if (_currentUser == null) return;
-
     try {
-      await _privateChatService.rejectPrivateChatRequest(
-          recipientId: _currentUser!.uid, requestId: requestId);
+      await _privateChatService.rejectPrivateChatRequest(requestId: requestId);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(getTranslated(context, "Request rejected."))),
+        SnackBar(
+          content: Text(getTranslated(context, "Request rejected.")),
+        ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(getTranslated(
-                context, "Failed to reject request. Please try again."))),
+          content: Text(getTranslated(
+              context, "Failed to reject request. Please try again.")),
+        ),
       );
       print('Error rejecting request: $e');
     }

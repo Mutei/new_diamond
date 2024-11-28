@@ -1,6 +1,7 @@
 // lib/widgets/message_bubble.dart
 
 import 'dart:async';
+import 'package:diamond_host_admin/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -13,7 +14,7 @@ import '../localization/language_constants.dart';
 
 class MessageBubble extends StatefulWidget {
   final String messageId;
-  final String estateId;
+  final String estateId; // Now represents chatId
   final String senderId; // Updated to include senderId
   final String sender;
   final String text;
@@ -29,7 +30,7 @@ class MessageBubble extends StatefulWidget {
   const MessageBubble({
     Key? key,
     required this.messageId,
-    required this.estateId,
+    required this.estateId, // Now represents chatId
     required this.senderId, // Added senderId
     required this.sender,
     required this.text,
@@ -390,8 +391,8 @@ class _MessageBubbleState extends State<MessageBubble>
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                _sendPrivateChatRequest(provider.userId, provider.userName,
-                    recipientId, recipientName);
+                _sendPrivateChatRequest(
+                    provider.userId, recipientId, recipientName);
               },
               child: Text(getTranslated(context, "Send")),
             ),
@@ -401,14 +402,12 @@ class _MessageBubbleState extends State<MessageBubble>
     );
   }
 
-  void _sendPrivateChatRequest(String senderId, String senderName,
-      String recipientId, String recipientName) async {
+  void _sendPrivateChatRequest(
+      String senderId, String receiverId, String receiverName) async {
     try {
       await _privateChatService.sendPrivateChatRequest(
         senderId: senderId,
-        senderName: senderName,
-        recipientId: recipientId,
-        recipientName: recipientName,
+        receiverId: receiverId,
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -432,9 +431,11 @@ class _MessageBubbleState extends State<MessageBubble>
 
     final ThemeData theme = Theme.of(context);
     final bubbleColor = widget.isMe
-        ? theme.primaryColor
+        ? Theme.of(context).brightness == Brightness.dark
+            ? Colors.deepPurple
+            : theme.primaryColor
         : Theme.of(context).brightness == Brightness.dark
-            ? Colors.grey[700]
+            ? kDeepPurpleColor
             : Colors.grey[300];
     final textColor = widget.isMe
         ? Colors.white

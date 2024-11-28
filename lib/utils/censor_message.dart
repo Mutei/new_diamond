@@ -14,6 +14,7 @@ String censorMessage(String message) {
     "fuck",
     "motherfucker",
     "cunt",
+    "ass",
     "prick",
     "twat",
     "dick",

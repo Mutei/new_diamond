@@ -1,6 +1,8 @@
 // lib/screens/private_chat_screen.dart
 
 import 'dart:async';
+import 'package:diamond_host_admin/constants/colors.dart';
+import 'package:diamond_host_admin/constants/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -10,6 +12,7 @@ import '../widgets/message_bubble.dart';
 import '../localization/language_constants.dart';
 import 'package:provider/provider.dart';
 import '../state_management/general_provider.dart';
+import '../utils/censor_message.dart'; // Ensure censor_message is imported if needed
 
 class PrivateChatScreen extends StatefulWidget {
   final String chatId;
@@ -46,7 +49,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
   void initState() {
     super.initState();
     _chatRef = FirebaseDatabase.instance
-        .ref('App/privateChats/${widget.chatId}/messages');
+        .ref('App/PrivateChat/${widget.chatId}/messages');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToBottom();
     });
@@ -84,6 +87,9 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
     final messageText = _messageController.text.trim();
     if (messageText.isEmpty) return;
 
+    // Censor the message if needed
+    final censoredMessageText = censorMessage(messageText);
+
     final userProfile = await _userService.getUserProfile(user.uid);
     final senderName = userProfile != null
         ? '${userProfile.firstName} ${userProfile.lastName}'
@@ -104,7 +110,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
       'senderId': user.uid,
       'senderName': senderName,
       'profileImageUrl': profileImageUrl,
-      'text': messageText,
+      'text': censoredMessageText, // Use the censored message text here
       'timestamp': DateTime.now().toIso8601String(),
       'reactions': {}, // Initialize reactions as an empty map
       if (replyTo != null) 'replyTo': replyTo,
@@ -196,14 +202,24 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
               );
             } else if (snapshot.hasData) {
-              return Text(snapshot.data != null
-                  ? '${snapshot.data!.firstName} ${snapshot.data!.lastName}'
-                  : 'Anonymous');
+              return Text(
+                snapshot.data != null
+                    ? '${snapshot.data!.firstName} ${snapshot.data!.lastName}'
+                    : 'Anonymous',
+                style: TextStyle(color: kDeepPurpleColor),
+              );
             } else {
-              return Text(getTranslated(context, "Private Chat"));
+              return Text(
+                getTranslated(context, "Private Chat"),
+                style: TextStyle(
+                  color: kDeepPurpleColor,
+                ),
+              );
             }
           },
         ),
+        centerTitle: true,
+        iconTheme: kIconTheme,
       ),
       body: Column(
         children: [
@@ -275,7 +291,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
 
                         return MessageBubble(
                           messageId: msg['messageId'],
-                          estateId: widget.chatId,
+                          estateId: widget.chatId, // Renamed to chatId
                           senderId: msg['senderId'],
                           sender: msg['senderName'] ?? 'Anonymous',
                           text: msg['text'] ?? '',
@@ -355,7 +371,9 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
 
   Widget _buildMessageInput() {
     return Container(
-      color: Colors.white,
+      color: Theme.of(context).brightness == Brightness.dark
+          ? Colors.black
+          : Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
       child: SafeArea(
         child: Row(
@@ -366,7 +384,9 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
                 decoration: BoxDecoration(
-                  color: Colors.grey[50],
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.black
+                      : Colors.grey[50],
                   borderRadius: BorderRadius.circular(24.0),
                   border: Border.all(color: Colors.grey[300]!),
                 ),
