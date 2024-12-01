@@ -1,5 +1,3 @@
-// lib/backend/private_chat_service.dart
-
 import 'package:firebase_database/firebase_database.dart';
 import 'user_service.dart'; // Ensure you have a UserService to fetch user details
 
@@ -39,6 +37,8 @@ class PrivateChatService {
       'time': DateTime.now().toIso8601String(),
       'status': 2, // 2 indicates pending
     });
+
+    print('Private chat request sent from $senderName to $receiverName');
   }
 
   // Accept a private chat request
@@ -73,6 +73,8 @@ class PrivateChatService {
       'time': DateTime.now().toIso8601String(),
       'messages': {}, // Initialize an empty messages node
     });
+
+    print('Private chat request $requestId accepted. Chat ID: $chatId');
   }
 
   // Reject a private chat request
@@ -81,6 +83,7 @@ class PrivateChatService {
   }) async {
     // Update the status to 0 (Rejected)
     await _database.child('App/PrivateChatRequest/$requestId/status').set(0);
+    print('Private chat request $requestId rejected.');
   }
 
   // Generate a unique chat ID based on user IDs
@@ -100,6 +103,7 @@ class PrivateChatService {
     await _database
         .child('App/PrivateChat/$chatId/messages/$messageId')
         .set(message);
+    print('Message sent in chat $chatId with message ID $messageId');
   }
 
   // Add a reaction to a message in a private chat
@@ -112,6 +116,7 @@ class PrivateChatService {
     await _database
         .child('App/PrivateChat/$chatId/messages/$messageId/reactions/$userId')
         .set(reaction);
+    print('Reaction added to message $messageId by user $userId');
   }
 
   // Remove a reaction from a message in a private chat
@@ -120,6 +125,7 @@ class PrivateChatService {
     await _database
         .child('App/PrivateChat/$chatId/messages/$messageId/reactions/$userId')
         .remove();
+    print('Reaction removed from message $messageId by user $userId');
   }
 
   // Stream for private chat messages

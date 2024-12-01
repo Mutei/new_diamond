@@ -111,10 +111,10 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
   // Set to keep track of expanded feedback items
   Set<int> _expandedFeedbacks = {};
 
-  // State variables for rate button
+  // Shared state variables for Rate and Chat buttons
   DateTime? _lastScanTime;
-  bool _isRateButtonActive = false;
-  Timer? _rateButtonTimer;
+  bool _isButtonsActive = false;
+  Timer? _buttonTimer;
 
   @override
   void initState() {
@@ -122,17 +122,17 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
     _fetchImageUrls();
     _fetchUserRatings();
     _fetchFeedback();
-    _loadRateButtonState(); // Load the rate button state on initialization
+    _loadButtonState(); // Load the shared button state on initialization
   }
 
   @override
   void dispose() {
-    _rateButtonTimer?.cancel(); // Cancel the timer if active
+    _buttonTimer?.cancel(); // Cancel the timer if active
     super.dispose();
   }
 
-  /// Determines the duration for which the Rate button remains active
-  Duration getRateButtonDuration() {
+  /// Determines the duration for which the buttons remain active
+  Duration getButtonActiveDuration() {
     if (widget.type == "1") {
       // Hotel
       return Duration(minutes: 2);
@@ -141,23 +141,23 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
     }
   }
 
-  // Load the rate button state from SharedPreferences
-  Future<void> _loadRateButtonState() async {
+  // Load the shared button state from SharedPreferences
+  Future<void> _loadButtonState() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final lastScanMillis = prefs.getInt('lastScanTime_${widget.estateId}');
     if (lastScanMillis != null) {
       final lastScanTime = DateTime.fromMillisecondsSinceEpoch(lastScanMillis);
       final difference = DateTime.now().difference(lastScanTime);
-      final rateDuration = getRateButtonDuration();
-      if (difference < rateDuration) {
+      final activeDuration = getButtonActiveDuration();
+      if (difference < activeDuration) {
         setState(() {
-          _isRateButtonActive = true;
+          _isButtonsActive = true;
           _lastScanTime = lastScanTime;
         });
         // Start a timer for the remaining time
-        _rateButtonTimer = Timer(rateDuration - difference, () {
+        _buttonTimer = Timer(activeDuration - difference, () {
           setState(() {
-            _isRateButtonActive = false;
+            _isButtonsActive = false;
             _lastScanTime = null;
           });
           _removeLastScanTime(); // Remove the stored timestamp
@@ -261,12 +261,12 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
     }
   }
 
-  /// Method to get the translated value of `typeOfRestaurant`
+  /// Method to get the translated value of typeOfRestaurant
   String getTranslatedTypeOfRestaurant(BuildContext context, String types) {
     // Check the current locale
     bool isArabic = Localizations.localeOf(context).languageCode == 'ar';
 
-    // Split the `types` by comma and trim whitespace
+    // Split the types by comma and trim whitespace
     List<String> typeList =
         types.split(',').map((type) => type.trim()).toList();
 
@@ -287,7 +287,7 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
     // Check the current locale
     bool isArabic = Localizations.localeOf(context).languageCode == 'ar';
 
-    // Split the `types` by comma and trim whitespace
+    // Split the types by comma and trim whitespace
     List<String> typeList =
         types.split(',').map((type) => type.trim()).toList();
 
@@ -308,7 +308,7 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
     // Check the current locale
     bool isArabic = Localizations.localeOf(context).languageCode == 'ar';
 
-    // Split the `types` by comma and trim whitespace
+    // Split the types by comma and trim whitespace
     List<String> typeList =
         types.split(',').map((type) => type.trim()).toList();
 
@@ -329,7 +329,7 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
     // Check the current locale
     bool isArabic = Localizations.localeOf(context).languageCode == 'ar';
 
-    // Split the `types` by comma and trim whitespace
+    // Split the types by comma and trim whitespace
     List<String> typeList =
         types.split(',').map((type) => type.trim()).toList();
 
@@ -350,7 +350,7 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
     // Check the current locale
     bool isArabic = Localizations.localeOf(context).languageCode == 'ar';
 
-    // Split the `types` by comma and trim whitespace
+    // Split the types by comma and trim whitespace
     List<String> typeList =
         types.split(',').map((type) => type.trim()).toList();
 
@@ -519,20 +519,18 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
       appBar: ReusedAppBar(
         title: displayName,
         actions: [
-          // Existing Rate Button
+          // Rate Button
           TextButton(
             child: Text(
               getTranslated(context, "Rate"),
               style: TextStyle(
-                color: _isRateButtonActive ? Colors.green : kDeepPurpleColor,
+                color: _isButtonsActive ? Colors.green : kDeepPurpleColor,
               ),
             ),
             onPressed: () async {
-              if (_isRateButtonActive && _lastScanTime != null) {
+              if (_isButtonsActive && _lastScanTime != null) {
                 final difference = DateTime.now().difference(_lastScanTime!);
-                if ((widget.type == "1" && difference < Duration(minutes: 2)) ||
-                    ((widget.type != "1") &&
-                        difference < Duration(minutes: 1))) {
+                if (difference < getButtonActiveDuration()) {
                   // Within the active duration, allow direct feedback
                   final result = await Navigator.push(
                     context,
@@ -581,20 +579,20 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                   await _fetchFeedback();
                   await _fetchUserRatings();
 
-                  // Activate the rate button for the appropriate duration
+                  // Activate the buttons for the appropriate duration
                   final now = DateTime.now();
                   setState(() {
-                    _isRateButtonActive = true;
+                    _isButtonsActive = true;
                     _lastScanTime = now;
                   });
 
                   await _saveLastScanTime(now); // Save the scan time
 
-                  // Start a timer to deactivate the rate button after the duration
-                  _rateButtonTimer?.cancel(); // Cancel any existing timer
-                  _rateButtonTimer = Timer(getRateButtonDuration(), () {
+                  // Start a timer to deactivate the buttons after the duration
+                  _buttonTimer?.cancel(); // Cancel any existing timer
+                  _buttonTimer = Timer(getButtonActiveDuration(), () {
                     setState(() {
-                      _isRateButtonActive = false;
+                      _isButtonsActive = false;
                       _lastScanTime = null;
                     });
                     _removeLastScanTime(); // Remove the stored timestamp
@@ -611,20 +609,78 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
               // If scanResult is null, user might have cancelled the scan
             },
           ),
-          // New Chat Button
+          // Chat Button
           IconButton(
-            icon: Icon(Icons.chat, color: kDeepPurpleColor),
+            icon: Icon(Icons.chat,
+                color: _isButtonsActive ? Colors.green : kDeepPurpleColor),
             tooltip: getTranslated(context, "Chat"),
-            onPressed: () {
-              Navigator.of(context).push(
+            onPressed: () async {
+              if (_isButtonsActive && _lastScanTime != null) {
+                final difference = DateTime.now().difference(_lastScanTime!);
+                if (difference < getButtonActiveDuration()) {
+                  // Within the active duration, allow direct chat
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => EstateChatScreen(
+                        estateId: widget.estateId,
+                        estateNameEn: widget.nameEn,
+                        estateNameAr: widget.nameAr,
+                      ),
+                    ),
+                  );
+                  return;
+                }
+              }
+
+              // If not active or time expired, require scanning
+              final scanResult = await Navigator.push<bool>(
+                context,
                 MaterialPageRoute(
-                  builder: (context) => EstateChatScreen(
-                    estateId: widget.estateId,
-                    estateNameEn: widget.nameEn,
-                    estateNameAr: widget.nameAr,
+                  builder: (context) => QRScannerScreen(
+                    expectedEstateId: widget.estateId,
                   ),
                 ),
               );
+
+              if (scanResult == true) {
+                // If QR code is valid, navigate to EstateChatScreen
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => EstateChatScreen(
+                      estateId: widget.estateId,
+                      estateNameEn: widget.nameEn,
+                      estateNameAr: widget.nameAr,
+                    ),
+                  ),
+                );
+
+                // Activate the buttons for the appropriate duration
+                final now = DateTime.now();
+                setState(() {
+                  _isButtonsActive = true;
+                  _lastScanTime = now;
+                });
+
+                await _saveLastScanTime(now); // Save the scan time
+
+                // Start a timer to deactivate the buttons after the duration
+                _buttonTimer?.cancel(); // Cancel any existing timer
+                _buttonTimer = Timer(getButtonActiveDuration(), () {
+                  setState(() {
+                    _isButtonsActive = false;
+                    _lastScanTime = null;
+                  });
+                  _removeLastScanTime(); // Remove the stored timestamp
+                });
+              } else if (scanResult == false) {
+                // Show a SnackBar notifying the user of the invalid scan
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      content: Text(
+                          getTranslated(context, 'Invalid QR code scanned.'))),
+                );
+              }
+              // If scanResult is null, user might have cancelled the scan
             },
           ),
         ],

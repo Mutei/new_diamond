@@ -1,15 +1,12 @@
-// lib/screens/private_chat_requests_screen.dart
-
-import 'package:diamond_host_admin/widgets/reused_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+
 import '../backend/private_chat_service.dart';
-import '../screens/private_chat_screen.dart';
 import '../backend/user_service.dart';
 import '../localization/language_constants.dart';
-import '../backend/user_service.dart';
-import '../backend/private_chat_service.dart';
+import '../screens/private_chat_screen.dart';
+import '../widgets/reused_appbar.dart';
 
 class PrivateChatRequestsScreen extends StatefulWidget {
   const PrivateChatRequestsScreen({Key? key}) : super(key: key);
@@ -20,7 +17,6 @@ class PrivateChatRequestsScreen extends StatefulWidget {
 }
 
 class _PrivateChatRequestsScreenState extends State<PrivateChatRequestsScreen> {
-  final DatabaseReference _dbRef = FirebaseDatabase.instance.ref();
   final PrivateChatService _privateChatService = PrivateChatService();
   final UserService _userService = UserService();
   late User? _currentUser;
@@ -29,6 +25,8 @@ class _PrivateChatRequestsScreenState extends State<PrivateChatRequestsScreen> {
   void initState() {
     super.initState();
     _currentUser = FirebaseAuth.instance.currentUser;
+    print(
+        'PrivateChatRequestsScreen initialized for user: ${_currentUser?.uid}');
   }
 
   @override
@@ -218,6 +216,8 @@ class _PrivateChatRequestsScreenState extends State<PrivateChatRequestsScreen> {
       setState(() {
         // Trigger UI update to reflect the changes
       });
+
+      print('Chat request $requestId accepted.');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -240,6 +240,8 @@ class _PrivateChatRequestsScreenState extends State<PrivateChatRequestsScreen> {
           content: Text(getTranslated(context, "Request rejected.")),
         ),
       );
+
+      print('Chat request $requestId rejected.');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
