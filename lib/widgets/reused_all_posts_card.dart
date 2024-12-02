@@ -500,7 +500,7 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
         radius: 20,
       ),
       title: Text(
-        widget.post['UserName'] ?? 'Unknown Estate',
+        widget.post['Username'] ?? 'Unknown Estate',
         style: TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 16,
