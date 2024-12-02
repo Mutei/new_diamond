@@ -28,7 +28,7 @@ import '../extension/sized_box_extension.dart';
 import '../localization/language_constants.dart';
 import '../state_management/general_provider.dart';
 import '../utils/success_dialogue.dart';
-import '../utils/failure_dialogue.dart';
+import '../utils/failure_dialogue.dart'; // Import FailureDialog
 import '../widgets/chip_widget.dart';
 import '../widgets/reused_appbar.dart';
 import '../widgets/reused_elevated_button.dart';
@@ -467,6 +467,35 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
     );
   }
 
+  // New method to show the invalid QR scan failure dialog
+  Future<void> _showInvalidQRScanFailureDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // Prevent dialog from closing on outside tap
+      builder: (BuildContext context) {
+        return FailureDialog(
+          text: getTranslated(context, 'Error'),
+          text1: getTranslated(context, 'Invalid QR code scanned.'),
+        );
+      },
+    );
+  }
+
+  // New method to show the failure dialog when no rooms are selected
+  Future<void> _showChooseRoomFailureDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // Prevent dialog from closing on outside tap
+      builder: (BuildContext context) {
+        return FailureDialog(
+          text: getTranslated(context, 'Error'),
+          text1: getTranslated(
+              context, 'Please select at least one room before booking.'),
+        );
+      },
+    );
+  }
+
   // Create the booking using the BookingServices class
   Future<void> _createBooking() async {
     if (selectedDate != null && selectedTime != null) {
@@ -599,12 +628,8 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                   });
                 }
               } else if (scanResult == false) {
-                // Show a SnackBar notifying the user of the invalid scan
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      content: Text(
-                          getTranslated(context, 'Invalid QR code scanned.'))),
-                );
+                // Show FailureDialog notifying the user of the invalid scan
+                await _showInvalidQRScanFailureDialog();
               }
               // If scanResult is null, user might have cancelled the scan
             },
@@ -673,12 +698,8 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                   _removeLastScanTime(); // Remove the stored timestamp
                 });
               } else if (scanResult == false) {
-                // Show a SnackBar notifying the user of the invalid scan
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      content: Text(
-                          getTranslated(context, 'Invalid QR code scanned.'))),
-                );
+                // Show FailureDialog notifying the user of the invalid scan
+                await _showInvalidQRScanFailureDialog();
               }
               // If scanResult is null, user might have cancelled the scan
             },
@@ -1274,8 +1295,8 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
             onPressed: () async {
               if (widget.type == "1") {
                 if (LstRoomsSelected.isEmpty) {
-                  objProvider.FunSnackBarPage(
-                      getTranslated(context, "Choose Room Before"), context);
+                  // Replace SnackBar with FailureDialog
+                  await _showChooseRoomFailureDialog();
                 } else {
                   Navigator.of(context).push(
                     MaterialPageRoute(

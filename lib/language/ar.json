@@ -265,6 +265,9 @@
   "Error loading chats.": "خطأ في تحميل المحادثات.",
   "Private Chat Request.": "طلب محادثة خاصة.",
   "From here you can receive chat request.": "من هنا يمكنك استلام طلبات المحادثة.",
-  "Upgrade to Premium or Premium Plus to send private chat requests": "قم بالترقية إلى بريميوم أو بريميوم بلس لإرسال طلبات المحادثة الخاصة"
+  "Upgrade to Premium or Premium Plus to send private chat requests": "قم بالترقية إلى بريميوم أو بريميوم بلس لإرسال طلبات المحادثة الخاصة",
+  "Invalid QR code scanned.": "رمز QR غير صالح.",
+  "Scan the correct Estate QR Code": "امسح رمز QR الصحيح للعقار",
+  "Please select at least one room before booking.": "يرجى اختيار غرفة واحدة على الأقل قبل الحجز."
 
 }
