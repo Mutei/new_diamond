@@ -127,54 +127,14 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
 
   void _launchMaps() async {
     print('Latitude: ${widget.lat}, Longitude: ${widget.lon}');
-    // Check if lat and lon are valid
-    if (widget.lat == 0.0 && widget.lon == 0.0) {
-      // Show an alert dialog or a snackbar to notify the user
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text(getTranslated(context, "Invalid Coordinates")),
-          content: Text(getTranslated(
-              context, "The location of this estate is not available.")),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(getTranslated(context, "OK")),
-            ),
-          ],
-        ),
-      );
-      return;
-    }
-
-    // Construct the Google Maps URL
     String googleUrl =
         'https://www.google.com/maps/search/?api=1&query=${widget.lat},${widget.lon}';
 
     try {
-      // Attempt to launch the URL
-      if (await canLaunch(googleUrl)) {
-        await launch(googleUrl);
-      } else {
-        throw 'Could not open the map.';
-      }
+      bool launched = await launch(googleUrl, forceWebView: false);
+      print('Launch successful: $launched');
     } catch (e) {
-      // Handle errors gracefully
       print('Error launching maps: $e');
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text(getTranslated(context, "Error")),
-          content: Text(getTranslated(
-              context, "Could not open the map. Please try again later.")),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(getTranslated(context, "OK")),
-            ),
-          ],
-        ),
-      );
     }
   }
 
@@ -563,12 +523,7 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
         title: displayName,
         actions: [
           // Rate Button
-          InkWell(
-            child: Icon(Icons.map_outlined),
-            onTap: () {
-              _launchMaps();
-            },
-          ),
+
           TextButton(
             child: Text(
               getTranslated(context, "Rate"),
@@ -638,6 +593,12 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                 await _showInvalidQRScanFailureDialog();
               }
               // If scanResult is null, user might have cancelled the scan
+            },
+          ),
+          InkWell(
+            child: Icon(Icons.map_outlined),
+            onTap: () {
+              _launchMaps();
             },
           ),
           // Chat Button
