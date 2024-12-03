@@ -546,7 +546,12 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
               );
 
               if (scanResult == true) {
-                // If QR code is valid, navigate to Feedback Dialog Screen
+                // If QR code is valid, activate the timer before navigating
+                final now = DateTime.now();
+                final duration = getButtonActiveDuration();
+                await objProvider.activateTimer(widget.estateId, duration);
+
+                // Navigate to Feedback Dialog Screen
                 final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -562,11 +567,7 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                 if (result == true) {
                   await _fetchFeedback();
                   await _fetchUserRatings();
-
-                  // Activate the buttons for the appropriate duration
-                  final now = DateTime.now();
-                  final duration = getButtonActiveDuration();
-                  objProvider.activateTimer(widget.estateId, duration);
+                  // Timer remains active until it expires
                 }
               } else if (scanResult == false) {
                 // Show FailureDialog notifying the user of the invalid scan
@@ -608,7 +609,12 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
               );
 
               if (scanResult == true) {
-                // If QR code is valid, navigate to EstateChatScreen
+                // If QR code is valid, activate the timer before navigating
+                final now = DateTime.now();
+                final duration = getButtonActiveDuration();
+                await objProvider.activateTimer(widget.estateId, duration);
+
+                // Navigate to EstateChatScreen
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => EstateChatScreen(
@@ -619,10 +625,7 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                   ),
                 );
 
-                // Activate the buttons for the appropriate duration
-                final now = DateTime.now();
-                final duration = getButtonActiveDuration();
-                objProvider.activateTimer(widget.estateId, duration);
+                // Timer remains active until it expires
               } else if (scanResult == false) {
                 // Show FailureDialog notifying the user of the invalid scan
                 await _showInvalidQRScanFailureDialog();

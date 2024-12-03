@@ -285,6 +285,9 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
   // -------------------- New Methods for Timer and Chat Request Notifications --------------------
 
   // Method to activate the timer for Chat and Rate buttons
+  // Inside GeneralProvider
+
+// Method to activate the timer for Chat and Rate buttons
   Future<void> activateTimer(String estateId, Duration duration) async {
     // Cancel existing timer if any
     _buttonTimer?.cancel();

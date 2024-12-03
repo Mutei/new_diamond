@@ -47,7 +47,8 @@ class _FeedbackDialogScreenState extends State<FeedbackDialogScreen> {
     _timerExpiredSubscription =
         provider.timerExpiredStream.listen((expiredEstateId) {
       if (expiredEstateId == widget.estateId) {
-        // Timer expired for this estate, navigate back
+        print(
+            'Timer expired for estateId: ${widget.estateId}. Navigating back to ProfileEstateScreen.');
         Navigator.of(context).pop(); // Close the FeedbackDialogScreen
       }
     });
