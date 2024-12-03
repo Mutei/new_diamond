@@ -327,15 +327,13 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => ProfileEstateScreen(
-                                    lat: restaurant['lat']??0,
-                                    lon: restaurant['lon']??0,
-                                    nameEn: restaurant['nameEn'],
-                                    nameAr: restaurant['nameAr'],
-                                    estateId: restaurant['id'],
-                                    location: "Rose Garden",
-                                    rating: restaurant['rating'],
-                                    fee: restaurant['fee'],
-                                    deliveryTime: restaurant['time'],
+                                    nameEn: restaurant['nameEn'] ?? '',
+                                    nameAr: restaurant['nameAr'] ?? '',
+                                    estateId: restaurant['id'] ?? '',
+                                    location: "Rose Garden" ?? '',
+                                    rating: restaurant['rating'] ?? '',
+                                    fee: restaurant['fee'] ?? '',
+                                    deliveryTime: restaurant['time'] ?? '',
                                     price: 32.0,
                                     typeOfRestaurant:
                                         restaurant['TypeofRestaurant'] ?? '',
@@ -343,11 +341,13 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                                     menuLink: restaurant['MenuLink'] ?? '',
                                     entry: restaurant['Entry'] ?? '',
                                     lstMusic: restaurant['Lstmusic'] ?? '',
-                                    music: restaurant['Music'],
-                                    type: restaurant['Type'],
-                                    hasKidsArea: restaurant['HasKidsArea'],
-                                    hasValet: restaurant['HasValet'],
-                                    valetWithFees: restaurant['ValetWithFees'],
+                                    music: restaurant['Music'] ?? '',
+                                    type: restaurant['Type'] ?? '',
+                                    hasKidsArea:
+                                        restaurant['HasKidsArea'] ?? '',
+                                    hasValet: restaurant['HasValet'] ?? '',
+                                    valetWithFees:
+                                        restaurant['ValetWithFees'] ?? '',
                                     hasBarber: restaurant['HasBarber'] ?? '',
                                     hasGym: restaurant['HasGym'] ?? '',
                                     hasMassage: restaurant['HasMassage'] ?? '',
@@ -355,7 +355,10 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                                         restaurant['HasSwimmingPool'] ?? '',
                                     isSmokingAllowed:
                                         restaurant['IsSmokingAllowed'] ?? '',
-                                    hasJacuzziInRoom: restaurant['HasJacuzziInRoom'],
+                                    hasJacuzziInRoom:
+                                        restaurant['HasJacuzziInRoom'] ?? '',
+                                    lat: restaurant['Lat'] ?? 0,
+                                    lon: restaurant['Lon'] ?? 0,
                                   ),
                                 ),
                               );
