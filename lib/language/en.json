@@ -269,6 +269,9 @@
   "Upgrade to Premium or Premium Plus to send private chat requests":"Upgrade to Premium or Premium Plus to send private chat requests",
   "Invalid QR code scanned.": "Invalid QR code scanned.",
   "Scan the correct Estate QR Code": "Scan the correct Estate QR Code",
-  "Please select at least one room before booking.": "Please select at least one room before booking."
+  "Please select at least one room before booking.": "Please select at least one room before booking.",
+  "Forgot Password?":"Forgot Password?",
+  "Reset Password":"Reset Password",
+  "Password reset link sent. Check your email":"Password reset link sent. Check your email"
 
 }

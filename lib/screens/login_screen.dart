@@ -1,3 +1,4 @@
+import 'package:diamond_host_admin/screens/forgot_password.dart';
 import 'package:diamond_host_admin/screens/sign_in_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:diamond_host_admin/widgets/reused_textform_field.dart';
@@ -229,6 +230,23 @@ class _LoginScreenState extends State<LoginScreen> {
                                 );
                               }
                             },
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const ForgotPasswordScreen()),
+                              );
+                            },
+                            child: Text(
+                              getTranslated(context, 'Forgot Password?'),
+                              style: const TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ],
                       ),
