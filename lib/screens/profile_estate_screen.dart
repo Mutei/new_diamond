@@ -14,6 +14,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Added for SharedPreferences
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../backend/additional_facility.dart';
 import '../backend/booking_services.dart';
@@ -62,34 +63,38 @@ class ProfileEstateScreen extends StatefulWidget {
   final String hasMassage;
   final String isSmokingAllowed;
   final String hasJacuzziInRoom;
+  final double lat;
+  final double lon;
 
-  const ProfileEstateScreen({
-    Key? key,
-    required this.nameEn,
-    required this.nameAr,
-    required this.estateId,
-    required this.location,
-    required this.rating,
-    required this.fee,
-    required this.deliveryTime,
-    required this.price,
-    required this.typeOfRestaurant,
-    required this.sessions,
-    required this.menuLink,
-    required this.entry,
-    required this.lstMusic,
-    required this.type,
-    required this.music,
-    required this.hasKidsArea,
-    required this.hasValet,
-    required this.valetWithFees,
-    required this.hasBarber,
-    required this.hasGym,
-    required this.hasMassage,
-    required this.hasSwimmingPool,
-    required this.isSmokingAllowed,
-    required this.hasJacuzziInRoom,
-  }) : super(key: key);
+  const ProfileEstateScreen(
+      {Key? key,
+      required this.nameEn,
+      required this.nameAr,
+      required this.estateId,
+      required this.location,
+      required this.rating,
+      required this.fee,
+      required this.deliveryTime,
+      required this.price,
+      required this.typeOfRestaurant,
+      required this.sessions,
+      required this.menuLink,
+      required this.entry,
+      required this.lstMusic,
+      required this.type,
+      required this.music,
+      required this.hasKidsArea,
+      required this.hasValet,
+      required this.valetWithFees,
+      required this.hasBarber,
+      required this.hasGym,
+      required this.hasMassage,
+      required this.hasSwimmingPool,
+      required this.isSmokingAllowed,
+      required this.hasJacuzziInRoom,
+      required this.lon,
+      required this.lat})
+      : super(key: key);
 
   @override
   _ProfileEstateScreenState createState() => _ProfileEstateScreenState();
@@ -118,6 +123,59 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
     _fetchUserRatings();
     _fetchFeedback();
     // Removed: _loadButtonState(); // Load button state is now handled by provider
+  }
+
+  void _launchMaps() async {
+    print('Latitude: ${widget.lat}, Longitude: ${widget.lon}');
+    // Check if lat and lon are valid
+    if (widget.lat == 0.0 && widget.lon == 0.0) {
+      // Show an alert dialog or a snackbar to notify the user
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(getTranslated(context, "Invalid Coordinates")),
+          content: Text(getTranslated(
+              context, "The location of this estate is not available.")),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(getTranslated(context, "OK")),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    // Construct the Google Maps URL
+    String googleUrl =
+        'https://www.google.com/maps/search/?api=1&query=${widget.lat},${widget.lon}';
+
+    try {
+      // Attempt to launch the URL
+      if (await canLaunch(googleUrl)) {
+        await launch(googleUrl);
+      } else {
+        throw 'Could not open the map.';
+      }
+    } catch (e) {
+      // Handle errors gracefully
+      print('Error launching maps: $e');
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(getTranslated(context, "Error")),
+          content: Text(getTranslated(
+              context, "Could not open the map. Please try again later.")),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(getTranslated(context, "OK")),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   @override
@@ -505,6 +563,12 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
         title: displayName,
         actions: [
           // Rate Button
+          InkWell(
+            child: Icon(Icons.map_outlined),
+            onTap: () {
+              _launchMaps();
+            },
+          ),
           TextButton(
             child: Text(
               getTranslated(context, "Rate"),

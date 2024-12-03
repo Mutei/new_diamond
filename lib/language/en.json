@@ -276,6 +276,7 @@
   "Email not found":"Email not found",
   "Only customers can reset their password":"Only customers can reset their password",
   "Please enter an email":"Please enter an email",
-  "Password reset link sent. Check your email.":"Password reset link sent. Check your email."
-
+  "Password reset link sent. Check your email.":"Password reset link sent. Check your email.",
+  "The location of this estate is not available.":"The location of this estate is not available.",
+  "Could not open the map. Please try again later.":"Could not open the map. Please try again later."
 }

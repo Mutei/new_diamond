@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../backend/customer_rate_services.dart';
 import '../backend/estate_services.dart';
 import '../localization/language_constants.dart';
@@ -29,6 +31,7 @@ class _MainScreenContentState extends State<MainScreenContent> {
   List<Map<String, dynamic>> filteredEstates = [];
   bool loading = true;
   bool searchActive = false;
+  bool permissionsChecked = false;
 
   final TextEditingController searchController = TextEditingController();
 
@@ -37,6 +40,70 @@ class _MainScreenContentState extends State<MainScreenContent> {
     super.initState();
     _fetchEstates();
     searchController.addListener(_filterEstates);
+    _checkPermissionsAndFetchData();
+  }
+
+  Future<void> _checkPermissionsAndFetchData() async {
+    final prefs = await SharedPreferences.getInstance();
+    permissionsChecked = prefs.getBool('permissionsChecked') ?? false;
+
+    if (!permissionsChecked) {
+      await _initializePermissions();
+      await prefs.setBool('permissionsChecked', true);
+    }
+
+    _fetchEstates();
+  }
+
+  Future<void> _initializePermissions() async {
+    // Check Location Permission
+    PermissionStatus locationStatus = await Permission.location.status;
+    if (locationStatus.isDenied || locationStatus.isRestricted) {
+      locationStatus = await Permission.location.request();
+    }
+
+    if (locationStatus.isPermanentlyDenied) {
+      _showPermissionDialog(
+        "Location Permission Required",
+        "Please enable location permission in settings to use the map features.",
+      );
+    }
+
+    // Check Notification Permission
+    PermissionStatus notificationStatus = await Permission.notification.status;
+    if (notificationStatus.isDenied || notificationStatus.isRestricted) {
+      notificationStatus = await Permission.notification.request();
+    }
+
+    if (notificationStatus.isPermanentlyDenied) {
+      _showPermissionDialog(
+        "Notification Permission Required",
+        "Please enable notification permission in settings.",
+      );
+    }
+  }
+
+  void _showPermissionDialog(String title, String content) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(content),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              openAppSettings();
+            },
+            child: const Text("Open Settings"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Cancel"),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _fetchEstates() async {
@@ -87,6 +154,8 @@ class _MainScreenContentState extends State<MainScreenContent> {
           'IsSmokingAllowed':
               estateData['IsSmokingAllowed'] ?? "Smoking is not allowed",
           'HasJacuzziInRoom': estateData['HasJacuzziInRoom'] ?? "No Jaccuzzi",
+          'Lat': estateData['Lat'] ?? 0,
+          'Lon': estateData['Lon'] ?? 0,
         };
 
         estate = await _addAdditionalEstateData(estate);
@@ -346,30 +415,33 @@ class _MainScreenContentState extends State<MainScreenContent> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => ProfileEstateScreen(
-                            nameEn: estate['nameEn'],
-                            nameAr: estate['nameAr'],
-                            estateId: estate['id'],
-                            location: "Rose Garden",
-                            rating: estate['rating'],
-                            fee: estate['fee'],
-                            deliveryTime: estate['time'],
-                            price: 32.0,
-                            typeOfRestaurant: estate['TypeofRestaurant'],
-                            sessions: estate['Sessions'],
-                            menuLink: estate['MenuLink'],
-                            entry: estate['Entry'],
-                            lstMusic: estate['Lstmusic'],
-                            music: estate['Music'],
-                            type: estate['Type'],
-                            hasKidsArea: estate['HasKidsArea'],
-                            hasValet: estate['HasValet'],
-                            valetWithFees: estate['ValetWithFees'],
-                            hasGym: estate['HasGym'],
-                            hasBarber: estate['HasBarber'],
-                            hasMassage: estate['HasMassage'],
-                            hasSwimmingPool: estate['HasSwimmingPool'],
-                            isSmokingAllowed: estate['IsSmokingAllowed'],
-                            hasJacuzziInRoom: estate['HasJacuzziInRoom']),
+                          nameEn: estate['nameEn'],
+                          nameAr: estate['nameAr'],
+                          estateId: estate['id'],
+                          location: "Rose Garden",
+                          rating: estate['rating'],
+                          fee: estate['fee'],
+                          deliveryTime: estate['time'],
+                          price: 32.0,
+                          typeOfRestaurant: estate['TypeofRestaurant'],
+                          sessions: estate['Sessions'],
+                          menuLink: estate['MenuLink'],
+                          entry: estate['Entry'],
+                          lstMusic: estate['Lstmusic'],
+                          music: estate['Music'],
+                          type: estate['Type'],
+                          hasKidsArea: estate['HasKidsArea'],
+                          hasValet: estate['HasValet'],
+                          valetWithFees: estate['ValetWithFees'],
+                          hasGym: estate['HasGym'],
+                          hasBarber: estate['HasBarber'],
+                          hasMassage: estate['HasMassage'],
+                          hasSwimmingPool: estate['HasSwimmingPool'],
+                          isSmokingAllowed: estate['IsSmokingAllowed'],
+                          hasJacuzziInRoom: estate['HasJacuzziInRoom'],
+                          lat: estate['Lat'] ?? 0,
+                          lon: estate['Lon'] ?? 0,
+                        ),
                       ),
                     );
                   },

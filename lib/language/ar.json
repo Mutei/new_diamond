@@ -275,5 +275,8 @@
   "Email not found": "البريد الإلكتروني غير موجود",
   "Only customers can reset their password": "يمكن للعملاء فقط إعادة تعيين كلمة المرور الخاصة بهم",
   "Please enter an email": "يرجى إدخال البريد الإلكتروني",
-  "Password reset link sent. Check your email.":"تم إرسال رابط إعادة تعيين كلمة المرور. تحقق من بريدك الإلكتروني."
+  "Password reset link sent. Check your email.":"تم إرسال رابط إعادة تعيين كلمة المرور. تحقق من بريدك الإلكتروني.",
+  "The location of this estate is not available.":"موقع هذا العقار غير متوفر.",
+  "Could not open the map. Please try again later.":"تعذر فتح الخريطة. الرجاء المحاولة مرة أخرى لاحقًا."
+
 }

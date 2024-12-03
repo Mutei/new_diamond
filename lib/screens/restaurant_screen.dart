@@ -205,6 +205,8 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
           'HasKidsArea': estateData['HasKidsArea'] ?? '0',
           'ValetWithFees': estateData['ValetWithFees'] ?? '0',
           'IsSmokingAllowed': estateData['IsSmokingAllowed'] ?? '0',
+          'Lat': estateData['Lat'] ?? 0,
+          'Lon': estateData['Lon'] ?? 0
         };
 
         estate = await _addAdditionalEstateData(estate);
@@ -325,6 +327,8 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => ProfileEstateScreen(
+                                    lat: restaurant['lat']??0,
+                                    lon: restaurant['lon']??0,
                                     nameEn: restaurant['nameEn'],
                                     nameAr: restaurant['nameAr'],
                                     estateId: restaurant['id'],

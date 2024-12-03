@@ -55,6 +55,8 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
           'HasKidsArea': estateData['HasKidsArea'] ?? '0',
           'ValetWithFees': estateData['ValetWithFees'] ?? '0',
           'IsSmokingAllowed': estateData['IsSmokingAllowed'] ?? '0',
+          'lat': estateData['Lat'] ?? 0,
+          'lon': estateData['Lon'] ?? 0
         };
 
         estate = await _addAdditionalEstateData(estate);
@@ -384,6 +386,8 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => ProfileEstateScreen(
+                                    lat: coffee['lat'] ?? 0,
+                                    lon: coffee['Lon'] ?? 0,
                                     nameEn: coffee['nameEn'],
                                     nameAr: coffee['nameAr'],
                                     estateId: coffee['id'],
