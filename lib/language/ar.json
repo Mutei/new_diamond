@@ -271,5 +271,9 @@
   "Please select at least one room before booking.": "يرجى اختيار غرفة واحدة على الأقل قبل الحجز.",
   "Forgot Password?":"نسيت كلمة المرور؟",
   "Reset Password":"إعادة تعيين كلمة المرور",
-  "Password reset link sent. Check your email":"تم إرسال رابط إعادة تعيين كلمة المرور. تحقق من بريدك الإلكتروني"
+  "Password reset link sent. Check your email":"تم إرسال رابط إعادة تعيين كلمة المرور. تحقق من بريدك الإلكتروني",
+  "Email not found": "البريد الإلكتروني غير موجود",
+  "Only customers can reset their password": "يمكن للعملاء فقط إعادة تعيين كلمة المرور الخاصة بهم",
+  "Please enter an email": "يرجى إدخال البريد الإلكتروني",
+  "Password reset link sent. Check your email.":"تم إرسال رابط إعادة تعيين كلمة المرور. تحقق من بريدك الإلكتروني."
 }

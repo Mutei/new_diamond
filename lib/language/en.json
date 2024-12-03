@@ -272,6 +272,10 @@
   "Please select at least one room before booking.": "Please select at least one room before booking.",
   "Forgot Password?":"Forgot Password?",
   "Reset Password":"Reset Password",
-  "Password reset link sent. Check your email":"Password reset link sent. Check your email"
+  "Password reset link sent. Check your email":"Password reset link sent. Check your email",
+  "Email not found":"Email not found",
+  "Only customers can reset their password":"Only customers can reset their password",
+  "Please enter an email":"Please enter an email",
+  "Password reset link sent. Check your email.":"Password reset link sent. Check your email."
 
 }
