@@ -111,23 +111,18 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
   // Set to keep track of expanded feedback items
   Set<int> _expandedFeedbacks = {};
 
-  // Shared state variables for Rate and Chat buttons
-  DateTime? _lastScanTime;
-  bool _isButtonsActive = false;
-  Timer? _buttonTimer;
-
   @override
   void initState() {
     super.initState();
     _fetchImageUrls();
     _fetchUserRatings();
     _fetchFeedback();
-    _loadButtonState(); // Load the shared button state on initialization
+    // Removed: _loadButtonState(); // Load button state is now handled by provider
   }
 
   @override
   void dispose() {
-    _buttonTimer?.cancel(); // Cancel the timer if active
+    // Removed: _buttonTimer?.cancel(); // Timer is now managed by provider
     super.dispose();
   }
 
@@ -139,47 +134,6 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
     } else {
       return Duration(minutes: 1);
     }
-  }
-
-  // Load the shared button state from SharedPreferences
-  Future<void> _loadButtonState() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final lastScanMillis = prefs.getInt('lastScanTime_${widget.estateId}');
-    if (lastScanMillis != null) {
-      final lastScanTime = DateTime.fromMillisecondsSinceEpoch(lastScanMillis);
-      final difference = DateTime.now().difference(lastScanTime);
-      final activeDuration = getButtonActiveDuration();
-      if (difference < activeDuration) {
-        setState(() {
-          _isButtonsActive = true;
-          _lastScanTime = lastScanTime;
-        });
-        // Start a timer for the remaining time
-        _buttonTimer = Timer(activeDuration - difference, () {
-          setState(() {
-            _isButtonsActive = false;
-            _lastScanTime = null;
-          });
-          _removeLastScanTime(); // Remove the stored timestamp
-        });
-      } else {
-        // Time has expired
-        await _removeLastScanTime();
-      }
-    }
-  }
-
-  // Save the last scan time to SharedPreferences
-  Future<void> _saveLastScanTime(DateTime time) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(
-        'lastScanTime_${widget.estateId}', time.millisecondsSinceEpoch);
-  }
-
-  // Remove the last scan time from SharedPreferences
-  Future<void> _removeLastScanTime() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('lastScanTime_${widget.estateId}');
   }
 
   Future<void> _fetchFeedback() async {
@@ -543,6 +497,8 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
             ? widget.nameAr
             : widget.nameEn;
     final objProvider = Provider.of<GeneralProvider>(context, listen: true);
+    final bool isButtonsActive = objProvider.isButtonsActive;
+    final String? activeEstateId = objProvider.activeEstateId;
 
     return Scaffold(
       appBar: ReusedAppBar(
@@ -553,31 +509,30 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
             child: Text(
               getTranslated(context, "Rate"),
               style: TextStyle(
-                color: _isButtonsActive ? Colors.green : kDeepPurpleColor,
+                color: isButtonsActive && activeEstateId == widget.estateId
+                    ? Colors.green
+                    : kDeepPurpleColor,
               ),
             ),
             onPressed: () async {
-              if (_isButtonsActive && _lastScanTime != null) {
-                final difference = DateTime.now().difference(_lastScanTime!);
-                if (difference < getButtonActiveDuration()) {
-                  // Within the active duration, allow direct feedback
-                  final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => FeedbackDialogScreen(
-                        estateId: widget.estateId,
-                        estateNameEn: widget.nameEn,
-                        estateNameAr: widget.nameAr,
-                      ),
+              if (isButtonsActive && activeEstateId == widget.estateId) {
+                // Within the active duration, allow direct feedback
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FeedbackDialogScreen(
+                      estateId: widget.estateId,
+                      estateNameEn: widget.nameEn,
+                      estateNameAr: widget.nameAr,
                     ),
-                  );
+                  ),
+                );
 
-                  if (result == true) {
-                    await _fetchFeedback();
-                    await _fetchUserRatings();
-                  }
-                  return;
+                if (result == true) {
+                  await _fetchFeedback();
+                  await _fetchUserRatings();
                 }
+                return;
               }
 
               // If not active or time expired, require scanning
@@ -610,22 +565,8 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
 
                   // Activate the buttons for the appropriate duration
                   final now = DateTime.now();
-                  setState(() {
-                    _isButtonsActive = true;
-                    _lastScanTime = now;
-                  });
-
-                  await _saveLastScanTime(now); // Save the scan time
-
-                  // Start a timer to deactivate the buttons after the duration
-                  _buttonTimer?.cancel(); // Cancel any existing timer
-                  _buttonTimer = Timer(getButtonActiveDuration(), () {
-                    setState(() {
-                      _isButtonsActive = false;
-                      _lastScanTime = null;
-                    });
-                    _removeLastScanTime(); // Remove the stored timestamp
-                  });
+                  final duration = getButtonActiveDuration();
+                  objProvider.activateTimer(widget.estateId, duration);
                 }
               } else if (scanResult == false) {
                 // Show FailureDialog notifying the user of the invalid scan
@@ -637,24 +578,23 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
           // Chat Button
           IconButton(
             icon: Icon(Icons.chat,
-                color: _isButtonsActive ? Colors.green : kDeepPurpleColor),
+                color: isButtonsActive && activeEstateId == widget.estateId
+                    ? Colors.green
+                    : kDeepPurpleColor),
             tooltip: getTranslated(context, "Chat"),
             onPressed: () async {
-              if (_isButtonsActive && _lastScanTime != null) {
-                final difference = DateTime.now().difference(_lastScanTime!);
-                if (difference < getButtonActiveDuration()) {
-                  // Within the active duration, allow direct chat
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => EstateChatScreen(
-                        estateId: widget.estateId,
-                        estateNameEn: widget.nameEn,
-                        estateNameAr: widget.nameAr,
-                      ),
+              if (isButtonsActive && activeEstateId == widget.estateId) {
+                // Within the active duration, allow direct chat
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => EstateChatScreen(
+                      estateId: widget.estateId,
+                      estateNameEn: widget.nameEn,
+                      estateNameAr: widget.nameAr,
                     ),
-                  );
-                  return;
-                }
+                  ),
+                );
+                return;
               }
 
               // If not active or time expired, require scanning
@@ -681,22 +621,8 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
 
                 // Activate the buttons for the appropriate duration
                 final now = DateTime.now();
-                setState(() {
-                  _isButtonsActive = true;
-                  _lastScanTime = now;
-                });
-
-                await _saveLastScanTime(now); // Save the scan time
-
-                // Start a timer to deactivate the buttons after the duration
-                _buttonTimer?.cancel(); // Cancel any existing timer
-                _buttonTimer = Timer(getButtonActiveDuration(), () {
-                  setState(() {
-                    _isButtonsActive = false;
-                    _lastScanTime = null;
-                  });
-                  _removeLastScanTime(); // Remove the stored timestamp
-                });
+                final duration = getButtonActiveDuration();
+                objProvider.activateTimer(widget.estateId, duration);
               } else if (scanResult == false) {
                 // Show FailureDialog notifying the user of the invalid scan
                 await _showInvalidQRScanFailureDialog();
@@ -892,9 +818,9 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                             icon: Icons.bathtub,
                             label: widget.type == "1"
                                 ? (widget.hasJacuzziInRoom == "1"
-                                    ? getTranslated(context, "We have jaccuzzi")
+                                    ? getTranslated(context, "We have jacuzzi")
                                     : getTranslated(
-                                        context, "We dont have jaccuzzi"))
+                                        context, "We dont have jacuzzi"))
                                 : '')
                         : Text(''),
                     ChipWidget(

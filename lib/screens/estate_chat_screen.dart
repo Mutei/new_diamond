@@ -5,8 +5,8 @@ import 'package:diamond_host_admin/widgets/reused_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../backend//chat_service.dart';
-import '../backend//user_service.dart';
+import '../backend/chat_service.dart';
+import '../backend/user_service.dart';
 import '../constants/colors.dart';
 import '../utils/censor_message.dart';
 import '../widgets/message_bubble.dart';
@@ -47,6 +47,8 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
   // Debounce flag to prevent spamming reactions
   bool _isReacting = false;
 
+  late StreamSubscription<String> _timerExpiredSubscription;
+
   @override
   void initState() {
     super.initState();
@@ -55,6 +57,16 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToBottom();
     });
+
+    // Listen to timer expired events
+    final provider = Provider.of<GeneralProvider>(context, listen: false);
+    _timerExpiredSubscription =
+        provider.timerExpiredStream.listen((expiredEstateId) {
+      if (expiredEstateId == widget.estateId) {
+        // Timer expired for this estate, navigate back
+        Navigator.of(context).pop(); // Go back to ProfileEstateScreen
+      }
+    });
   }
 
   @override
@@ -62,6 +74,7 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
     _messageController.dispose();
     _scrollController.dispose();
     _hideReactionPickersStream.close(); // Close the StreamController
+    _timerExpiredSubscription.cancel(); // Cancel the subscription
     super.dispose();
   }
 

@@ -1,3 +1,5 @@
+// lib/state_management/general_provider.dart
+
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -50,6 +52,19 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
 
   final PrivateChatService _privateChatService = PrivateChatService();
 
+  // New properties for active timer
+  bool _isButtonsActive = false;
+  String? _activeEstateId;
+  Timer? _buttonTimer;
+  final StreamController<String> _timerExpiredController =
+      StreamController<String>.broadcast();
+
+  // Public getters for timer
+  bool get isButtonsActive => _isButtonsActive;
+  String? get activeEstateId => _activeEstateId;
+
+  Stream<String> get timerExpiredStream => _timerExpiredController.stream;
+
   GeneralProvider() {
     loadThemePreference();
     loadLastSeenApprovalCount();
@@ -59,6 +74,7 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     loadUserInfo(); // Initialize user info from SharedPreferences
     fetchAndSetUserInfo(); // Fetch user info from Firebase
     listenToPrivateChatRequests(); // Start listening to chat requests
+    loadActiveTimer(); // Load active timer from SharedPreferences
   }
 
   void loadLastSeenApprovalCount() async {
@@ -266,7 +282,92 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  // -------------------- New Methods for Chat Request Notifications --------------------
+  // -------------------- New Methods for Timer and Chat Request Notifications --------------------
+
+  // Method to activate the timer for Chat and Rate buttons
+  Future<void> activateTimer(String estateId, Duration duration) async {
+    // Cancel existing timer if any
+    _buttonTimer?.cancel();
+
+    // Set the active estate ID and buttons active
+    _activeEstateId = estateId;
+    _isButtonsActive = true;
+    notifyListeners();
+
+    // Save the active timer info to SharedPreferences
+    await saveActiveTimer(estateId, DateTime.now(), duration);
+
+    // Start a new timer
+    _buttonTimer = Timer(duration, () async {
+      _isButtonsActive = false;
+      _activeEstateId = null;
+      notifyListeners();
+
+      // Remove the active timer info from SharedPreferences
+      await removeActiveTimer();
+
+      // Emit the timer expired event with estateId
+      _timerExpiredController.add(estateId);
+    });
+  }
+
+  // Method to load active timer info from SharedPreferences
+  Future<void> loadActiveTimer() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? estateId = prefs.getString('activeEstateId');
+    String? scanTimeString = prefs.getString('lastScanTime');
+    int? durationSeconds = prefs.getInt('activeDurationSeconds');
+
+    if (estateId != null && scanTimeString != null && durationSeconds != null) {
+      DateTime scanTime = DateTime.parse(scanTimeString);
+      Duration elapsed = DateTime.now().difference(scanTime);
+      Duration totalDuration = Duration(seconds: durationSeconds);
+
+      if (elapsed < totalDuration) {
+        Duration remaining = totalDuration - elapsed;
+        _activeEstateId = estateId;
+        _isButtonsActive = true;
+        notifyListeners();
+
+        // Start the timer with remaining duration
+        _buttonTimer = Timer(remaining, () async {
+          _isButtonsActive = false;
+          _activeEstateId = null;
+          notifyListeners();
+
+          // Remove the active timer info from SharedPreferences
+          await removeActiveTimer();
+
+          // Emit the timer expired event with estateId
+          _timerExpiredController.add(estateId);
+        });
+      } else {
+        // Timer has already expired
+        await removeActiveTimer();
+      }
+    }
+  }
+
+  // Method to save active timer info to SharedPreferences
+  Future<void> saveActiveTimer(
+      String estateId, DateTime scanTime, Duration duration) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('activeEstateId', estateId);
+    await prefs.setString('lastScanTime', scanTime.toIso8601String());
+    await prefs.setInt('activeDurationSeconds', duration.inSeconds);
+  }
+
+  // Method to remove active timer info from SharedPreferences
+  Future<void> removeActiveTimer() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('activeEstateId');
+    await prefs.remove('lastScanTime');
+    await prefs.remove('activeDurationSeconds');
+  }
+
+  // -------------------- Existing Methods --------------------
+
+  // Existing methods like listenToPrivateChatRequests etc.
 
   // Method to listen to incoming private chat requests
   void listenToPrivateChatRequests() {
@@ -301,10 +402,10 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
   @override
   void dispose() {
     _privateChatSubscription?.cancel();
+    _timerExpiredController.close();
+    _buttonTimer?.cancel();
     super.dispose();
   }
-
-// -----------------------------------------------------------------------------------
 }
 
 class CustomerType {

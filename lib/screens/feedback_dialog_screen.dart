@@ -1,3 +1,7 @@
+// lib/screens/feedback_dialog_screen.dart
+
+import 'dart:async';
+
 import 'package:diamond_host_admin/localization/language_constants.dart';
 import 'package:diamond_host_admin/widgets/reused_appbar.dart';
 import 'package:diamond_host_admin/widgets/reused_elevated_button.dart';
@@ -5,6 +9,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart'; // Import if not already imported
+import 'package:provider/provider.dart';
+import '../state_management/general_provider.dart';
+import '../widgets/message_bubble.dart'; // Ensure this is imported
+import 'package:cached_network_image/cached_network_image.dart'; // Ensure this is imported
 
 class FeedbackDialogScreen extends StatefulWidget {
   final String estateId;
@@ -28,9 +36,27 @@ class _FeedbackDialogScreenState extends State<FeedbackDialogScreen> {
   double _rateForFoodOrDrink = 0.0;
   double _rateForServices = 0.0;
 
+  late StreamSubscription<String> _timerExpiredSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Listen to timer expired events
+    final provider = Provider.of<GeneralProvider>(context, listen: false);
+    _timerExpiredSubscription =
+        provider.timerExpiredStream.listen((expiredEstateId) {
+      if (expiredEstateId == widget.estateId) {
+        // Timer expired for this estate, navigate back
+        Navigator.of(context).pop(); // Close the FeedbackDialogScreen
+      }
+    });
+  }
+
   @override
   void dispose() {
     _feedbackController.dispose();
+    _timerExpiredSubscription.cancel(); // Cancel the subscription
     super.dispose();
   }
 
