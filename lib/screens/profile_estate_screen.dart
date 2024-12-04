@@ -846,9 +846,9 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                             icon: Icons.bathtub,
                             label: widget.type == "1"
                                 ? (widget.hasJacuzziInRoom == "1"
-                                    ? getTranslated(context, "We have jacuzzi")
+                                    ? getTranslated(context, "We have jaccuzzi")
                                     : getTranslated(
-                                        context, "We dont have jacuzzi"))
+                                        context, "We dont have jaccuzzi"))
                                 : '')
                         : Text(''),
                     ChipWidget(
