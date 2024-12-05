@@ -41,7 +41,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
   void initState() {
     super.initState();
 
-    // Show loading dialog
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showCustomLoadingDialog(context);
     });
@@ -52,7 +51,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
       _textController.text = widget.post!['Text'];
       _selectedEstate = widget.post!['EstateType'];
     }
-    // Fetch data and close loading dialog when done
+
     _initializeData();
   }
 
@@ -60,9 +59,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
     await _fetchUserEstates();
     await _loadUserType();
     await _loadTypeAccount();
-
-    // Close the loading dialog once all data is loaded
-    Navigator.of(context).pop(); // Dismiss the loading dialog
+    Navigator.of(context).pop();
   }
 
   Future<void> _loadUserType() async {
@@ -107,7 +104,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
       estatesData.forEach((estateType, estates) {
         if (estates is Map<dynamic, dynamic>) {
           estates.forEach((key, value) {
-            // Check if the estate belongs to the user and if IsAccepted == "2"
             if (value != null &&
                 value['IDUser'] == userId &&
                 value['IsAccepted'] == "2") {
@@ -147,6 +143,17 @@ class _AddPostScreenState extends State<AddPostScreen> {
   }
 
   Future<void> _savePost() async {
+    if (typeAccount == "1") {
+      showDialog(
+        context: context,
+        builder: (context) => FailureDialog(
+          text: "Restricted",
+          text1: "Your account type does not allow adding posts.",
+        ),
+      );
+      return;
+    }
+
     if (_formKey.currentState!.validate() &&
         (_selectedEstate != null || userType == "1")) {
       if (await _canAddMorePosts()) {
@@ -265,7 +272,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
               text1: "Post added successfully",
             ),
           );
-          Navigator.pop(context); // Navigate back after dialog is closed
+          Navigator.pop(context);
         } catch (e) {
           await showDialog(
             context: context,
@@ -374,39 +381,39 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (userType == "2")
-                      // DropdownButtonFormField<String>(
-                      //   value: _selectedEstate,
-                      //   decoration: InputDecoration(
-                      //     filled: true,
-                      //     fillColor:
-                      //         Theme.of(context).brightness == Brightness.dark
-                      //             ? Colors.black
-                      //             : Colors.grey[200],
-                      //     border: OutlineInputBorder(
-                      //       borderRadius: BorderRadius.circular(8.0),
-                      //     ),
-                      //   ),
-                      //   hint: Text(getTranslated(context, "Select Estate")),
-                      //   items: _userEstates.map((estate) {
-                      //     return DropdownMenuItem<String>(
-                      //       value: estate['id'],
-                      //       child: Text(
-                      //           '${estate['data']['NameEn']} (${estate['type']})'),
-                      //     );
-                      //   }).toList(),
-                      //   onChanged: (value) {
-                      //     setState(() {
-                      //       _selectedEstate = value;
-                      //     });
-                      //   },
-                      //   validator: (value) {
-                      //     if (value == null && userType == "2") {
-                      //       return 'Please select an estate';
-                      //     }
-                      //     return null;
-                      //   },
-                      // ),
-                      const SizedBox(height: 16),
+                      DropdownButtonFormField<String>(
+                        value: _selectedEstate,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor:
+                              Theme.of(context).brightness == Brightness.dark
+                                  ? Colors.black
+                                  : Colors.grey[200],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                        hint: Text(getTranslated(context, "Select Estate")),
+                        items: _userEstates.map((estate) {
+                          return DropdownMenuItem<String>(
+                            value: estate['id'],
+                            child: Text(
+                                '${estate['data']['NameEn']} (${estate['type']})'),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedEstate = value;
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null && userType == "2") {
+                            return 'Please select an estate';
+                          }
+                          return null;
+                        },
+                      ),
+                    const SizedBox(height: 16),
                     TextFormField(
                       controller: _titleController,
                       maxLength: 120,
@@ -494,16 +501,16 @@ class _AddPostScreenState extends State<AddPostScreen> {
                           ),
                         ),
                         const SizedBox(width: 16),
-                        // if (userType == "2" &&
-                        //     (typeAccount == "2" || typeAccount == "3"))
-                        //   Expanded(
-                        //     child: ReusableIconButton(
-                        //       onPressed: _pickVideos,
-                        //       icon: Icon(Icons.video_library,
-                        //           color: Colors.white),
-                        //       label: getTranslated(context, "Pick Videos"),
-                        //     ),
-                        //   ),
+                        if (userType == "2" &&
+                            (typeAccount == "2" || typeAccount == "3"))
+                          Expanded(
+                            child: ReusableIconButton(
+                              onPressed: _pickVideos,
+                              icon: Icon(Icons.video_library,
+                                  color: Colors.white),
+                              label: getTranslated(context, "Pick Videos"),
+                            ),
+                          ),
                       ],
                     ),
                     const SizedBox(height: 24),

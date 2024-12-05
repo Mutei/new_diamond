@@ -278,5 +278,11 @@
   "Please enter an email":"Please enter an email",
   "Password reset link sent. Check your email.":"Password reset link sent. Check your email.",
   "The location of this estate is not available.":"The location of this estate is not available.",
-  "Could not open the map. Please try again later.":"Could not open the map. Please try again later."
+  "Could not open the map. Please try again later.":"Could not open the map. Please try again later.",
+  "User not authenticated":"User not authenticated",
+  "You don't have this estate":"You don't have this estate",
+  "Post Limit Reached":"Post Limit Reached",
+  "You have added $allowedPosts posts in a month. You cannot add more.":"You have added $allowedPosts posts in a month. You cannot add more.",
+  "Restricted":"Restricted",
+  "Your account type does not allow adding posts.":"Your account type does not allow adding posts."
 }

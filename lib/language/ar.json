@@ -277,6 +277,11 @@
   "Please enter an email": "يرجى إدخال البريد الإلكتروني",
   "Password reset link sent. Check your email.":"تم إرسال رابط إعادة تعيين كلمة المرور. تحقق من بريدك الإلكتروني.",
   "The location of this estate is not available.":"موقع هذا العقار غير متوفر.",
-  "Could not open the map. Please try again later.":"تعذر فتح الخريطة. الرجاء المحاولة مرة أخرى لاحقًا."
-
+  "Could not open the map. Please try again later.":"تعذر فتح الخريطة. الرجاء المحاولة مرة أخرى لاحقًا.",
+  "User not authenticated": "المستخدم غير مصدق",
+  "You don't have this estate": "أنت لا تملك هذا العقار",
+  "Post Limit Reached": "تم الوصول إلى الحد الأقصى للمنشورات",
+  "You have added $allowedPosts posts in a month. You cannot add more.": "لقد أضفت $allowedPosts منشورات في الشهر. لا يمكنك إضافة المزيد.",
+  "Restricted": "مقيد",
+  "Your account type does not allow adding posts.": "نوع حسابك لا يسمح بإضافة المنشورات."
 }
