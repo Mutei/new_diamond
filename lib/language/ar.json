@@ -283,5 +283,7 @@
   "Post Limit Reached": "تم الوصول إلى الحد الأقصى للمنشورات",
   "You have added $allowedPosts posts in a month. You cannot add more.": "لقد أضفت $allowedPosts منشورات في الشهر. لا يمكنك إضافة المزيد.",
   "Restricted": "مقيد",
-  "Your account type does not allow adding posts.": "نوع حسابك لا يسمح بإضافة المنشورات."
+  "Your account type does not allow adding posts.": "نوع حسابك لا يسمح بإضافة المنشورات.",
+  "Subscription Expired":"Subscription Expired",
+  "Your subscription has expired. You have been reverted to the Star account.":"Your subscription has expired. You have been reverted to the Star account."
 }

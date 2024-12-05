@@ -1,14 +1,16 @@
+// lib/screens/upgrade_account_screen.dart
+
 import 'package:diamond_host_admin/constants/colors.dart';
 import 'package:diamond_host_admin/localization/language_constants.dart';
 import 'package:diamond_host_admin/widgets/reused_appbar.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:provider/provider.dart';
 import 'package:diamond_host_admin/constants/styles.dart';
 import 'package:diamond_host_admin/extension/sized_box_extension.dart';
 import '../utils/failure_dialogue.dart';
 import '../utils/success_dialogue.dart';
 import '../widgets/type_account_widget.dart'; // Import the new widget
+import '../state_management/general_provider.dart'; // Import the provider
 
 class UpgradeAccountScreen extends StatefulWidget {
   const UpgradeAccountScreen({super.key});
@@ -18,7 +20,6 @@ class UpgradeAccountScreen extends StatefulWidget {
 }
 
 class _UpgradeAccountScreenState extends State<UpgradeAccountScreen> {
-  String selectedTypeAccount = '1'; // Default to Star account
   bool isLoading = false;
   List<Map<String, String>> accountTypes = [
     {
@@ -41,72 +42,28 @@ class _UpgradeAccountScreenState extends State<UpgradeAccountScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchCurrentAccountType();
-  }
-
-  Future<void> _fetchCurrentAccountType() async {
-    setState(() {
-      isLoading = true;
-    });
-    // Fetch the current TypeAccount from the Realtime Database
-    String? id = FirebaseAuth.instance.currentUser?.uid;
-    if (id != null) {
-      DatabaseReference ref =
-          FirebaseDatabase.instance.ref().child('App').child('User').child(id);
-      DatabaseEvent event = await ref.once();
-      if (event.snapshot.exists) {
-        final data = event.snapshot.value as Map<dynamic, dynamic>;
-        setState(() {
-          selectedTypeAccount = data['TypeAccount'] ?? '1';
-          _sortAccountTypes(); // Sort account types based on the current selection
-        });
-      }
-    }
-    setState(() {
-      isLoading = false;
-    });
-  }
-
-  void _sortAccountTypes() {
-    // Sort the accountTypes list to move the user's current account type to the first position
-    accountTypes.sort((a, b) {
-      if (a['type'] == selectedTypeAccount) {
-        return -1;
-      } else if (b['type'] == selectedTypeAccount) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
+    // No need to fetch here as provider handles it
   }
 
   Future<void> _updateAccountType(String newType) async {
+    final provider = Provider.of<GeneralProvider>(context, listen: false);
     setState(() {
       isLoading = true;
     });
-    String? id = FirebaseAuth.instance.currentUser?.uid;
-    if (id != null) {
-      try {
-        await FirebaseDatabase.instance
-            .ref()
-            .child('App')
-            .child('User')
-            .child(id)
-            .update({'TypeAccount': newType});
-        setState(() {
-          selectedTypeAccount = newType;
-          _sortAccountTypes(); // Immediately sort after updating account type
-          isLoading = false;
-        });
-        // Show success dialog
-        _showSuccessDialog();
-      } catch (e) {
-        setState(() {
-          isLoading = false;
-        });
-        // Show failure dialog
-        _showFailureDialog();
-      }
+    try {
+      // Start the subscription for 1 minute
+      await provider.startSubscription(newType, const Duration(days: 30));
+      setState(() {
+        isLoading = false;
+      });
+      // Show success dialog
+      _showSuccessDialog();
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      // Show failure dialog
+      _showFailureDialog();
     }
   }
 
@@ -176,63 +133,68 @@ class _UpgradeAccountScreenState extends State<UpgradeAccountScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: ReusedAppBar(
-        title: getTranslated(context, "Upgrade account"),
-      ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      getTranslated(context, 'Select your account type:'),
-                      style: kSecondaryStyle.copyWith(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.purple[600], // Refine the color
-                      ),
-                    ),
-                    20.kH,
-                    // Horizontal Scrollable List of Account Types with Centered Content
-                    Center(
-                      child: SizedBox(
-                        height: 550, // Set height of the scrollable cards
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: accountTypes.length,
-                          itemBuilder: (context, index) {
-                            final accountType = accountTypes[index];
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                              child: Align(
-                                alignment: Alignment.center,
-                                child: TypeAccountWidget(
-                                  accountType: accountType['type']!,
-                                  selectedTypeAccount: selectedTypeAccount,
-                                  title: getTranslated(
-                                      context, accountType['titleKey']!),
-                                  subtitle: getTranslated(
-                                      context, accountType['subtitleKey']!),
-                                  onSelected: (String accountType) {
-                                    _showUpgradeConfirmationDialog(context,
-                                        accountType); // Show confirmation dialog
-                                  },
-                                ),
-                              ),
-                            );
-                          },
+    return Consumer<GeneralProvider>(
+      builder: (context, provider, child) {
+        String selectedTypeAccount = provider.subscriptionType;
+        return Scaffold(
+          appBar: ReusedAppBar(
+            title: getTranslated(context, "Upgrade account"),
+          ),
+          body: isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          getTranslated(context, 'Select your account type:'),
+                          style: kSecondaryStyle.copyWith(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.purple[600], // Refine the color
+                          ),
                         ),
-                      ),
+                        20.kH,
+                        // Horizontal Scrollable List of Account Types with Centered Content
+                        Center(
+                          child: SizedBox(
+                            height: 550, // Set height of the scrollable cards
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: accountTypes.length,
+                              itemBuilder: (context, index) {
+                                final accountType = accountTypes[index];
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: TypeAccountWidget(
+                                      accountType: accountType['type']!,
+                                      selectedTypeAccount: selectedTypeAccount,
+                                      title: getTranslated(
+                                          context, accountType['titleKey']!),
+                                      subtitle: getTranslated(
+                                          context, accountType['subtitleKey']!),
+                                      onSelected: (String accountType) {
+                                        _showUpgradeConfirmationDialog(context,
+                                            accountType); // Show confirmation dialog
+                                      },
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
+        );
+      },
     );
   }
 }

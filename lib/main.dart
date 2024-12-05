@@ -1,3 +1,5 @@
+// lib/main.dart
+
 import 'package:diamond_host_admin/screens/private_chat_request_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -71,7 +73,49 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     initializeFirebaseAnalytics();
     loadLocale();
-    // No need to listen to chat requests here as it's handled by the provider
+    // Listen to subscription expiration
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = Provider.of<GeneralProvider>(context, listen: false);
+      provider.subscriptionExpiredStream.listen((_) {
+        if (!_dialogIsShowing) {
+          _dialogIsShowing = true; // Prevent multiple dialogs
+          print('Subscription expired. Showing dialog.');
+
+          showDialog(
+            context: navigatorKey.currentContext!,
+            builder: (context) => AlertDialog(
+              title: Text(
+                getTranslated(context, "Subscription Expired"),
+                style: TextStyle(
+                  color: Theme.of(context).primaryColor,
+                ),
+              ),
+              content: Text(
+                getTranslated(context,
+                    "Your subscription has expired. You have been reverted to the Star account."),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    setState(() {
+                      _dialogIsShowing = false;
+                    });
+                    print('Subscription expired dialog dismissed.');
+                  },
+                  child: Text(getTranslated(context, "OK")),
+                ),
+              ],
+            ),
+          ).then((_) {
+            setState(() {
+              _dialogIsShowing = false; // Reset the flag when dialog is closed
+            });
+            print('Subscription expired dialog closed.');
+          });
+        }
+      });
+    });
   }
 
   @override
@@ -158,7 +202,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                   ],
                   home: const SplashScreen(),
                   builder: (context, child) {
-                    // Listen to provider and show dialog if there's a new chat request
+                    // Existing chat request dialog logic remains unchanged
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       if (provider.hasNewChatRequest && !_dialogIsShowing) {
                         _dialogIsShowing = true; // Prevent multiple dialogs

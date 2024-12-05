@@ -284,5 +284,7 @@
   "Post Limit Reached":"Post Limit Reached",
   "You have added $allowedPosts posts in a month. You cannot add more.":"You have added $allowedPosts posts in a month. You cannot add more.",
   "Restricted":"Restricted",
-  "Your account type does not allow adding posts.":"Your account type does not allow adding posts."
+  "Your account type does not allow adding posts.":"Your account type does not allow adding posts.",
+  "Subscription Expired":"Subscription Expired",
+  "Your subscription has expired. You have been reverted to the Star account.":"Your subscription has expired. You have been reverted to the Star account."
 }
