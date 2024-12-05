@@ -1,4 +1,3 @@
-import 'package:diamond_host_admin/widgets/search_text_form_field.dart';
 import 'package:flutter/material.dart';
 import '../constants/restaurant_options.dart';
 import '../constants/styles.dart';
@@ -77,6 +76,7 @@ class _CoffeeFilterDialogState extends State<CoffeeFilterDialog> {
       localFilterState['valet'] = null;
       localFilterState['kidsArea'] = false;
       localFilterState['isSmokingAllowed'] = false;
+      localFilterState['lstMusic'] = <String>[]; // Reset music list
       typeSearchController.clear();
     });
   }
@@ -129,9 +129,12 @@ class _CoffeeFilterDialogState extends State<CoffeeFilterDialog> {
               onChanged: (value) {
                 setState(() {
                   localFilterState['music'] = value;
-                  if (!value) {
-                    // Reset Lstmusic options when music is turned off
-                    localFilterState['lstMusic'] = [];
+                  if (value) {
+                    localFilterState['lstMusic'] =
+                        <String>[]; // Reset to an empty list
+                  } else {
+                    localFilterState['lstMusic']
+                        .clear(); // Clear when turned off
                   }
                 });
               },
@@ -153,10 +156,6 @@ class _CoffeeFilterDialogState extends State<CoffeeFilterDialog> {
               onChanged: (value) {
                 setState(() {
                   localFilterState['isSmokingAllowed'] = value;
-                  if (!value) {
-                    // Reset Valet with Fees when valet service is turned off
-                    localFilterState['IsSmokingAllowed'] = false;
-                  }
                 });
               },
             ),
@@ -176,8 +175,8 @@ class _CoffeeFilterDialogState extends State<CoffeeFilterDialog> {
                 setState(() {
                   localFilterState['valet'] = value;
                   if (!value) {
-                    // Reset Valet with Fees when valet service is turned off
-                    localFilterState['valetWithFees'] = false;
+                    localFilterState['valetWithFees'] =
+                        false; // Reset valet fees
                   }
                 });
               },
