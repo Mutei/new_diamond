@@ -416,7 +416,7 @@ class _HotelScreenState extends State<HotelScreen> {
                                     location: "Rose Garden",
                                     rating: hotel['rating'],
                                     fee: hotel['fee'],
-                                    deliveryTime: hotel['time'],
+                                    // deliveryTime: hotel['time'],
                                     price: 32.0,
                                     music: hotel['Music'],
                                     typeOfRestaurant:

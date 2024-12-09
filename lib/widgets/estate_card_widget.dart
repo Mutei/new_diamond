@@ -9,7 +9,7 @@ class EstateCard extends StatelessWidget {
   final double rating;
   final String imageUrl;
   final String fee;
-  final String time;
+  // final String time;
 
   const EstateCard({
     super.key,
@@ -19,7 +19,7 @@ class EstateCard extends StatelessWidget {
     required this.rating,
     required this.imageUrl,
     required this.fee,
-    required this.time,
+    // required this.time,
   });
 
   @override
@@ -93,49 +93,49 @@ class EstateCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       // Fee and Time Row with Flexible
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: Row(
-                              children: [
-                                const Icon(Icons.monetization_on,
-                                    color: Colors.grey, size: 16),
-                                const SizedBox(width: 4),
-                                Flexible(
-                                  child: Text(
-                                    fee,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Flexible(
-                            child: Row(
-                              children: [
-                                const Icon(Icons.timer,
-                                    color: Colors.grey, size: 16),
-                                const SizedBox(width: 4),
-                                Flexible(
-                                  child: Text(
-                                    time,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+                      // Row(
+                      //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //   children: [
+                      //     Flexible(
+                      //       child: Row(
+                      //         children: [
+                      //           const Icon(Icons.monetization_on,
+                      //               color: Colors.grey, size: 16),
+                      //           const SizedBox(width: 4),
+                      //           Flexible(
+                      //             child: Text(
+                      //               fee,
+                      //               style: const TextStyle(
+                      //                 fontSize: 14,
+                      //                 color: Colors.grey,
+                      //               ),
+                      //               overflow: TextOverflow.ellipsis,
+                      //             ),
+                      //           ),
+                      //         ],
+                      //       ),
+                      //     ),
+                      //     Flexible(
+                      //       child: Row(
+                      //         children: [
+                      //           const Icon(Icons.timer,
+                      //               color: Colors.grey, size: 16),
+                      //           const SizedBox(width: 4),
+                      //           Flexible(
+                      //             child: Text(
+                      //               time,
+                      //               style: const TextStyle(
+                      //                 fontSize: 14,
+                      //                 color: Colors.grey,
+                      //               ),
+                      //               overflow: TextOverflow.ellipsis,
+                      //             ),
+                      //           ),
+                      //         ],
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
                     ],
                   ),
                 ),

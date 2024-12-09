@@ -45,7 +45,7 @@ class ProfileEstateScreen extends StatefulWidget {
   final String location;
   final double rating;
   final String fee;
-  final String deliveryTime;
+  // final String deliveryTime;
   final double price;
   final String typeOfRestaurant;
   final String sessions;
@@ -74,7 +74,7 @@ class ProfileEstateScreen extends StatefulWidget {
       required this.location,
       required this.rating,
       required this.fee,
-      required this.deliveryTime,
+      // required this.deliveryTime,
       required this.price,
       required this.typeOfRestaurant,
       required this.sessions,
@@ -739,12 +739,12 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                 8.kH,
 
                 // Location
-                AutoSizeText(
-                  widget.location,
-                  style: const TextStyle(fontSize: 16, color: Colors.grey),
-                  maxLines: 1,
-                  minFontSize: 12,
-                ),
+                // AutoSizeText(
+                //   widget.location,
+                //   style: const TextStyle(fontSize: 16, color: Colors.grey),
+                //   maxLines: 1,
+                //   minFontSize: 12,
+                // ),
                 16.kH,
 
                 // Ratings, Fee, Delivery Time
@@ -763,31 +763,31 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                             minFontSize: 12,
                           ),
                         ),
-                        const SizedBox(width: 10),
-                        const Icon(Icons.monetization_on,
-                            color: Colors.grey, size: 16),
+                        // const SizedBox(width: 10),
+                        // const Icon(Icons.monetization_on,
+                        //     color: Colors.grey, size: 16),
+                        // const SizedBox(width: 4),
+                        // Flexible(
+                        //   child: AutoSizeText(
+                        //     widget.fee,
+                        //     style: const TextStyle(
+                        //         fontSize: 14, color: Colors.grey),
+                        //     maxLines: 1,
+                        //     minFontSize: 12,
+                        //   ),
+                        // ),
+                        // const SizedBox(width: 10),
+                        // const Icon(Icons.timer, color: Colors.grey, size: 16),
                         const SizedBox(width: 4),
-                        Flexible(
-                          child: AutoSizeText(
-                            widget.fee,
-                            style: const TextStyle(
-                                fontSize: 14, color: Colors.grey),
-                            maxLines: 1,
-                            minFontSize: 12,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        const Icon(Icons.timer, color: Colors.grey, size: 16),
-                        const SizedBox(width: 4),
-                        Flexible(
-                          child: AutoSizeText(
-                            widget.deliveryTime,
-                            style: const TextStyle(
-                                fontSize: 14, color: Colors.grey),
-                            maxLines: 1,
-                            minFontSize: 12,
-                          ),
-                        ),
+                        // Flexible(
+                        //   child: AutoSizeText(
+                        //     widget.deliveryTime,
+                        //     style: const TextStyle(
+                        //         fontSize: 14, color: Colors.grey),
+                        //     maxLines: 1,
+                        //     minFontSize: 12,
+                        //   ),
+                        // ),
                       ],
                     );
                   },

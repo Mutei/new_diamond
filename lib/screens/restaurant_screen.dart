@@ -333,7 +333,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                                     location: "Rose Garden" ?? '',
                                     rating: restaurant['rating'] ?? '',
                                     fee: restaurant['fee'] ?? '',
-                                    deliveryTime: restaurant['time'] ?? '',
+                                    // deliveryTime: restaurant['time'] ?? '',
                                     price: 32.0,
                                     typeOfRestaurant:
                                         restaurant['TypeofRestaurant'] ?? '',
