@@ -56,7 +56,6 @@ class _MainScreenContentState extends State<MainScreenContent> {
   }
 
   Future<void> _initializePermissions() async {
-    // Check Location Permission
     PermissionStatus locationStatus = await Permission.location.status;
     if (locationStatus.isDenied || locationStatus.isRestricted) {
       locationStatus = await Permission.location.request();
@@ -69,7 +68,6 @@ class _MainScreenContentState extends State<MainScreenContent> {
       );
     }
 
-    // Check Notification Permission
     PermissionStatus notificationStatus = await Permission.notification.status;
     if (notificationStatus.isDenied || notificationStatus.isRestricted) {
       notificationStatus = await Permission.notification.request();
@@ -135,7 +133,6 @@ class _MainScreenContentState extends State<MainScreenContent> {
           'nameAr': estateData['NameAr'] ?? 'غير معروف',
           'rating': 0.0,
           'fee': estateData['Fee'] ?? 'Free',
-          // 'time': estateData['Time'] ?? '20 min',
           'TypeofRestaurant': estateData['TypeofRestaurant'] ?? 'Unknown Type',
           'Sessions': estateData['Sessions'] ?? 'Unknown Session Type',
           'MenuLink': estateData['MenuLink'] ?? 'No Menu',
@@ -275,32 +272,30 @@ class _MainScreenContentState extends State<MainScreenContent> {
                                   itemCount: categories.length,
                                   itemBuilder: (context, index) {
                                     final category = categories[index];
+                                    final localizedCategory =
+                                        getTranslated(context, category);
                                     final iconData = _getCategoryIcon(category);
 
                                     return GestureDetector(
                                       onTap: () {
-                                        switch (category) {
-                                          case 'Hotel':
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        HotelScreen()));
-                                            break;
-                                          case 'Restaurant':
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        RestaurantScreen()));
-                                            break;
-                                          case 'Coffee':
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        CoffeeScreen()));
-                                            break;
+                                        if (category == 'Hotel') {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      HotelScreen()));
+                                        } else if (category == 'Restaurant') {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      RestaurantScreen()));
+                                        } else if (category == 'Coffee') {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      CoffeeScreen()));
                                         }
                                       },
                                       child: Container(
@@ -336,10 +331,9 @@ class _MainScreenContentState extends State<MainScreenContent> {
                                                   color: Colors.white),
                                               padding: EdgeInsets.all(20),
                                             ),
-                                            const SizedBox(
-                                                height: 4), // Adjusted height
+                                            const SizedBox(height: 4),
                                             AutoSizeText(
-                                              category,
+                                              localizedCategory,
                                               style: TextStyle(
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w600,
@@ -421,7 +415,6 @@ class _MainScreenContentState extends State<MainScreenContent> {
                           location: "Rose Garden",
                           rating: estate['rating'],
                           fee: estate['fee'],
-                          // deliveryTime: estate['time'],
                           price: 32.0,
                           typeOfRestaurant: estate['TypeofRestaurant'],
                           sessions: estate['Sessions'],
@@ -452,7 +445,6 @@ class _MainScreenContentState extends State<MainScreenContent> {
                     rating: estate['rating'],
                     imageUrl: estate['imageUrl'],
                     fee: estate['fee'],
-                    // time: estate['time'],
                   ),
                 );
               },
