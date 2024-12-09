@@ -1,3 +1,6 @@
+// lib/screens/main_screen_content.dart
+
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -35,12 +38,34 @@ class _MainScreenContentState extends State<MainScreenContent> {
 
   final TextEditingController searchController = TextEditingController();
 
+  // User's current location
+  double currentLat = 0.0;
+  double currentLon = 0.0;
+
   @override
   void initState() {
     super.initState();
-    _fetchEstates();
     searchController.addListener(_filterEstates);
     _checkPermissionsAndFetchData();
+  }
+
+  /// Function to calculate distance between two coordinates using Haversine formula
+  double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    const double R = 6371; // Earth's radius in kilometers
+    double dLat = _deg2rad(lat2 - lat1);
+    double dLon = _deg2rad(lon2 - lon1);
+    double a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(_deg2rad(lat1)) *
+            cos(_deg2rad(lat2)) *
+            sin(dLon / 2) *
+            sin(dLon / 2);
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    double distance = R * c;
+    return distance; // Distance in kilometers
+  }
+
+  double _deg2rad(double deg) {
+    return deg * (pi / 180);
   }
 
   Future<void> _checkPermissionsAndFetchData() async {
@@ -51,6 +76,10 @@ class _MainScreenContentState extends State<MainScreenContent> {
       await _initializePermissions();
       await prefs.setBool('permissionsChecked', true);
     }
+
+    // Fetch user's current location from SharedPreferences
+    currentLat = prefs.getDouble('currentLat') ?? 0.0;
+    currentLon = prefs.getDouble('currentLon') ?? 0.0;
 
     _fetchEstates();
   }
@@ -107,11 +136,29 @@ class _MainScreenContentState extends State<MainScreenContent> {
   Future<void> _fetchEstates() async {
     setState(() => loading = true);
     try {
+      // Log user's current location
+      print("User's Current Location: Lat = $currentLat, Lon = $currentLon");
+
       final data = await estateServices.fetchEstates();
       final parsedEstates = await _parseAndFetchAdditionalData(data);
 
+      // Calculate distance for each estate
+      final estatesWithDistance = parsedEstates.map((estate) {
+        double estateLat = estate['Lat'] ?? 0.0;
+        double estateLon = estate['Lon'] ?? 0.0;
+        double distance =
+            calculateDistance(currentLat, currentLon, estateLat, estateLon);
+
+        // Log estate location and calculated distance
+        print(
+            "Estate: ${estate['nameEn']}, Lat = $estateLat, Lon = $estateLon, Distance = ${distance.toStringAsFixed(2)} km");
+
+        estate['distance'] = distance;
+        return estate;
+      }).toList();
+
       setState(() {
-        estates = parsedEstates;
+        estates = estatesWithDistance;
         filteredEstates = estates;
         loading = false;
       });
@@ -121,6 +168,7 @@ class _MainScreenContentState extends State<MainScreenContent> {
     }
   }
 
+  // Keeping _parseAndFetchAdditionalData as is
   Future<List<Map<String, dynamic>>> _parseAndFetchAdditionalData(
       Map<String, dynamic> data) async {
     List<Map<String, dynamic>> estateList = [];
@@ -154,6 +202,9 @@ class _MainScreenContentState extends State<MainScreenContent> {
           'Lat': estateData['Lat'] ?? 0,
           'Lon': estateData['Lon'] ?? 0,
         };
+
+        print(
+            "Parsing Estate: ${estate['nameEn']}, Lat = ${estate['Lat']}, Lon = ${estate['Lon']}");
 
         estate = await _addAdditionalEstateData(estate);
         estateList.add(estate);
@@ -445,6 +496,7 @@ class _MainScreenContentState extends State<MainScreenContent> {
                     rating: estate['rating'],
                     imageUrl: estate['imageUrl'],
                     fee: estate['fee'],
+                    distance: estate['distance'], // Pass distance
                   ),
                 );
               },
