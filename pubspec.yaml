@@ -76,7 +76,6 @@ dependencies:
   qr_code_scanner: ^1.0.1
   emoji_picker_flutter: ^1.6.4
   flutter_reaction_button: ^3.0.0
-  
 
 dev_dependencies:
   flutter_test:

@@ -4,6 +4,7 @@ import 'dart:async'; // Added for Timer
 import 'package:diamond_host_admin/constants/coffee_music_options.dart';
 import 'package:diamond_host_admin/constants/hotel_entry_options.dart';
 import 'package:diamond_host_admin/constants/sessions_options.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -112,6 +113,8 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
   double _overallRating = 0.0;
   int _currentImageIndex = 0;
   List<Map<String, dynamic>> _feedbackList = [];
+  bool isLoadingTypeAccount = true;
+  String? typeAccount;
 
   // Set to keep track of expanded feedback items
   Set<int> _expandedFeedbacks = {};
@@ -119,10 +122,37 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
   @override
   void initState() {
     super.initState();
+    _fetchTypeAccount();
     _fetchImageUrls();
     _fetchUserRatings();
     _fetchFeedback();
     // Removed: _loadButtonState(); // Load button state is now handled by provider
+  }
+
+  Future<void> _fetchTypeAccount() async {
+    try {
+      // Fetch the currently authenticated user
+      User? currentUser = FirebaseAuth.instance.currentUser;
+
+      if (currentUser != null) {
+        String userId = currentUser.uid;
+        DatabaseReference userRef =
+            FirebaseDatabase.instance.ref('App/User/$userId/TypeAccount');
+        DataSnapshot snapshot = await userRef.get();
+
+        if (snapshot.exists) {
+          setState(() {
+            typeAccount = snapshot.value.toString();
+          });
+        }
+      }
+    } catch (e) {
+      print('Error fetching TypeAccount: $e');
+    } finally {
+      setState(() {
+        isLoadingTypeAccount = false; // Loading complete
+      });
+    }
   }
 
   void _launchMaps() async {
@@ -522,8 +552,6 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
       appBar: ReusedAppBar(
         title: displayName,
         actions: [
-          // Rate Button
-
           TextButton(
             child: Text(
               getTranslated(context, "Rate"),
@@ -601,63 +629,69 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
               _launchMaps();
             },
           ),
-          // Chat Button
-          IconButton(
-            icon: Icon(Icons.chat,
-                color: isButtonsActive && activeEstateId == widget.estateId
-                    ? Colors.green
-                    : kDeepPurpleColor),
-            tooltip: getTranslated(context, "Chat"),
-            onPressed: () async {
-              if (isButtonsActive && activeEstateId == widget.estateId) {
-                // Within the active duration, allow direct chat
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => EstateChatScreen(
-                      estateId: widget.estateId,
-                      estateNameEn: widget.nameEn,
-                      estateNameAr: widget.nameAr,
+          if (isLoadingTypeAccount)
+            SizedBox() // Render nothing while loading TypeAccount
+          else if (typeAccount !=
+              "1") // Show button only if TypeAccount is not "1"
+            IconButton(
+              icon: Icon(Icons.chat,
+                  color: isButtonsActive && activeEstateId == widget.estateId
+                      ? Colors.green
+                      : kDeepPurpleColor),
+
+              // Chat button logic here
+              onPressed: () async {
+                if (isButtonsActive && activeEstateId == widget.estateId) {
+                  // Within the active duration, allow direct chat
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => EstateChatScreen(
+                        estateId: widget.estateId,
+                        estateNameEn: widget.nameEn,
+                        estateNameAr: widget.nameAr,
+                      ),
                     ),
-                  ),
-                );
-                return;
-              }
+                  );
+                  return;
+                }
 
-              // If not active or time expired, require scanning
-              final scanResult = await Navigator.push<bool>(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => QRScannerScreen(
-                    expectedEstateId: widget.estateId,
-                  ),
-                ),
-              );
-
-              if (scanResult == true) {
-                // If QR code is valid, activate the timer before navigating
-                final now = DateTime.now();
-                final duration = getButtonActiveDuration();
-                await objProvider.activateTimer(widget.estateId, duration);
-
-                // Navigate to EstateChatScreen
-                Navigator.of(context).push(
+                // If not active or time expired, require scanning
+                final scanResult = await Navigator.push<bool>(
+                  context,
                   MaterialPageRoute(
-                    builder: (context) => EstateChatScreen(
-                      estateId: widget.estateId,
-                      estateNameEn: widget.nameEn,
-                      estateNameAr: widget.nameAr,
+                    builder: (context) => QRScannerScreen(
+                      expectedEstateId: widget.estateId,
                     ),
                   ),
                 );
 
-                // Timer remains active until it expires
-              } else if (scanResult == false) {
-                // Show FailureDialog notifying the user of the invalid scan
-                await _showInvalidQRScanFailureDialog();
-              }
-              // If scanResult is null, user might have cancelled the scan
-            },
-          ),
+                if (scanResult == true) {
+                  // If QR code is valid, activate the timer before navigating
+                  final now = DateTime.now();
+                  final duration = getButtonActiveDuration();
+                  await objProvider.activateTimer(widget.estateId, duration);
+
+                  // Navigate to EstateChatScreen
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => EstateChatScreen(
+                        estateId: widget.estateId,
+                        estateNameEn: widget.nameEn,
+                        estateNameAr: widget.nameAr,
+                      ),
+                    ),
+                  );
+
+                  // Timer remains active until it expires
+                } else if (scanResult == false) {
+                  // Show FailureDialog notifying the user of the invalid scan
+                  await _showInvalidQRScanFailureDialog();
+                }
+                // If scanResult is null, user might have cancelled the scan
+              },
+            )
+          else
+            SizedBox(), // Render nothing if TypeAccount is "1"
         ],
       ),
       body: SafeArea(

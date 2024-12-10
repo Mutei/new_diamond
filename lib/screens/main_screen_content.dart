@@ -77,11 +77,43 @@ class _MainScreenContentState extends State<MainScreenContent> {
       await prefs.setBool('permissionsChecked', true);
     }
 
-    // Fetch user's current location from SharedPreferences
-    currentLat = prefs.getDouble('currentLat') ?? 0.0;
-    currentLon = prefs.getDouble('currentLon') ?? 0.0;
+    // Fetch location using fallback logic
+    await _fetchCurrentLocation();
 
     _fetchEstates();
+  }
+
+  Future<void> _fetchCurrentLocation() async {
+    try {
+      // Check permission first
+      PermissionStatus locationStatus = await Permission.location.status;
+
+      if (locationStatus.isGranted) {
+        // Use a platform channel or call the native location services
+        // Here, using a mock location for demonstration
+        setState(() {
+          currentLat = 24.7136; // Riyadh, Saudi Arabia (example)
+          currentLon = 46.6753;
+        });
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setDouble('currentLat', currentLat);
+        await prefs.setDouble('currentLon', currentLon);
+      } else {
+        // Handle when location is not granted or user denies permissions
+        print("Location permission not granted.");
+        setState(() {
+          currentLat = 0.0; // Default or fallback
+          currentLon = 0.0;
+        });
+      }
+    } catch (e) {
+      print("Error fetching location: $e");
+      setState(() {
+        currentLat = 0.0; // Default or fallback
+        currentLon = 0.0;
+      });
+    }
   }
 
   Future<void> _initializePermissions() async {
