@@ -549,151 +549,156 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
     final String? activeEstateId = objProvider.activeEstateId;
 
     return Scaffold(
-      appBar: ReusedAppBar(
-        title: displayName,
-        actions: [
-          TextButton(
-            child: Text(
-              getTranslated(context, "Rate"),
-              style: TextStyle(
-                color: isButtonsActive && activeEstateId == widget.estateId
-                    ? Colors.green
-                    : kDeepPurpleColor,
-              ),
-            ),
-            onPressed: () async {
-              if (isButtonsActive && activeEstateId == widget.estateId) {
-                // Within the active duration, allow direct feedback
-                final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FeedbackDialogScreen(
-                      estateId: widget.estateId,
-                      estateNameEn: widget.nameEn,
-                      estateNameAr: widget.nameAr,
-                    ),
-                  ),
-                );
-
-                if (result == true) {
-                  await _fetchFeedback();
-                  await _fetchUserRatings();
-                }
-                return;
-              }
-
-              // If not active or time expired, require scanning
-              final scanResult = await Navigator.push<bool>(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => QRScannerScreen(
-                    expectedEstateId: widget.estateId,
-                  ),
-                ),
-              );
-
-              if (scanResult == true) {
-                // If QR code is valid, activate the timer before navigating
-                final now = DateTime.now();
-                final duration = getButtonActiveDuration();
-                await objProvider.activateTimer(widget.estateId, duration);
-
-                // Navigate to Feedback Dialog Screen
-                final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FeedbackDialogScreen(
-                      estateId: widget.estateId,
-                      estateNameEn: widget.nameEn,
-                      estateNameAr: widget.nameAr,
-                    ),
-                  ),
-                );
-
-                // If feedback was submitted successfully, refresh the feedback list and ratings
-                if (result == true) {
-                  await _fetchFeedback();
-                  await _fetchUserRatings();
-                  // Timer remains active until it expires
-                }
-              } else if (scanResult == false) {
-                // Show FailureDialog notifying the user of the invalid scan
-                await _showInvalidQRScanFailureDialog();
-              }
-              // If scanResult is null, user might have cancelled the scan
-            },
-          ),
-          InkWell(
-            child: Icon(Icons.map_outlined),
-            onTap: () {
-              _launchMaps();
-            },
-          ),
-          if (isLoadingTypeAccount)
-            SizedBox() // Render nothing while loading TypeAccount
-          else if (typeAccount !=
-              "1") // Show button only if TypeAccount is not "1"
-            IconButton(
-              icon: Icon(Icons.chat,
-                  color: isButtonsActive && activeEstateId == widget.estateId
-                      ? Colors.green
-                      : kDeepPurpleColor),
-
-              // Chat button logic here
-              onPressed: () async {
-                if (isButtonsActive && activeEstateId == widget.estateId) {
-                  // Within the active duration, allow direct chat
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => EstateChatScreen(
-                        estateId: widget.estateId,
-                        estateNameEn: widget.nameEn,
-                        estateNameAr: widget.nameAr,
-                      ),
-                    ),
-                  );
-                  return;
-                }
-
-                // If not active or time expired, require scanning
-                final scanResult = await Navigator.push<bool>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => QRScannerScreen(
-                      expectedEstateId: widget.estateId,
-                    ),
-                  ),
-                );
-
-                if (scanResult == true) {
-                  // If QR code is valid, activate the timer before navigating
-                  final now = DateTime.now();
-                  final duration = getButtonActiveDuration();
-                  await objProvider.activateTimer(widget.estateId, duration);
-
-                  // Navigate to EstateChatScreen
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => EstateChatScreen(
-                        estateId: widget.estateId,
-                        estateNameEn: widget.nameEn,
-                        estateNameAr: widget.nameAr,
-                      ),
-                    ),
-                  );
-
-                  // Timer remains active until it expires
-                } else if (scanResult == false) {
-                  // Show FailureDialog notifying the user of the invalid scan
-                  await _showInvalidQRScanFailureDialog();
-                }
-                // If scanResult is null, user might have cancelled the scan
-              },
+      appBar: isLoadingTypeAccount
+          ? AppBar(
+              title: CircularProgressIndicator(),
+              centerTitle: true, // Temporary app bar during loading
             )
-          else
-            SizedBox(), // Render nothing if TypeAccount is "1"
-        ],
-      ),
+          : ReusedAppBar(
+              title: displayName,
+              actions: [
+                // Rate Button
+                TextButton(
+                  child: Text(
+                    getTranslated(context, "Rate"),
+                    style: TextStyle(
+                      color:
+                          isButtonsActive && activeEstateId == widget.estateId
+                              ? Colors.green
+                              : kDeepPurpleColor,
+                    ),
+                  ),
+                  onPressed: () async {
+                    if (isButtonsActive && activeEstateId == widget.estateId) {
+                      // Within the active duration, allow direct feedback
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FeedbackDialogScreen(
+                            estateId: widget.estateId,
+                            estateNameEn: widget.nameEn,
+                            estateNameAr: widget.nameAr,
+                          ),
+                        ),
+                      );
+
+                      if (result == true) {
+                        await _fetchFeedback();
+                        await _fetchUserRatings();
+                      }
+                      return;
+                    }
+
+                    // If not active or time expired, require scanning
+                    final scanResult = await Navigator.push<bool>(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => QRScannerScreen(
+                          expectedEstateId: widget.estateId,
+                        ),
+                      ),
+                    );
+
+                    if (scanResult == true) {
+                      // If QR code is valid, activate the timer before navigating
+                      final now = DateTime.now();
+                      final duration = getButtonActiveDuration();
+                      await objProvider.activateTimer(
+                          widget.estateId, duration);
+
+                      // Navigate to Feedback Dialog Screen
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FeedbackDialogScreen(
+                            estateId: widget.estateId,
+                            estateNameEn: widget.nameEn,
+                            estateNameAr: widget.nameAr,
+                          ),
+                        ),
+                      );
+
+                      if (result == true) {
+                        await _fetchFeedback();
+                        await _fetchUserRatings();
+                        // Timer remains active until it expires
+                      }
+                    } else if (scanResult == false) {
+                      // Show FailureDialog notifying the user of the invalid scan
+                      await _showInvalidQRScanFailureDialog();
+                    }
+                  },
+                ),
+
+                // Map Button
+                InkWell(
+                  child: Icon(Icons.map_outlined),
+                  onTap: () {
+                    _launchMaps();
+                  },
+                ),
+
+                // Chat Button
+                if (typeAccount != "1")
+                  IconButton(
+                    icon: Icon(
+                      Icons.chat,
+                      color:
+                          isButtonsActive && activeEstateId == widget.estateId
+                              ? Colors.green
+                              : kDeepPurpleColor,
+                    ),
+                    onPressed: () async {
+                      if (isButtonsActive &&
+                          activeEstateId == widget.estateId) {
+                        // Within the active duration, allow direct chat
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => EstateChatScreen(
+                              estateId: widget.estateId,
+                              estateNameEn: widget.nameEn,
+                              estateNameAr: widget.nameAr,
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+
+                      // If not active or time expired, require scanning
+                      final scanResult = await Navigator.push<bool>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => QRScannerScreen(
+                            expectedEstateId: widget.estateId,
+                          ),
+                        ),
+                      );
+
+                      if (scanResult == true) {
+                        // If QR code is valid, activate the timer before navigating
+                        final now = DateTime.now();
+                        final duration = getButtonActiveDuration();
+                        await objProvider.activateTimer(
+                            widget.estateId, duration);
+
+                        // Navigate to EstateChatScreen
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => EstateChatScreen(
+                              estateId: widget.estateId,
+                              estateNameEn: widget.nameEn,
+                              estateNameAr: widget.nameAr,
+                            ),
+                          ),
+                        );
+                      } else if (scanResult == false) {
+                        // Show FailureDialog notifying the user of the invalid scan
+                        await _showInvalidQRScanFailureDialog();
+                      }
+                    },
+                  )
+              ],
+            ),
       body: SafeArea(
         // Added SafeArea for better UI
         child: SingleChildScrollView(
