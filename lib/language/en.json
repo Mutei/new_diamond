@@ -286,5 +286,8 @@
   "Restricted":"Restricted",
   "Your account type does not allow adding posts.":"Your account type does not allow adding posts.",
   "Subscription Expired":"Subscription Expired",
-  "Your subscription has expired. You have been reverted to the Star account.":"Your subscription has expired. You have been reverted to the Star account."
+  "Your subscription has expired. You have been reverted to the Star account.":"Your subscription has expired. You have been reverted to the Star account.",
+  "New Private Chat Request":"New Private Chat Request",
+  "Dismiss":"Dismiss",
+  "View":"View"
 }
