@@ -495,8 +495,7 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
         backgroundImage: widget.post['ProfileImageUrl'] != null &&
                 (widget.post['ProfileImageUrl'] as String).isNotEmpty
             ? NetworkImage(widget.post['ProfileImageUrl'])
-            : const AssetImage('assets/images/default_profile.png')
-                as ImageProvider,
+            : const AssetImage('assets/images/default.jpg') as ImageProvider,
         radius: 20,
       ),
       title: Text(
@@ -706,7 +705,7 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
                 backgroundImage: widget.currentUserProfileImage != null &&
                         widget.currentUserProfileImage!.isNotEmpty
                     ? NetworkImage(widget.currentUserProfileImage!)
-                    : const AssetImage('assets/images/default_profile.png')
+                    : const AssetImage('assets/images/default.jpg')
                         as ImageProvider,
               ),
               const SizedBox(width: 8),
@@ -760,7 +759,7 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
                 backgroundImage: comment['userProfileImage'] != null &&
                         (comment['userProfileImage'] as String).isNotEmpty
                     ? NetworkImage(comment['userProfileImage'])
-                    : const AssetImage('assets/images/default_profile.png')
+                    : const AssetImage('assets/images/default.jpg')
                         as ImageProvider,
               ),
               const SizedBox(width: 8),
@@ -898,7 +897,7 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
                     backgroundImage: widget.currentUserProfileImage != null &&
                             widget.currentUserProfileImage!.isNotEmpty
                         ? NetworkImage(widget.currentUserProfileImage!)
-                        : const AssetImage('assets/images/default_profile.png')
+                        : const AssetImage('assets/images/default.jpg')
                             as ImageProvider,
                   ),
                   const SizedBox(width: 8),
@@ -951,7 +950,7 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
             backgroundImage: reply['userProfileImage'] != null &&
                     (reply['userProfileImage'] as String).isNotEmpty
                 ? NetworkImage(reply['userProfileImage'])
-                : const AssetImage('assets/images/default_profile.png')
+                : const AssetImage('assets/images/default.jpg')
                     as ImageProvider,
           ),
           const SizedBox(width: 8),

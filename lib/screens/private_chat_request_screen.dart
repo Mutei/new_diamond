@@ -145,7 +145,7 @@ class _PrivateChatRequestsScreenState extends State<PrivateChatRequestsScreen> {
                   leading: CircleAvatar(
                     backgroundImage: profileImageUrl.isNotEmpty
                         ? NetworkImage(profileImageUrl)
-                        : const AssetImage('assets/images/default_avatar.png')
+                        : const AssetImage('assets/images/default.jpg')
                             as ImageProvider,
                   ),
                   title: Text(senderName),

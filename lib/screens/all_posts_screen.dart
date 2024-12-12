@@ -255,7 +255,7 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
               radius: 20,
               backgroundImage: currentUserProfileImage != null
                   ? NetworkImage(currentUserProfileImage!)
-                  : const AssetImage('assets/images/default_profile.png')
+                  : const AssetImage('assets/images/default.jpg')
                       as ImageProvider,
             ),
             const SizedBox(width: 10),

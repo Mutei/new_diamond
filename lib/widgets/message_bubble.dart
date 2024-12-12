@@ -495,7 +495,7 @@ class _MessageBubbleState extends State<MessageBubble>
                     radius: 16,
                     backgroundImage: widget.profileImageUrl.isNotEmpty
                         ? CachedNetworkImageProvider(widget.profileImageUrl)
-                        : const AssetImage('assets/images/default_avatar.png')
+                        : const AssetImage('assets/images/default.jpg')
                             as ImageProvider,
                   ),
                 ),
