@@ -140,6 +140,89 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
 
   /// Fetches all posts from Firebase
   /// Fetches all posts from Firebase
+  // Future<void> _fetchPosts() async {
+  //   try {
+  //     DatabaseEvent event = await _postsRef.once();
+  //     Map<dynamic, dynamic>? postsData =
+  //         event.snapshot.value as Map<dynamic, dynamic>?;
+  //
+  //     if (postsData != null) {
+  //       List<Map<dynamic, dynamic>> postsList = [];
+  //       for (var entry in postsData.entries) {
+  //         Map<dynamic, dynamic> post = Map<dynamic, dynamic>.from(entry.value);
+  //         post['postId'] = entry.key;
+  //
+  //         // Handle Date
+  //         if (post['Date'] != null && post['Date'] is int) {
+  //           int timestamp = post['Date'];
+  //           DateTime date = DateTime.fromMillisecondsSinceEpoch(timestamp);
+  //           String relativeDate = timeago.format(date, allowFromNow: true);
+  //           post['RelativeDate'] = relativeDate;
+  //         } else {
+  //           post['RelativeDate'] = 'Invalid Date';
+  //         }
+  //
+  //         // Fetch UserName or EstateName
+  //         if (post['userType'] == '1') {
+  //           try {
+  //             DataSnapshot userSnapshot =
+  //                 await _userRef.child(post['userId']).get();
+  //             if (userSnapshot.exists) {
+  //               Map<dynamic, dynamic> userData =
+  //                   userSnapshot.value as Map<dynamic, dynamic>;
+  //               String firstName = userData['FirstName']?.toString() ?? '';
+  //               String secondName = userData['SecondName']?.toString() ?? '';
+  //               String lastName = userData['LastName']?.toString() ?? '';
+  //               post['UserName'] = '$firstName $secondName $lastName'.trim();
+  //             } else {
+  //               post['UserName'] = 'Unknown User';
+  //             }
+  //           } catch (e) {
+  //             print('Error fetching user data for post ${post['postId']}: $e');
+  //             post['UserName'] = 'Unknown User';
+  //           }
+  //         } else if (post['userType'] == '2') {
+  //           // Fetch EstateName for userType 2
+  //           try {
+  //             DatabaseReference estateRef = FirebaseDatabase.instance
+  //                 .ref('App/Estate/${post['EstateType']}/${post['userId']}');
+  //             DataSnapshot estateSnapshot = await estateRef.get();
+  //             if (estateSnapshot.exists) {
+  //               Map<dynamic, dynamic> estateData =
+  //                   estateSnapshot.value as Map<dynamic, dynamic>;
+  //               post['UserName'] = estateData['EstateName'] ?? 'Unknown Estate';
+  //             } else {
+  //               post['UserName'] = 'Unknown Estate';
+  //             }
+  //           } catch (e) {
+  //             print(
+  //                 'Error fetching estate data for post ${post['postId']}: $e');
+  //             post['UserName'] = 'Unknown Estate';
+  //           }
+  //         }
+  //
+  //         postsList.add(post);
+  //       }
+  //
+  //       // Sort posts by Date descending
+  //       postsList.sort((a, b) => b['Date'].compareTo(a['Date']));
+  //
+  //       setState(() {
+  //         _posts = postsList;
+  //       });
+  //     } else {
+  //       setState(() {
+  //         _posts = [];
+  //       });
+  //     }
+  //   } catch (e) {
+  //     print('Error fetching posts: $e');
+  //     setState(() {
+  //       _posts = [];
+  //     });
+  //   }
+  // }
+
   Future<void> _fetchPosts() async {
     try {
       DatabaseEvent event = await _postsRef.once();
@@ -152,6 +235,9 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
           Map<dynamic, dynamic> post = Map<dynamic, dynamic>.from(entry.value);
           post['postId'] = entry.key;
 
+          // Check the post status
+          if (post['Status'] != "1") continue; // Only show accepted posts
+
           // Handle Date
           if (post['Date'] != null && post['Date'] is int) {
             int timestamp = post['Date'];
@@ -159,7 +245,7 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
             String relativeDate = timeago.format(date, allowFromNow: true);
             post['RelativeDate'] = relativeDate;
           } else {
-            post['RelativeDate'] = 'Invalid Date';
+            post['RelativeDate'] = 'Unknown Date';
           }
 
           // Fetch UserName or EstateName

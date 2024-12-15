@@ -14,6 +14,7 @@ final kDeepPurpleColor = Colors.deepPurple[300]!;
 final kPurpleColor = Colors.purple[300]!;
 const kErrorColor = Colors.red;
 const kConfirmColor = Colors.green;
+const kUnderProcessColor = Colors.orange;
 // Define the gradient as a reusable constant
 final LinearGradient kPrimaryGradient = LinearGradient(
   colors: [

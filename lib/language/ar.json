@@ -291,6 +291,7 @@
   "Your subscription has expired. You have been reverted to the Star account.":"Your subscription has expired. You have been reverted to the Star account.",
   "New Private Chat Request":"طلب محادثة خاصة جديد",
   "Dismiss":"رفض",
-  "View":"عرض"
-
+  "View":"عرض",
+  "Under Process": "قيد المعالجة",
+  "Your post is under process for review": "منشورك قيد المراجعة"
 }

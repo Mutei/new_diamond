@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:diamond_host_admin/constants/colors.dart';
 import 'package:diamond_host_admin/constants/styles.dart';
 import 'package:diamond_host_admin/localization/language_constants.dart';
+import 'package:diamond_host_admin/utils/under_process_dialog.dart';
 import 'package:diamond_host_admin/widgets/reused_elevated_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -40,18 +41,15 @@ class _AddPostScreenState extends State<AddPostScreen> {
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showCustomLoadingDialog(context);
     });
-
     if (widget.post != null) {
       _postId = widget.post!['postId'];
       _titleController.text = widget.post!['Description'];
       _textController.text = widget.post!['Text'];
       _selectedEstate = widget.post!['EstateType'];
     }
-
     _initializeData();
   }
 
@@ -92,13 +90,11 @@ class _AddPostScreenState extends State<AddPostScreen> {
       return;
     }
     String userId = user.uid;
-
     DatabaseReference estateRef =
         FirebaseDatabase.instance.ref("App").child("Estate");
     DatabaseEvent estateEvent = await estateRef.once();
     Map<dynamic, dynamic>? estatesData =
         estateEvent.snapshot.value as Map<dynamic, dynamic>?;
-
     if (estatesData != null) {
       List<Map<dynamic, dynamic>> userEstates = [];
       estatesData.forEach((estateType, estates) {
@@ -112,7 +108,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
           });
         }
       });
-
       setState(() {
         _userEstates = userEstates;
         if (_userEstates.isNotEmpty &&
@@ -153,7 +148,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
       );
       return;
     }
-
     if (_formKey.currentState!.validate() &&
         (_selectedEstate != null || userType == "1")) {
       if (await _canAddMorePosts()) {
@@ -263,20 +257,21 @@ class _AddPostScreenState extends State<AddPostScreen> {
             'ProfileImageUrl': profileImageUrl,
             'likes': {'count': 0, 'users': {}},
             'comments': {'count': 0, 'list': {}},
+            'Status': '0' // Status is set to '0' indicating it is under process
           });
 
           await showDialog(
             context: context,
-            builder: (context) => SuccessDialog(
-              text: "Success",
-              text1: "Post added successfully",
+            builder: (context) => const UnderProcessDialog(
+              text: "Under Process",
+              text1: "Your post is under process for review",
             ),
           );
           Navigator.pop(context);
         } catch (e) {
           await showDialog(
             context: context,
-            builder: (context) => FailureDialog(
+            builder: (context) => const FailureDialog(
               text: "Error",
               text1: "Failed to add post",
             ),
