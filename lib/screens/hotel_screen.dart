@@ -37,6 +37,12 @@ class _HotelScreenState extends State<HotelScreen> {
     for (var entry in data.entries) {
       for (var estateEntry in entry.value.entries) {
         var estateData = estateEntry.value;
+
+        // **Add this condition to filter estates with IsAccepted == "2"**
+        if (estateData['IsAccepted'] != "2") {
+          continue; // Skip estates that are not accepted
+        }
+
         var estate = {
           'id': estateEntry.key,
           'nameEn': estateData['NameEn'] ?? 'Unknown',
@@ -52,13 +58,14 @@ class _HotelScreenState extends State<HotelScreen> {
           'Music': estateData['Music'] ?? '',
           'HasValet': estateData['HasValet'] ?? '0',
           'HasKidsArea': estateData['HasKidsArea'] ?? '0',
+          'ValetWithFees': estateData['ValetWithFees'] ?? '0',
+          'IsSmokingAllowed': estateData['IsSmokingAllowed'] ?? '0',
           'HasMassage': estateData['HasMassage'] ?? '0',
           'HasSwimmingPool': estateData['HasSwimmingPool'] ?? '0',
           'HasBarber': estateData['HasBarber'] ?? '0',
           'IsThereBreakfastLounge': estateData['IsThereBreakfastLounge'] ?? '0',
           'IsThereLaunchLounge': estateData['IsThereLaunchLounge'] ?? '0',
           'IsThereDinnerLounge': estateData['IsThereDinnerLounge'] ?? '0',
-          'IsSmokingAllowed': estateData['IsSmokingAllowed'] ?? '0',
           'HasJacuzziInRoom': estateData['HasJacuzziInRoom'] ?? '0',
           'Lat': estateData['Lat'] ?? 0,
           'Lon': estateData['Lon'] ?? 0
@@ -95,6 +102,10 @@ class _HotelScreenState extends State<HotelScreen> {
       ..['rating'] = totalRating
       ..['ratingsList'] = ratings
       ..['imageUrl'] = imageUrl;
+  }
+
+  bool _isHotel(Map<String, dynamic> estate) {
+    return estate['Type'] == '1'; // Assuming '1' represents a hotel
   }
 
   void _filterEstates() {
@@ -178,10 +189,6 @@ class _HotelScreenState extends State<HotelScreen> {
     return estate;
   }
 
-  bool _isHotel(Map<String, dynamic> estate) {
-    return estate['Type'] == '1'; // Assuming '1' represents a hotel
-  }
-
   final Map<String, dynamic> filterState = {
     'entry': <String>[],
     'sessions': <String>[],
@@ -189,8 +196,8 @@ class _HotelScreenState extends State<HotelScreen> {
     'music': false,
     'valet': null,
     'kidsArea': false,
-    'isSmokingAllowed': false,
     'valetWithFees': false,
+    'isSmokingAllowed': false,
     'massage': false,
     'gym': false,
     'barber': false,
@@ -201,6 +208,7 @@ class _HotelScreenState extends State<HotelScreen> {
     'hasJacuzziInRoom': false,
     'lstMusic': <String>[],
   };
+
   void _showFilterDialog() async {
     final updatedFilterState = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
@@ -225,6 +233,7 @@ class _HotelScreenState extends State<HotelScreen> {
           ..['valet'] = updatedFilterState['valet']
           ..['kidsArea'] = updatedFilterState['kidsArea']
           ..['valetWithFees'] = updatedFilterState['valetWithFees']
+          ..['isSmokingAllowed'] = updatedFilterState['isSmokingAllowed']
           ..['lstMusic'] = updatedFilterState['lstMusic']
           ..['swimmingPool'] = updatedFilterState['swimmingPool']
           ..['gym'] = updatedFilterState['gym']
@@ -233,7 +242,7 @@ class _HotelScreenState extends State<HotelScreen> {
           ..['isThereBreakfastLounge'] =
               updatedFilterState['isThereBreakfastLounge']
           ..['isThereLaunchLounge'] = updatedFilterState['isThereLaunchLounge']
-          ..['isSmokingAllowed'] = updatedFilterState['isSmokingAllowed']
+          ..['isThereDinnerLounge'] = updatedFilterState['isThereDinnerLounge']
           ..['hasJacuzziInRoom'] = updatedFilterState['hasJacuzziInRoom']
           ..['isThereDinnerLounge'] = updatedFilterState['isThereDinnerLounge'];
 
@@ -267,15 +276,6 @@ class _HotelScreenState extends State<HotelScreen> {
               });
         }
 
-        // Match Entry filter
-        // if (filterState['lstMusic'].isNotEmpty) {
-        //   matches = matches &&
-        //       filterState['lstMusic'].any((selectedEntry) {
-        //         final lstMusicData = parseOptions(estate['Lstmusic']);
-        //         return lstMusicData.contains(selectedEntry);
-        //       });
-        // }
-
         // Match Sessions filter
         if (filterState['sessions'].isNotEmpty) {
           matches = matches &&
@@ -295,17 +295,20 @@ class _HotelScreenState extends State<HotelScreen> {
         }
 
         // Match Music filter
-        // if (filterState['music']) {
-        //   matches = matches && estate['Music'] == '1';
-        // }
+        if (filterState['music']) {
+          matches = matches && estate['Music'] == '1';
+        }
+        if (filterState['isSmokingAllowed']) {
+          matches = matches && estate['IsSmokingAllowed'] == '1';
+        }
 
         // Match Valet filter
         if (filterState['valet'] == true) {
           if (filterState['valetWithFees'] == false) {
-            // Show all cafes with valet service (both with and without fees)
+            // Show all hotels with valet service (both with and without fees)
             matches = matches && estate['HasValet'] == '1';
           } else {
-            // Show only cafes with valet service and no fees
+            // Show only hotels with valet service and no fees
             matches = matches &&
                 estate['HasValet'] == '1' &&
                 estate['ValetWithFees'] == '0';
@@ -316,30 +319,43 @@ class _HotelScreenState extends State<HotelScreen> {
         if (filterState['kidsArea']) {
           matches = matches && estate['HasKidsArea'] == '1';
         }
+
+        // Match Jacuzzi filter
         if (filterState['hasJacuzziInRoom']) {
           matches = matches && estate['HasJacuzziInRoom'] == '1';
         }
+
+        // Match Gym filter
         if (filterState['gym']) {
           matches = matches && estate['HasGym'] == '1';
         }
-        if (filterState['isSmokingAllowed']) {
-          matches = matches && estate['IsSmokingAllowed'] == '1';
-        }
+
+        // Match Barber filter
         if (filterState['barber']) {
           matches = matches && estate['HasBarber'] == '1';
         }
+
+        // Match Massage filter
         if (filterState['massage']) {
           matches = matches && estate['HasMassage'] == '1';
         }
+
+        // Match Swimming Pool filter
         if (filterState['swimmingPool']) {
           matches = matches && estate['HasSwimmingPool'] == '1';
         }
+
+        // Match Breakfast Lounge filter
         if (filterState['isThereBreakfastLounge']) {
           matches = matches && estate['IsThereBreakfastLounge'] == '1';
         }
+
+        // Match Launch Lounge filter
         if (filterState['isThereLaunchLounge']) {
           matches = matches && estate['IsThereLaunchLounge'] == '1';
         }
+
+        // Match Dinner Lounge filter
         if (filterState['isThereDinnerLounge']) {
           matches = matches && estate['IsThereDinnerLounge'] == '1';
         }
@@ -414,8 +430,8 @@ class _HotelScreenState extends State<HotelScreen> {
                                     nameAr: hotel['nameAr'],
                                     estateId: hotel['id'],
                                     location: "Rose Garden",
-                                    rating: hotel['rating'],
-                                    fee: hotel['fee'],
+                                    rating: hotel['rating'] ?? 0.0,
+                                    fee: hotel['fee'] ?? '',
                                     // deliveryTime: hotel['time'],
                                     price: 32.0,
                                     music: hotel['Music'],
@@ -436,9 +452,10 @@ class _HotelScreenState extends State<HotelScreen> {
                                         hotel['HasSwimmingPool'] ?? '',
                                     isSmokingAllowed:
                                         hotel['IsSmokingAllowed'] ?? '',
-                                    hasJacuzziInRoom: hotel['HasJacuzziInRoom'],
-                                    lat: hotel['Lat'] ?? 0,
-                                    lon: hotel['Lon'] ?? 0,
+                                    hasJacuzziInRoom:
+                                        hotel['HasJacuzziInRoom'] ?? '',
+                                    lat: hotel['Lat']?.toDouble() ?? 0.0,
+                                    lon: hotel['Lon']?.toDouble() ?? 0.0,
                                   ),
                                 ),
                               );

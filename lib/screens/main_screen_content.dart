@@ -233,13 +233,19 @@ class _MainScreenContentState extends State<MainScreenContent> {
     }
   }
 
-  // Keeping _parseAndFetchAdditionalData as is
+  // Modified _parseAndFetchAdditionalData to include IsAccepted == "2" condition
   Future<List<Map<String, dynamic>>> _parseAndFetchAdditionalData(
       Map<String, dynamic> data) async {
     List<Map<String, dynamic>> estateList = [];
     for (var entry in data.entries) {
       for (var estateEntry in entry.value.entries) {
         var estateData = estateEntry.value;
+
+        // **Add this condition to filter estates with IsAccepted == "2"**
+        if (estateData['IsAccepted'] != "2") {
+          continue; // Skip estates that are not accepted
+        }
+
         var estate = {
           'id': estateEntry.key,
           'nameEn': estateData['NameEn'] ?? 'Unknown',
@@ -263,7 +269,7 @@ class _MainScreenContentState extends State<MainScreenContent> {
           'HasGym': estateData['HasGym'] ?? "No Gym",
           'IsSmokingAllowed':
               estateData['IsSmokingAllowed'] ?? "Smoking is not allowed",
-          'HasJacuzziInRoom': estateData['HasJacuzziInRoom'] ?? "No Jaccuzzi",
+          'HasJacuzziInRoom': estateData['HasJacuzziInRoom'] ?? "No Jacuzzi",
           'Lat': estateData['Lat'] ?? 0.0,
           'Lon': estateData['Lon'] ?? 0.0,
         };

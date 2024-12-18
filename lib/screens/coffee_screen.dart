@@ -37,6 +37,12 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
     for (var entry in data.entries) {
       for (var estateEntry in entry.value.entries) {
         var estateData = estateEntry.value;
+
+        // **Add this condition to filter estates with IsAccepted == "2"**
+        if (estateData['IsAccepted'] != "2") {
+          continue; // Skip estates that are not accepted
+        }
+
         var estate = {
           'id': estateEntry.key,
           'nameEn': estateData['NameEn'] ?? 'Unknown',
@@ -90,6 +96,10 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
       ..['rating'] = totalRating
       ..['ratingsList'] = ratings
       ..['imageUrl'] = imageUrl;
+  }
+
+  bool _isCoffee(Map<String, dynamic> estate) {
+    return estate['Type'] == '2'; // Assuming '2' represents a coffee shop
   }
 
   void _filterEstates() {
@@ -194,10 +204,6 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
     return estate;
   }
 
-  bool _isCoffee(Map<String, dynamic> estate) {
-    return estate['Type'] == '2'; // Assuming '2' represents a coffee shop
-  }
-
   final Map<String, dynamic> filterState = {
     'typeOfRestaurant': <String>[],
     'entry': <String>[],
@@ -210,6 +216,7 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
     'isSmokingAllowed': false,
     'lstMusic': <String>[],
   };
+
   void _applyFilters() {
     setState(() {
       searchActive = true; // Indicate that filtering is active
@@ -235,7 +242,7 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
               });
         }
 
-        // Match Entry filter
+        // Match lstMusic filter
         if (filterState['lstMusic'].isNotEmpty) {
           matches = matches &&
               filterState['lstMusic'].any((selectedEntry) {
@@ -391,11 +398,10 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
                                       estateId: coffee['id'] ?? '',
                                       location: "Rose Garden" ??
                                           '', // Update as needed
-                                      rating: coffee['rating'] ?? '',
+                                      rating: coffee['rating'] ?? 0.0,
                                       fee: coffee['fee'] ?? '',
                                       // deliveryTime: coffee['time'] ?? '',
-                                      price: 32.0 ??
-                                          0.0, // Update or fetch dynamically
+                                      price: 32.0,
                                       music: coffee['Music'] ?? '',
                                       typeOfRestaurant:
                                           coffee['TypeofRestaurant'] ?? '',
@@ -403,10 +409,11 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
                                       menuLink: coffee['MenuLink'] ?? '',
                                       entry: coffee['Entry'] ?? '',
                                       lstMusic: coffee['Lstmusic'] ?? '',
-                                      type: coffee['Type'],
-                                      hasKidsArea: coffee['HasKidsArea'],
-                                      hasValet: coffee['HasValet'],
-                                      valetWithFees: coffee['ValetWithFees'],
+                                      type: coffee['Type'] ?? '',
+                                      hasKidsArea: coffee['HasKidsArea'] ?? '',
+                                      hasValet: coffee['HasValet'] ?? '',
+                                      valetWithFees:
+                                          coffee['ValetWithFees'] ?? '',
                                       hasBarber: coffee['HasBarber'] ?? '',
                                       hasGym: coffee['HasGym'] ?? '',
                                       hasMassage: coffee['HasMassage'] ?? '',
@@ -416,8 +423,8 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
                                           coffee['IsSmokingAllowed'] ?? '',
                                       hasJacuzziInRoom:
                                           coffee['HasJacuzziInRoom'] ?? '',
-                                      lat: coffee['Lat'] ?? 0.0,
-                                      lon: coffee['Lon'] ?? 0.0),
+                                      lat: coffee['Lat']?.toDouble() ?? 0.0,
+                                      lon: coffee['Lon']?.toDouble() ?? 0.0),
                                 ),
                               );
                             },

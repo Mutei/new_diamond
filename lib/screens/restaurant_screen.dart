@@ -182,12 +182,19 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
     }
   }
 
+  // **Modified _parseAndFetchAdditionalData to include IsAccepted == "2" condition**
   Future<List<Map<String, dynamic>>> _parseAndFetchAdditionalData(
       Map<String, dynamic> data) async {
     List<Map<String, dynamic>> estateList = [];
     for (var entry in data.entries) {
       for (var estateEntry in entry.value.entries) {
         var estateData = estateEntry.value;
+
+        // **Add this condition to filter estates with IsAccepted == "2"**
+        if (estateData['IsAccepted'] != "2") {
+          continue; // Skip estates that are not accepted
+        }
+
         var estate = {
           'id': estateEntry.key,
           'nameEn': estateData['NameEn'] ?? 'Unknown',
@@ -241,7 +248,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
   }
 
   bool _isRestaurant(Map<String, dynamic> estate) {
-    return estate['Type'] == '3';
+    return estate['Type'] == '3'; // Assuming '3' represents a restaurant
   }
 
   void _showFilterDialog() async {
@@ -331,7 +338,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                                     nameAr: restaurant['nameAr'] ?? '',
                                     estateId: restaurant['id'] ?? '',
                                     location: "Rose Garden" ?? '',
-                                    rating: restaurant['rating'] ?? '',
+                                    rating: restaurant['rating'] ?? 0.0,
                                     fee: restaurant['fee'] ?? '',
                                     // deliveryTime: restaurant['time'] ?? '',
                                     price: 32.0,
@@ -357,8 +364,8 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                                         restaurant['IsSmokingAllowed'] ?? '',
                                     hasJacuzziInRoom:
                                         restaurant['HasJacuzziInRoom'] ?? '',
-                                    lat: restaurant['Lat'] ?? 0,
-                                    lon: restaurant['Lon'] ?? 0,
+                                    lat: restaurant['Lat']?.toDouble() ?? 0.0,
+                                    lon: restaurant['Lon']?.toDouble() ?? 0.0,
                                   ),
                                 ),
                               );
