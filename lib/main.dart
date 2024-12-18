@@ -1,6 +1,8 @@
 // lib/main.dart
 
 import 'package:diamond_host_admin/screens/private_chat_request_screen.dart';
+import 'package:diamond_host_admin/utils/failure_dialogue.dart';
+import 'package:diamond_host_admin/utils/success_dialogue.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -8,16 +10,12 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'state_management/general_provider.dart';
 import 'localization/language_constants.dart';
 import 'localization/demo_localization.dart';
 import 'screens/splash_screen.dart';
-import 'screens/main_screen.dart';
-import 'screens/welcome_screen.dart';
-import 'widgets/reused_appbar.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -73,9 +71,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     initializeFirebaseAnalytics();
     loadLocale();
-    // Listen to subscription expiration
+    // Listen to subscription expiration and post status changes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<GeneralProvider>(context, listen: false);
+
+      // Listen to subscription expiration
       provider.subscriptionExpiredStream.listen((_) {
         if (!_dialogIsShowing) {
           _dialogIsShowing = true; // Prevent multiple dialogs
@@ -114,6 +114,43 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             print('Subscription expired dialog closed.');
           });
         }
+      });
+
+      // Listen to post status changes
+      provider.postStatusChangeStream.listen((event) {
+        if (!_dialogIsShowing) {
+          _dialogIsShowing = true;
+          if (event.status == '1') {
+            showDialog(
+              context: navigatorKey.currentContext!,
+              builder: (context) => const SuccessDialog(
+                text: "Post Added Successfully",
+                text1: "Your post has been approved and is now visible.",
+              ),
+            ).then((_) {
+              setState(() {
+                _dialogIsShowing = false;
+              });
+            });
+          } else if (event.status == '2') {
+            showDialog(
+              context: navigatorKey.currentContext!,
+              builder: (context) => const FailureDialog(
+                text: "Post Rejected",
+                text1: "Your post has been rejected and was not posted.",
+              ),
+            ).then((_) {
+              setState(() {
+                _dialogIsShowing = false;
+              });
+            });
+          }
+        }
+      });
+
+      // Existing chat request dialog logic remains unchanged
+      provider.subscriptionExpiredStream.listen((_) {
+        // Existing code...
       });
     });
   }

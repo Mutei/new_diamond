@@ -14,6 +14,14 @@ import '../localization/language_constants.dart';
 
 enum ThemeModeType { system, light, dark }
 
+// Class to represent post status change events
+class PostStatusChangeEvent {
+  final String postId;
+  final String status; // '1' for approved, '2' for rejected
+
+  PostStatusChangeEvent({required this.postId, required this.status});
+}
+
 class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
   // Existing properties
   Color color = Color(0xFFE8C75B);
@@ -37,6 +45,17 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
   Timer? _subscriptionTimer;
   final StreamController<void> _subscriptionExpiredController =
       StreamController<void>.broadcast();
+
+  // StreamController for post status changes
+  final StreamController<PostStatusChangeEvent> _postStatusChangeController =
+      StreamController<PostStatusChangeEvent>.broadcast();
+
+  // Getter for the post status change stream
+  Stream<PostStatusChangeEvent> get postStatusChangeStream =>
+      _postStatusChangeController.stream;
+
+  // Map to track the current status of user's posts
+  Map<String, String> _userPostStatuses = {};
 
   // Getters
   int get newRequestCount => _newRequestCount;
@@ -452,6 +471,9 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
 
         print('User info fetched and set: $_userId, $_userName');
         notifyListeners();
+
+        // Start listening to post status changes after fetching user info
+        listenToUserPostStatusChanges();
       } else {
         print('User data does not exist in Firebase for UID: ${user.uid}');
       }
@@ -459,6 +481,44 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
       print('Error fetching user info: $e');
     }
   }
+
+  // Method to listen to post status changes for the current user
+  void listenToUserPostStatusChanges() {
+    if (_userId.isEmpty) {
+      // No user ID available
+      return;
+    }
+    FirebaseDatabase.instance
+        .ref("App")
+        .child("AllPosts")
+        .orderByChild("userId")
+        .equalTo(_userId)
+        .onValue
+        .listen((DatabaseEvent event) {
+      if (event.snapshot.value != null) {
+        Map<dynamic, dynamic> postsData =
+            event.snapshot.value as Map<dynamic, dynamic>;
+        postsData.forEach((key, value) {
+          String postId = key;
+          String status = value['Status'] ?? '0';
+          if (_userPostStatuses.containsKey(postId)) {
+            String oldStatus = _userPostStatuses[postId]!;
+            if (oldStatus != status && (status == '1' || status == '2')) {
+              // Status changed to '1' or '2'
+              _postStatusChangeController
+                  .add(PostStatusChangeEvent(postId: postId, status: status));
+              print('Post $postId status changed to $status. Event emitted.');
+            }
+          }
+          _userPostStatuses[postId] = status;
+        });
+      }
+    }, onError: (error) {
+      print('Error listening to post status changes: $error');
+    });
+  }
+
+  // -------------------- Subscription Methods Continued --------------------
 
   // ... Rest of the existing code remains unchanged ...
 
@@ -469,6 +529,7 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     _buttonTimer?.cancel();
     _subscriptionExpiredController.close();
     _subscriptionTimer?.cancel();
+    _postStatusChangeController.close(); // Close the post status controller
     super.dispose();
   }
 }

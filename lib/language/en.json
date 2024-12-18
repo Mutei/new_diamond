@@ -291,5 +291,9 @@
   "Dismiss":"Dismiss",
   "View":"View",
   "Under Process":"Under Process",
-  "Your post is under process for review":"Your post is under process for review"
+  "Your post is under process for review":"Your post is under process for review",
+  "Post Added Successfully":"Post Added Successfully",
+  "Your post has been approved and is now visible.":"Your post has been approved and is now visible.",
+  "Post Rejected":"Post Rejected",
+  "Your post has been rejected and was not posted.":"Your post has been rejected and was not posted."
 }

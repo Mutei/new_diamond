@@ -1,3 +1,5 @@
+// lib/screens/add_posts_screen.dart
+
 import 'dart:io';
 import 'package:diamond_host_admin/constants/colors.dart';
 import 'package:diamond_host_admin/constants/styles.dart';
