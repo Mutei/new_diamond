@@ -272,6 +272,8 @@ class _MainScreenContentState extends State<MainScreenContent> {
           'HasJacuzziInRoom': estateData['HasJacuzziInRoom'] ?? "No Jacuzzi",
           'Lat': estateData['Lat'] ?? 0.0,
           'Lon': estateData['Lon'] ?? 0.0,
+          'City': estateData['City'] ?? "No City",
+          'Country': estateData['Country'] ?? "No Country"
         };
 
         print(
@@ -561,14 +563,16 @@ class _MainScreenContentState extends State<MainScreenContent> {
                     );
                   },
                   child: EstateCard(
-                    nameEn: estate['nameEn'],
-                    nameAr: estate['nameAr'],
-                    estateId: estate['id'],
-                    rating: estate['rating'],
-                    imageUrl: estate['imageUrl'],
-                    fee: estate['fee'],
-                    distance: estate['distance'], // Pass distance
-                  ),
+                      nameEn: estate['nameEn'],
+                      nameAr: estate['nameAr'],
+                      estateId: estate['id'],
+                      rating: estate['rating'],
+                      imageUrl: estate['imageUrl'],
+                      fee: estate['fee'],
+                      distance: estate['distance'],
+                      city: estate['City'],
+                      country: estate['Country'] // Pass distance
+                      ),
                 );
               },
             ),

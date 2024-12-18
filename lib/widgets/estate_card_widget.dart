@@ -1,3 +1,4 @@
+import 'package:diamond_host_admin/extension/sized_box_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
@@ -9,17 +10,21 @@ class EstateCard extends StatelessWidget {
   final String imageUrl;
   final String fee;
   final double distance; // New parameter
+  final String city;
+  final String country;
 
-  const EstateCard({
-    Key? key,
-    required this.nameEn,
-    required this.nameAr,
-    required this.estateId,
-    required this.rating,
-    required this.imageUrl,
-    required this.fee,
-    required this.distance, // Initialize it
-  }) : super(key: key);
+  const EstateCard(
+      {Key? key,
+      required this.nameEn,
+      required this.nameAr,
+      required this.estateId,
+      required this.rating,
+      required this.imageUrl,
+      required this.fee,
+      required this.distance, // Initialize it
+      required this.city,
+      required this.country})
+      : super(key: key);
 
   /// Widget to display star ratings
   Widget _buildStarRating(double rating, {double size = 16}) {
@@ -91,14 +96,6 @@ class EstateCard extends StatelessWidget {
                         rating.toStringAsFixed(1),
                         style: const TextStyle(fontSize: 12),
                       ),
-                      const Spacer(),
-                      Icon(Icons.monetization_on, size: 14, color: Colors.grey),
-                      const SizedBox(width: 2),
-                      Text(
-                        fee,
-                        style:
-                            const TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
                     ],
                   ),
                   const SizedBox(height: 4),
@@ -109,6 +106,18 @@ class EstateCard extends StatelessWidget {
                       const SizedBox(width: 2),
                       Text(
                         '${distance.toStringAsFixed(2)} km',
+                        style:
+                            const TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                  4.kH,
+                  Row(
+                    children: [
+                      Icon(Icons.location_city, size: 14, color: Colors.grey),
+                      const SizedBox(width: 2),
+                      Text(
+                        "$city, $country",
                         style:
                             const TextStyle(fontSize: 12, color: Colors.grey),
                       ),

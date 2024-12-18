@@ -62,7 +62,9 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
           'ValetWithFees': estateData['ValetWithFees'] ?? '0',
           'IsSmokingAllowed': estateData['IsSmokingAllowed'] ?? '0',
           'Lat': estateData['Lat'] ?? 0,
-          'Lon': estateData['Lon'] ?? 0
+          'Lon': estateData['Lon'] ?? 0,
+          'City': estateData['City'] ?? "No City",
+          'Country': estateData['Country'] ?? "No Country"
         };
 
         estate = await _addAdditionalEstateData(estate);
@@ -436,6 +438,8 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
                               imageUrl: coffee['imageUrl'],
                               fee: coffee['fee'],
                               time: coffee['time'],
+                              city: coffee['City'],
+                              country: coffee['Country'],
                             ),
                           );
                         },

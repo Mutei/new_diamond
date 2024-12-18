@@ -213,7 +213,9 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
           'ValetWithFees': estateData['ValetWithFees'] ?? '0',
           'IsSmokingAllowed': estateData['IsSmokingAllowed'] ?? '0',
           'Lat': estateData['Lat'] ?? 0,
-          'Lon': estateData['Lon'] ?? 0
+          'Lon': estateData['Lon'] ?? 0,
+          'City': estateData['City']??"No City",
+          'Country': estateData['Country']??"No Country"
         };
 
         estate = await _addAdditionalEstateData(estate);
@@ -378,6 +380,8 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                               imageUrl: restaurant['imageUrl'],
                               fee: restaurant['fee'],
                               time: restaurant['time'],
+                              city: restaurant['City'],
+                              country: restaurant['Country'],
                             ),
                           );
                         },

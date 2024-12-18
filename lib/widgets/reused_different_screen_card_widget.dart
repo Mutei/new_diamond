@@ -9,17 +9,21 @@ class DifferentEstateCards extends StatelessWidget {
   final String imageUrl;
   final String fee; // New required parameter
   final String time; // New required parameter
+  final String city;
+  final String country;
 
-  const DifferentEstateCards({
-    super.key,
-    required this.nameEn,
-    required this.nameAr,
-    required this.estateId,
-    required this.rating,
-    required this.imageUrl,
-    required this.fee, // Initialize fee
-    required this.time, // Initialize time
-  });
+  const DifferentEstateCards(
+      {super.key,
+      required this.nameEn,
+      required this.nameAr,
+      required this.estateId,
+      required this.rating,
+      required this.imageUrl,
+      required this.fee, // Initialize fee
+      required this.time,
+      required this.country,
+      required this.city // Initialize time
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -87,24 +91,13 @@ class DifferentEstateCards extends StatelessWidget {
                   // Fee and Time
                   Row(
                     children: [
-                      const Icon(Icons.monetization_on,
-                          color: Colors.grey, size: 16),
+                      const Icon(Icons.location_city, size: 16),
                       const SizedBox(width: 4),
                       Text(
-                        fee,
+                        "$city, $country",
                         style: const TextStyle(
                           fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      const Icon(Icons.timer, color: Colors.grey, size: 16),
-                      const SizedBox(width: 4),
-                      Text(
-                        time,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],

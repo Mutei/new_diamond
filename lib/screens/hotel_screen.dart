@@ -68,7 +68,9 @@ class _HotelScreenState extends State<HotelScreen> {
           'IsThereDinnerLounge': estateData['IsThereDinnerLounge'] ?? '0',
           'HasJacuzziInRoom': estateData['HasJacuzziInRoom'] ?? '0',
           'Lat': estateData['Lat'] ?? 0,
-          'Lon': estateData['Lon'] ?? 0
+          'Lon': estateData['Lon'] ?? 0,
+          'City': estateData['City'] ?? "No City",
+          'Country': estateData['Country'] ?? "No Country"
         };
 
         estate = await _addAdditionalEstateData(estate);
@@ -468,6 +470,8 @@ class _HotelScreenState extends State<HotelScreen> {
                               imageUrl: hotel['imageUrl'],
                               fee: hotel['fee'],
                               time: hotel['time'],
+                              city: hotel['City'],
+                              country: hotel['Country'],
                             ),
                           );
                         },
