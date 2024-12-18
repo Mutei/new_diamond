@@ -458,6 +458,8 @@ class _HotelScreenState extends State<HotelScreen> {
                                         hotel['HasJacuzziInRoom'] ?? '',
                                     lat: hotel['Lat']?.toDouble() ?? 0.0,
                                     lon: hotel['Lon']?.toDouble() ?? 0.0,
+                                    city: hotel['City'] ?? "No city",
+                                    country: hotel['Country'] ?? "No Country",
                                   ),
                                 ),
                               );

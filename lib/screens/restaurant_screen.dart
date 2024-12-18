@@ -368,6 +368,8 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                                         restaurant['HasJacuzziInRoom'] ?? '',
                                     lat: restaurant['Lat']?.toDouble() ?? 0.0,
                                     lon: restaurant['Lon']?.toDouble() ?? 0.0,
+                                    city: restaurant['City']??"No city",
+                                    country: restaurant['Country']??"No Country",
                                   ),
                                 ),
                               );

@@ -66,36 +66,40 @@ class ProfileEstateScreen extends StatefulWidget {
   final String hasJacuzziInRoom;
   final double lat;
   final double lon;
+  final String city;
+  final String country;
 
-  const ProfileEstateScreen(
-      {Key? key,
-      required this.nameEn,
-      required this.nameAr,
-      required this.estateId,
-      required this.location,
-      required this.rating,
-      required this.fee,
-      // required this.deliveryTime,
-      required this.price,
-      required this.typeOfRestaurant,
-      required this.sessions,
-      required this.menuLink,
-      required this.entry,
-      required this.lstMusic,
-      required this.type,
-      required this.music,
-      required this.hasKidsArea,
-      required this.hasValet,
-      required this.valetWithFees,
-      required this.hasBarber,
-      required this.hasGym,
-      required this.hasMassage,
-      required this.hasSwimmingPool,
-      required this.isSmokingAllowed,
-      required this.hasJacuzziInRoom,
-      required this.lon,
-      required this.lat})
-      : super(key: key);
+  const ProfileEstateScreen({
+    Key? key,
+    required this.nameEn,
+    required this.nameAr,
+    required this.estateId,
+    required this.location,
+    required this.rating,
+    required this.fee,
+    // required this.deliveryTime,
+    required this.price,
+    required this.typeOfRestaurant,
+    required this.sessions,
+    required this.menuLink,
+    required this.entry,
+    required this.lstMusic,
+    required this.type,
+    required this.music,
+    required this.hasKidsArea,
+    required this.hasValet,
+    required this.valetWithFees,
+    required this.hasBarber,
+    required this.hasGym,
+    required this.hasMassage,
+    required this.hasSwimmingPool,
+    required this.isSmokingAllowed,
+    required this.hasJacuzziInRoom,
+    required this.lon,
+    required this.lat,
+    required this.country,
+    required this.city,
+  }) : super(key: key);
 
   @override
   _ProfileEstateScreenState createState() => _ProfileEstateScreenState();
@@ -772,6 +776,12 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                 AutoSizeText(
                   displayName,
                   style: kTeritary,
+                  maxLines: 1,
+                  minFontSize: 12,
+                ),
+                AutoSizeText(
+                  "${widget.city}, ${widget.country}",
+                  style: kSecondaryStyle,
                   maxLines: 1,
                   minFontSize: 12,
                 ),

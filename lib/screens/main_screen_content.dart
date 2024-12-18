@@ -558,6 +558,8 @@ class _MainScreenContentState extends State<MainScreenContent> {
                           hasJacuzziInRoom: estate['HasJacuzziInRoom'],
                           lat: estate['Lat'] ?? 0.0,
                           lon: estate['Lon'] ?? 0.0,
+                          city: estate['City']??"No city",
+                          country: estate['Country']??"No Country",
                         ),
                       ),
                     );

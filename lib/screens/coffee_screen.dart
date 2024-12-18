@@ -395,38 +395,41 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => ProfileEstateScreen(
-                                      nameEn: coffee['nameEn'] ?? '',
-                                      nameAr: coffee['nameAr'] ?? '',
-                                      estateId: coffee['id'] ?? '',
-                                      location: "Rose Garden" ??
-                                          '', // Update as needed
-                                      rating: coffee['rating'] ?? 0.0,
-                                      fee: coffee['fee'] ?? '',
-                                      // deliveryTime: coffee['time'] ?? '',
-                                      price: 32.0,
-                                      music: coffee['Music'] ?? '',
-                                      typeOfRestaurant:
-                                          coffee['TypeofRestaurant'] ?? '',
-                                      sessions: coffee['Sessions'] ?? '',
-                                      menuLink: coffee['MenuLink'] ?? '',
-                                      entry: coffee['Entry'] ?? '',
-                                      lstMusic: coffee['Lstmusic'] ?? '',
-                                      type: coffee['Type'] ?? '',
-                                      hasKidsArea: coffee['HasKidsArea'] ?? '',
-                                      hasValet: coffee['HasValet'] ?? '',
-                                      valetWithFees:
-                                          coffee['ValetWithFees'] ?? '',
-                                      hasBarber: coffee['HasBarber'] ?? '',
-                                      hasGym: coffee['HasGym'] ?? '',
-                                      hasMassage: coffee['HasMassage'] ?? '',
-                                      hasSwimmingPool:
-                                          coffee['HasSwimmingPool'] ?? '',
-                                      isSmokingAllowed:
-                                          coffee['IsSmokingAllowed'] ?? '',
-                                      hasJacuzziInRoom:
-                                          coffee['HasJacuzziInRoom'] ?? '',
-                                      lat: coffee['Lat']?.toDouble() ?? 0.0,
-                                      lon: coffee['Lon']?.toDouble() ?? 0.0),
+                                    nameEn: coffee['nameEn'] ?? '',
+                                    nameAr: coffee['nameAr'] ?? '',
+                                    estateId: coffee['id'] ?? '',
+                                    location:
+                                        "Rose Garden" ?? '', // Update as needed
+                                    rating: coffee['rating'] ?? 0.0,
+                                    fee: coffee['fee'] ?? '',
+                                    // deliveryTime: coffee['time'] ?? '',
+                                    price: 32.0,
+                                    music: coffee['Music'] ?? '',
+                                    typeOfRestaurant:
+                                        coffee['TypeofRestaurant'] ?? '',
+                                    sessions: coffee['Sessions'] ?? '',
+                                    menuLink: coffee['MenuLink'] ?? '',
+                                    entry: coffee['Entry'] ?? '',
+                                    lstMusic: coffee['Lstmusic'] ?? '',
+                                    type: coffee['Type'] ?? '',
+                                    hasKidsArea: coffee['HasKidsArea'] ?? '',
+                                    hasValet: coffee['HasValet'] ?? '',
+                                    valetWithFees:
+                                        coffee['ValetWithFees'] ?? '',
+                                    hasBarber: coffee['HasBarber'] ?? '',
+                                    hasGym: coffee['HasGym'] ?? '',
+                                    hasMassage: coffee['HasMassage'] ?? '',
+                                    hasSwimmingPool:
+                                        coffee['HasSwimmingPool'] ?? '',
+                                    isSmokingAllowed:
+                                        coffee['IsSmokingAllowed'] ?? '',
+                                    hasJacuzziInRoom:
+                                        coffee['HasJacuzziInRoom'] ?? '',
+                                    lat: coffee['Lat']?.toDouble() ?? 0.0,
+                                    lon: coffee['Lon']?.toDouble() ?? 0.0,
+                                    city: coffee['City'] ?? "No city",
+                                    country: coffee['Country'] ?? "No Country",
+                                  ),
                                 ),
                               );
                             },
