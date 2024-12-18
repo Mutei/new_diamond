@@ -1,8 +1,7 @@
-// lib/screens/main_screen_content.dart
-
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:geolocator/geolocator.dart'; // Added
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../backend/customer_rate_services.dart';
@@ -77,36 +76,78 @@ class _MainScreenContentState extends State<MainScreenContent> {
       await prefs.setBool('permissionsChecked', true);
     }
 
-    // Fetch location using fallback logic
+    // Fetch the actual current location
     await _fetchCurrentLocation();
 
+    // Fetch estates after obtaining the location
     _fetchEstates();
   }
 
   Future<void> _fetchCurrentLocation() async {
     try {
-      // Check permission first
-      PermissionStatus locationStatus = await Permission.location.status;
+      bool serviceEnabled;
+      LocationPermission permission;
 
-      if (locationStatus.isGranted) {
-        // Use a platform channel or call the native location services
-        // Here, using a mock location for demonstration
+      // Check if location services are enabled
+      serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        // Location services are not enabled
+        _showPermissionDialog(
+          "Location Services Disabled",
+          "Please enable location services to use this feature.",
+        );
         setState(() {
-          currentLat = 24.7136; // Riyadh, Saudi Arabia (example)
-          currentLon = 46.6753;
-        });
-
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setDouble('currentLat', currentLat);
-        await prefs.setDouble('currentLon', currentLon);
-      } else {
-        // Handle when location is not granted or user denies permissions
-        print("Location permission not granted.");
-        setState(() {
-          currentLat = 0.0; // Default or fallback
+          currentLat = 0.0;
           currentLon = 0.0;
         });
+        return;
       }
+
+      // Check for location permissions
+      permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          // Permissions are denied
+          _showPermissionDialog(
+            "Location Permission Denied",
+            "Please grant location permission to use this feature.",
+          );
+          setState(() {
+            currentLat = 0.0;
+            currentLon = 0.0;
+          });
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        // Permissions are permanently denied
+        _showPermissionDialog(
+          "Location Permission Permanently Denied",
+          "Please enable location permissions in settings.",
+        );
+        setState(() {
+          currentLat = 0.0;
+          currentLon = 0.0;
+        });
+        return;
+      }
+
+      // When permissions are granted, get the current position
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      setState(() {
+        currentLat = position.latitude;
+        currentLon = position.longitude;
+      });
+
+      // Optionally, store the location in SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setDouble('currentLat', currentLat);
+      await prefs.setDouble('currentLon', currentLon);
     } catch (e) {
       print("Error fetching location: $e");
       setState(() {
@@ -117,18 +158,10 @@ class _MainScreenContentState extends State<MainScreenContent> {
   }
 
   Future<void> _initializePermissions() async {
-    PermissionStatus locationStatus = await Permission.location.status;
-    if (locationStatus.isDenied || locationStatus.isRestricted) {
-      locationStatus = await Permission.location.request();
-    }
+    // Since location permissions are handled by Geolocator, you can keep
+    // handling other permissions like notifications here.
 
-    if (locationStatus.isPermanentlyDenied) {
-      _showPermissionDialog(
-        "Location Permission Required",
-        "Please enable location permission in settings to use the map features.",
-      );
-    }
-
+    // Example for notification permissions
     PermissionStatus notificationStatus = await Permission.notification.status;
     if (notificationStatus.isDenied || notificationStatus.isRestricted) {
       notificationStatus = await Permission.notification.request();
@@ -231,8 +264,8 @@ class _MainScreenContentState extends State<MainScreenContent> {
           'IsSmokingAllowed':
               estateData['IsSmokingAllowed'] ?? "Smoking is not allowed",
           'HasJacuzziInRoom': estateData['HasJacuzziInRoom'] ?? "No Jaccuzzi",
-          'Lat': estateData['Lat'] ?? 0,
-          'Lon': estateData['Lon'] ?? 0,
+          'Lat': estateData['Lat'] ?? 0.0,
+          'Lon': estateData['Lon'] ?? 0.0,
         };
 
         print(
@@ -515,8 +548,8 @@ class _MainScreenContentState extends State<MainScreenContent> {
                           hasSwimmingPool: estate['HasSwimmingPool'],
                           isSmokingAllowed: estate['IsSmokingAllowed'],
                           hasJacuzziInRoom: estate['HasJacuzziInRoom'],
-                          lat: estate['Lat'] ?? 0,
-                          lon: estate['Lon'] ?? 0,
+                          lat: estate['Lat'] ?? 0.0,
+                          lon: estate['Lon'] ?? 0.0,
                         ),
                       ),
                     );
