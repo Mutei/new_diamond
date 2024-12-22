@@ -55,7 +55,7 @@
             android:value="2" />
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyBhV006rhCcjeivQBBRZ93MGwyMGDjDrwM" />
+            android:value="AIzaSyBlm_NPqrSwYm2AQOT6G0L8ToDBZzZMWO0" />
     </application>
 
     <!-- Required to query activities that can process text, see:
