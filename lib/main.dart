@@ -191,6 +191,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     if (_locale == null) {
       // While loading locale, show a loading indicator
       return const MaterialApp(
+        debugShowCheckedModeBanner: false,
         home: Scaffold(
           body: Center(
             child: CircularProgressIndicator(

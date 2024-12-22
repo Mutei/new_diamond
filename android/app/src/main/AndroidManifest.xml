@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-        android:label="diamond_host_admin"
+        android:label="YaHoOoH"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
