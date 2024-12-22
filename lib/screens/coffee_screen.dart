@@ -151,6 +151,13 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
     });
   }
 
+  Future<void> _refreshData() async {
+    setState(() {
+      loading = true;
+    });
+    await _fetchCoffees(); // Re-fetch the data
+  }
+
   Future<void> _fetchCoffees() async {
     setState(() => loading = true);
     try {
@@ -362,93 +369,98 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SearchTextField(
-              controller: searchController,
-              onClear: _clearSearch,
-              onChanged: (value) => _filterEstates(),
+      body: RefreshIndicator(
+        onRefresh: _refreshData,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SearchTextField(
+                controller: searchController,
+                onClear: _clearSearch,
+                onChanged: (value) => _filterEstates(),
+              ),
             ),
-          ),
-          Expanded(
-            child: loading
-                ? const Center(child: CircularProgressIndicator())
-                : searchActive && filteredEstates.isEmpty
-                    ? Center(
-                        child: Text(
-                          getTranslated(context, "No results found"),
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Theme.of(context).textTheme.bodyLarge?.color,
-                          ),
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount: filteredEstates.length,
-                        itemBuilder: (context, index) {
-                          final coffee = filteredEstates[index];
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ProfileEstateScreen(
-                                    nameEn: coffee['nameEn'] ?? '',
-                                    nameAr: coffee['nameAr'] ?? '',
-                                    estateId: coffee['id'] ?? '',
-                                    location:
-                                        "Rose Garden" ?? '', // Update as needed
-                                    rating: coffee['rating'] ?? 0.0,
-                                    fee: coffee['fee'] ?? '',
-                                    // deliveryTime: coffee['time'] ?? '',
-                                    price: 32.0,
-                                    music: coffee['Music'] ?? '',
-                                    typeOfRestaurant:
-                                        coffee['TypeofRestaurant'] ?? '',
-                                    sessions: coffee['Sessions'] ?? '',
-                                    menuLink: coffee['MenuLink'] ?? '',
-                                    entry: coffee['Entry'] ?? '',
-                                    lstMusic: coffee['Lstmusic'] ?? '',
-                                    type: coffee['Type'] ?? '',
-                                    hasKidsArea: coffee['HasKidsArea'] ?? '',
-                                    hasValet: coffee['HasValet'] ?? '',
-                                    valetWithFees:
-                                        coffee['ValetWithFees'] ?? '',
-                                    hasBarber: coffee['HasBarber'] ?? '',
-                                    hasGym: coffee['HasGym'] ?? '',
-                                    hasMassage: coffee['HasMassage'] ?? '',
-                                    hasSwimmingPool:
-                                        coffee['HasSwimmingPool'] ?? '',
-                                    isSmokingAllowed:
-                                        coffee['IsSmokingAllowed'] ?? '',
-                                    hasJacuzziInRoom:
-                                        coffee['HasJacuzziInRoom'] ?? '',
-                                    lat: coffee['Lat']?.toDouble() ?? 0.0,
-                                    lon: coffee['Lon']?.toDouble() ?? 0.0,
-                                    city: coffee['City'] ?? "No city",
-                                    country: coffee['Country'] ?? "No Country",
-                                  ),
-                                ),
-                              );
-                            },
-                            child: DifferentEstateCards(
-                              nameEn: coffee['nameEn'],
-                              nameAr: coffee['nameAr'],
-                              estateId: coffee['id'],
-                              rating: coffee['rating'],
-                              imageUrl: coffee['imageUrl'],
-                              fee: coffee['fee'],
-                              time: coffee['time'],
-                              city: coffee['City'],
-                              country: coffee['Country'],
+            Expanded(
+              child: loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : searchActive && filteredEstates.isEmpty
+                      ? Center(
+                          child: Text(
+                            getTranslated(context, "No results found"),
+                            style: TextStyle(
+                              fontSize: 18,
+                              color:
+                                  Theme.of(context).textTheme.bodyLarge?.color,
                             ),
-                          );
-                        },
-                      ),
-          ),
-        ],
+                          ),
+                        )
+                      : ListView.builder(
+                          itemCount: filteredEstates.length,
+                          itemBuilder: (context, index) {
+                            final coffee = filteredEstates[index];
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ProfileEstateScreen(
+                                      nameEn: coffee['nameEn'] ?? '',
+                                      nameAr: coffee['nameAr'] ?? '',
+                                      estateId: coffee['id'] ?? '',
+                                      location: "Rose Garden" ??
+                                          '', // Update as needed
+                                      rating: coffee['rating'] ?? 0.0,
+                                      fee: coffee['fee'] ?? '',
+                                      // deliveryTime: coffee['time'] ?? '',
+                                      price: 32.0,
+                                      music: coffee['Music'] ?? '',
+                                      typeOfRestaurant:
+                                          coffee['TypeofRestaurant'] ?? '',
+                                      sessions: coffee['Sessions'] ?? '',
+                                      menuLink: coffee['MenuLink'] ?? '',
+                                      entry: coffee['Entry'] ?? '',
+                                      lstMusic: coffee['Lstmusic'] ?? '',
+                                      type: coffee['Type'] ?? '',
+                                      hasKidsArea: coffee['HasKidsArea'] ?? '',
+                                      hasValet: coffee['HasValet'] ?? '',
+                                      valetWithFees:
+                                          coffee['ValetWithFees'] ?? '',
+                                      hasBarber: coffee['HasBarber'] ?? '',
+                                      hasGym: coffee['HasGym'] ?? '',
+                                      hasMassage: coffee['HasMassage'] ?? '',
+                                      hasSwimmingPool:
+                                          coffee['HasSwimmingPool'] ?? '',
+                                      isSmokingAllowed:
+                                          coffee['IsSmokingAllowed'] ?? '',
+                                      hasJacuzziInRoom:
+                                          coffee['HasJacuzziInRoom'] ?? '',
+                                      lat: coffee['Lat']?.toDouble() ?? 0.0,
+                                      lon: coffee['Lon']?.toDouble() ?? 0.0,
+                                      city: coffee['City'] ?? "No city",
+                                      country:
+                                          coffee['Country'] ?? "No Country",
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: DifferentEstateCards(
+                                nameEn: coffee['nameEn'],
+                                nameAr: coffee['nameAr'],
+                                estateId: coffee['id'],
+                                rating: coffee['rating'],
+                                imageUrl: coffee['imageUrl'],
+                                fee: coffee['fee'],
+                                time: coffee['time'],
+                                city: coffee['City'],
+                                country: coffee['Country'],
+                              ),
+                            );
+                          },
+                        ),
+            ),
+          ],
+        ),
       ),
     );
   }

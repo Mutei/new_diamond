@@ -383,6 +383,13 @@ class _HotelScreenState extends State<HotelScreen> {
     });
   }
 
+  Future<void> _refreshData() async {
+    setState(() {
+      loading = true;
+    });
+    await _fetchHotels(); // Re-fetch the data
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -395,91 +402,96 @@ class _HotelScreenState extends State<HotelScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SearchTextField(
-              controller: searchController,
-              onClear: _clearSearch,
-              onChanged: (value) => _filterEstates(),
+      body: RefreshIndicator(
+        onRefresh: _refreshData,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SearchTextField(
+                controller: searchController,
+                onClear: _clearSearch,
+                onChanged: (value) => _filterEstates(),
+              ),
             ),
-          ),
-          Expanded(
-            child: loading
-                ? const Center(child: CircularProgressIndicator())
-                : searchActive && filteredEstates.isEmpty
-                    ? Center(
-                        child: Text(
-                          getTranslated(context, "No results found"),
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Theme.of(context).textTheme.bodyLarge?.color,
-                          ),
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount: filteredEstates.length,
-                        itemBuilder: (context, index) {
-                          final hotel = filteredEstates[index];
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ProfileEstateScreen(
-                                    nameEn: hotel['nameEn'],
-                                    nameAr: hotel['nameAr'],
-                                    estateId: hotel['id'],
-                                    location: "Rose Garden",
-                                    rating: hotel['rating'] ?? 0.0,
-                                    fee: hotel['fee'] ?? '',
-                                    // deliveryTime: hotel['time'],
-                                    price: 32.0,
-                                    music: hotel['Music'],
-                                    typeOfRestaurant:
-                                        hotel['TypeofRestaurant'] ?? '',
-                                    sessions: hotel['Sessions'] ?? '',
-                                    menuLink: hotel['MenuLink'] ?? '',
-                                    entry: hotel['Entry'] ?? '',
-                                    lstMusic: hotel['Lstmusic'] ?? '',
-                                    type: hotel['Type'] ?? '',
-                                    hasKidsArea: hotel['HasKidsArea'] ?? '',
-                                    hasValet: hotel['HasValet'] ?? '',
-                                    valetWithFees: hotel['ValetWithFees'] ?? '',
-                                    hasBarber: hotel['HasBarber'] ?? '',
-                                    hasGym: hotel['HasGym'] ?? '',
-                                    hasMassage: hotel['HasMassage'] ?? '',
-                                    hasSwimmingPool:
-                                        hotel['HasSwimmingPool'] ?? '',
-                                    isSmokingAllowed:
-                                        hotel['IsSmokingAllowed'] ?? '',
-                                    hasJacuzziInRoom:
-                                        hotel['HasJacuzziInRoom'] ?? '',
-                                    lat: hotel['Lat']?.toDouble() ?? 0.0,
-                                    lon: hotel['Lon']?.toDouble() ?? 0.0,
-                                    city: hotel['City'] ?? "No city",
-                                    country: hotel['Country'] ?? "No Country",
-                                  ),
-                                ),
-                              );
-                            },
-                            child: DifferentEstateCards(
-                              nameEn: hotel['nameEn'],
-                              nameAr: hotel['nameAr'],
-                              estateId: hotel['id'],
-                              rating: hotel['rating'],
-                              imageUrl: hotel['imageUrl'],
-                              fee: hotel['fee'],
-                              time: hotel['time'],
-                              city: hotel['City'],
-                              country: hotel['Country'],
+            Expanded(
+              child: loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : searchActive && filteredEstates.isEmpty
+                      ? Center(
+                          child: Text(
+                            getTranslated(context, "No results found"),
+                            style: TextStyle(
+                              fontSize: 18,
+                              color:
+                                  Theme.of(context).textTheme.bodyLarge?.color,
                             ),
-                          );
-                        },
-                      ),
-          ),
-        ],
+                          ),
+                        )
+                      : ListView.builder(
+                          itemCount: filteredEstates.length,
+                          itemBuilder: (context, index) {
+                            final hotel = filteredEstates[index];
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ProfileEstateScreen(
+                                      nameEn: hotel['nameEn'],
+                                      nameAr: hotel['nameAr'],
+                                      estateId: hotel['id'],
+                                      location: "Rose Garden",
+                                      rating: hotel['rating'] ?? 0.0,
+                                      fee: hotel['fee'] ?? '',
+                                      // deliveryTime: hotel['time'],
+                                      price: 32.0,
+                                      music: hotel['Music'],
+                                      typeOfRestaurant:
+                                          hotel['TypeofRestaurant'] ?? '',
+                                      sessions: hotel['Sessions'] ?? '',
+                                      menuLink: hotel['MenuLink'] ?? '',
+                                      entry: hotel['Entry'] ?? '',
+                                      lstMusic: hotel['Lstmusic'] ?? '',
+                                      type: hotel['Type'] ?? '',
+                                      hasKidsArea: hotel['HasKidsArea'] ?? '',
+                                      hasValet: hotel['HasValet'] ?? '',
+                                      valetWithFees:
+                                          hotel['ValetWithFees'] ?? '',
+                                      hasBarber: hotel['HasBarber'] ?? '',
+                                      hasGym: hotel['HasGym'] ?? '',
+                                      hasMassage: hotel['HasMassage'] ?? '',
+                                      hasSwimmingPool:
+                                          hotel['HasSwimmingPool'] ?? '',
+                                      isSmokingAllowed:
+                                          hotel['IsSmokingAllowed'] ?? '',
+                                      hasJacuzziInRoom:
+                                          hotel['HasJacuzziInRoom'] ?? '',
+                                      lat: hotel['Lat']?.toDouble() ?? 0.0,
+                                      lon: hotel['Lon']?.toDouble() ?? 0.0,
+                                      city: hotel['City'] ?? "No city",
+                                      country: hotel['Country'] ?? "No Country",
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: DifferentEstateCards(
+                                nameEn: hotel['nameEn'],
+                                nameAr: hotel['nameAr'],
+                                estateId: hotel['id'],
+                                rating: hotel['rating'],
+                                imageUrl: hotel['imageUrl'],
+                                fee: hotel['fee'],
+                                time: hotel['time'],
+                                city: hotel['City'],
+                                country: hotel['Country'],
+                              ),
+                            );
+                          },
+                        ),
+            ),
+          ],
+        ),
       ),
     );
   }
