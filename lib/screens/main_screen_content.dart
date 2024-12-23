@@ -172,6 +172,28 @@ class _MainScreenContentState extends State<MainScreenContent> {
     }
   }
 
+  /// Calculate estimated time range based on distance
+  String calculateTimeRange(double distanceMeters) {
+    // Define min and max speed in meters per second
+    const double minSpeed = 30 * 1000 / 3600; // 30 km/h
+    const double maxSpeed = 50 * 1000 / 3600; // 50 km/h
+
+    double minTimeSec = distanceMeters / maxSpeed;
+    double maxTimeSec = distanceMeters / minSpeed;
+
+    int minMinutes = (minTimeSec / 60).ceil();
+    int maxMinutes = (maxTimeSec / 60).ceil();
+
+    // Ensure minMinutes is less than or equal to maxMinutes
+    if (minMinutes > maxMinutes) {
+      var temp = minMinutes;
+      minMinutes = maxMinutes;
+      maxMinutes = temp;
+    }
+
+    return "$minMinutes-$maxMinutes mins";
+  }
+
   Future<void> _fetchEstates() async {
     setState(() => loading = true);
     try {
@@ -184,7 +206,11 @@ class _MainScreenContentState extends State<MainScreenContent> {
         double distance = calculateDistanceMeters(
             currentLat, currentLon, estateLat, estateLon);
 
-        estate['distance'] = distance / 1000;
+        String timeRange = calculateTimeRange(distance);
+
+        estate['distance'] = distance / 1000; // Keep distance for filtering
+        estate['timeRange'] = timeRange; // Add timeRange
+
         return estate;
       }).toList();
 
@@ -519,7 +545,7 @@ class _MainScreenContentState extends State<MainScreenContent> {
   Widget _buildNearbyEstatesSection() {
     // Filter estates within the maxNearbyDistance
     List<Map<String, dynamic>> nearbyEstates = filteredEstates
-        .where((estate) => estate['distance'] <= maxNearbyDistance)
+        .where((estate) => estate['distance'] * 1000 <= maxNearbyDistance)
         .toList();
 
     if (nearbyEstates.isEmpty) {
@@ -586,7 +612,7 @@ class _MainScreenContentState extends State<MainScreenContent> {
               rating: estate['rating'],
               imageUrl: estate['imageUrl'],
               fee: estate['fee'],
-              distance: estate['distance'], // Display the distance in meters
+              timeRange: estate['timeRange'], // Pass timeRange
               city: estate['City'],
               country: estate['Country'],
             ),
@@ -668,8 +694,7 @@ class _MainScreenContentState extends State<MainScreenContent> {
                     rating: estate['rating'],
                     imageUrl: estate['imageUrl'],
                     fee: estate['fee'],
-                    distance:
-                        estate['distance'], // Display the distance in meters
+                    timeRange: estate['timeRange'], // Pass timeRange
                     city: estate['City'],
                     country: estate['Country'],
                   ),

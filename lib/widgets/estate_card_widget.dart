@@ -1,3 +1,5 @@
+// estate_card_widget.dart
+
 import 'package:diamond_host_admin/extension/sized_box_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
@@ -9,7 +11,7 @@ class EstateCard extends StatelessWidget {
   final double rating;
   final String imageUrl;
   final String fee;
-  final double distance; // New parameter
+  final String timeRange; // Changed from double to String
   final String city;
   final String country;
 
@@ -21,7 +23,7 @@ class EstateCard extends StatelessWidget {
       required this.rating,
       required this.imageUrl,
       required this.fee,
-      required this.distance, // Initialize it
+      required this.timeRange, // Initialize it
       required this.city,
       required this.country})
       : super(key: key);
@@ -99,13 +101,13 @@ class EstateCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 4),
-                  // Distance
+                  // Time Range
                   Row(
                     children: [
-                      Icon(Icons.location_on, size: 14, color: Colors.grey),
+                      Icon(Icons.access_time, size: 14, color: Colors.grey),
                       const SizedBox(width: 2),
                       Text(
-                        '${distance.toStringAsFixed(2)} km',
+                        timeRange, // Display timeRange
                         style:
                             const TextStyle(fontSize: 12, color: Colors.grey),
                       ),
