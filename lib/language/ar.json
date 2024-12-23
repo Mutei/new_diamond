@@ -298,5 +298,6 @@
   "Your post has been approved and is now visible.": "تمت الموافقة على منشورك وهو الآن مرئي.",
   "Post Rejected": "تم رفض المنشور",
   "Your post has been rejected and was not posted.": "تم رفض منشورك ولم يتم نشره.",
-  "Nearby Places": "الأماكن القريبة"
+  "Nearby Places": "الأماكن القريبة",
+  "No nearby estates found.": "لم يتم العثور على أماكن قريبة."
 }
