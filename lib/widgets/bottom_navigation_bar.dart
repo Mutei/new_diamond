@@ -29,8 +29,8 @@ class BottomNavBar extends StatelessWidget {
           label: getTranslated(context, 'Main Screens'),
         ),
         BottomNavigationBarItem(
-          icon: const Icon(Icons.upgrade),
-          label: getTranslated(context, 'Upgrade Account'),
+          icon: const Icon(Icons.message),
+          label: getTranslated(context, 'Private Chat'),
         ),
         BottomNavigationBarItem(
           icon: Stack(

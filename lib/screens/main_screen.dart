@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state_management/general_provider.dart';
 import '../widgets/bottom_navigation_bar.dart';
+import 'accepted_private_chat_screen.dart';
 import 'all_posts_screen.dart';
 import 'notification_screen.dart';
 import 'upgrade_account_screen.dart';
@@ -19,7 +20,7 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = [
     const MainScreenContent(),
-    const UpgradeAccountScreen(),
+    const AcceptedPrivateChatScreen(),
     const NotificationScreen(),
     const AllPostsScreen(),
   ];
