@@ -4,6 +4,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 
+import 'firebase_services.dart';
+
 class BookingServices {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final DatabaseReference _dbRef = FirebaseDatabase.instance.ref();
@@ -163,6 +165,20 @@ class BookingServices {
       "Clock": "$hour:$minute",
     });
 
-    // Optionally send notification to provider using FCM (if implemented)
+    // Fetch owner's FCM token
+    DatabaseReference ownerRef =
+        _dbRef.child("App").child("User").child(ownerId);
+    DataSnapshot tokenSnapshot = await ownerRef.child("Token").get();
+    String token = tokenSnapshot.value?.toString() ?? "";
+
+    if (token.isNotEmpty) {
+      // Send notification to the estate  owner
+      FirebaseServices firebaseServices = FirebaseServices();
+      await firebaseServices.sendNotificationToProvider(
+        token,
+        "New Booking Received",
+        "A booking has been made for $nameEn on $bookingDate at $hour:$minute.",
+      );
+    }
   }
 }
