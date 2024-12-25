@@ -1,4 +1,5 @@
 import 'package:firebase_database/firebase_database.dart';
+import 'firebase_services.dart';
 import 'user_service.dart'; // Ensure you have a UserService to fetch user details
 
 class PrivateChatService {
@@ -95,7 +96,7 @@ class PrivateChatService {
 
   // Send a message in a private chat
   Future<void> sendMessage({
-    required String chatId,
+    required String chatId, // This is user1ID_user2ID
     required Map<String, dynamic> message,
   }) async {
     String messageId =
@@ -103,7 +104,40 @@ class PrivateChatService {
     await _database
         .child('App/PrivateChat/$chatId/messages/$messageId')
         .set(message);
+
     print('Message sent in chat $chatId with message ID $messageId');
+
+    // Extract senderId from the message
+    final senderId = message['senderId'];
+
+    // Extract user1ID and user2ID from the chatId
+    final userIds = chatId.split('_');
+    if (userIds.length != 2) {
+      print('Invalid chatId format. Expected user1ID_user2ID.');
+      return;
+    }
+
+    final user1ID = userIds[0];
+    final user2ID = userIds[1];
+
+    // Determine the receiverId (the user who is not the sender)
+    final receiverId = (senderId == user1ID) ? user2ID : user1ID;
+
+    // Fetch the receiver's FCM token
+    DatabaseReference userRef = _database.child('App/User/$receiverId');
+    DataSnapshot tokenSnapshot = await userRef.child('Token').get();
+    String receiverToken = tokenSnapshot.value?.toString() ?? "";
+
+    if (receiverToken.isNotEmpty) {
+      await FirebaseServices().sendNotificationToProvider(
+        receiverToken,
+        message['senderName'] ?? 'Anonymous',
+        message['text'] ?? '',
+      );
+      print('Notification sent to $receiverId for new message.');
+    } else {
+      print('No FCM token found for receiver: $receiverId');
+    }
   }
 
   // Add a reaction to a message in a private chat
