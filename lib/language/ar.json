@@ -299,5 +299,10 @@
   "Post Rejected": "تم رفض المنشور",
   "Your post has been rejected and was not posted.": "تم رفض منشورك ولم يتم نشره.",
   "Nearby Places": "الأماكن القريبة",
-  "No nearby estates found.": "لم يتم العثور على أماكن قريبة."
+  "No nearby estates found.": "لم يتم العثور على أماكن قريبة.",
+  "User not found with this phone number.": "لم يتم العثور على مستخدم بهذا الرقم.",
+  "Verification failed.": "فشل التحقق.",
+  "An error occurred. Please try again.": "حدث خطأ. يرجى المحاولة مرة أخرى.",
+  "Failed to link email with phone": "فشل ربط البريد الإلكتروني برقم الهاتف",
+  "Unable to verify user ID.": "تعذر التحقق من هوية المستخدم."
 }

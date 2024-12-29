@@ -297,5 +297,10 @@
   "Post Rejected":"Post Rejected",
   "Your post has been rejected and was not posted.":"Your post has been rejected and was not posted.",
   "Nearby Places": "Nearby Places",
-  "No nearby estates found.": "No nearby places found."
+  "No nearby estates found.": "No nearby places found.",
+  "User not found with this phone number.":"User not found with this phone number.",
+  "Verification failed.":"Verification failed.",
+  "An error occurred. Please try again.":"An error occurred. Please try again.",
+  "Failed to link email with phone":"Failed to link email with phone",
+  "Unable to verify user ID.":"Unable to verify user ID."
 }
