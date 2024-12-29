@@ -302,5 +302,12 @@
   "Verification failed.":"Verification failed.",
   "An error occurred. Please try again.":"An error occurred. Please try again.",
   "Failed to link email with phone":"Failed to link email with phone",
-  "Unable to verify user ID.":"Unable to verify user ID."
+  "Unable to verify user ID.":"Unable to verify user ID.",
+  "Birthday":"Birthday",
+  "Male":"Male",
+  "Female":"Female",
+  "NonSmoker":"NonSmoker",
+  "Do you have any allergies?":"Do you have any allergies?",
+  "Enter allergies (optional)":"Enter allergies (optional)",
+  "Fill up your Personal Information":"Fill up your Personal Information"
 }

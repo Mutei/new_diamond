@@ -304,5 +304,12 @@
   "Verification failed.": "فشل التحقق.",
   "An error occurred. Please try again.": "حدث خطأ. يرجى المحاولة مرة أخرى.",
   "Failed to link email with phone": "فشل ربط البريد الإلكتروني برقم الهاتف",
-  "Unable to verify user ID.": "تعذر التحقق من هوية المستخدم."
+  "Unable to verify user ID.": "تعذر التحقق من هوية المستخدم.",
+  "Birthday": "تاريخ الميلاد",
+  "Male": "ذكر",
+  "Female": "أنثى",
+  "NonSmoker": "غير مدخن",
+  "Do you have any allergies?": "هل لديك أي حساسية؟",
+  "Enter allergies (optional)": "أدخل الحساسية (اختياري)",
+  "Fill up your Personal Information": "املأ معلوماتك الشخصية"
 }
