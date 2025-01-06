@@ -17,7 +17,13 @@ class CustomButton extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30),
-        gradient: kPrimaryGradient, // Use the gradient from colors.dart
+        gradient: LinearGradient(
+          colors: Theme.of(context).brightness == Brightness.dark
+              ? [kPurpleColor, Colors.indigo.shade700]
+              : [kPurpleColor, Colors.indigo],
+          begin: Alignment.topRight,
+          end: Alignment.bottomRight,
+        ), // Use the gradient from colors.dart
       ),
       child: TextButton(
         onPressed: onPressed,

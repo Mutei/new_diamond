@@ -1,5 +1,6 @@
 // estate_card_widget.dart
 
+import 'package:diamond_host_admin/constants/colors.dart';
 import 'package:diamond_host_admin/extension/sized_box_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
@@ -55,6 +56,9 @@ class EstateCard extends StatelessWidget {
       width: 200,
       margin: const EdgeInsets.only(right: 16.0),
       child: Card(
+        color: Theme.of(context).brightness == Brightness.dark
+            ? kDarkModeColor
+            : Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),
         ),

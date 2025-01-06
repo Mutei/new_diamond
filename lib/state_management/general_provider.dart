@@ -10,6 +10,7 @@ import 'package:firebase_database/firebase_database.dart';
 
 import '../backend/private_chat_service.dart';
 import '../backend/user_service.dart';
+import '../constants/colors.dart';
 import '../localization/language_constants.dart';
 
 enum ThemeModeType { system, light, dark }
@@ -135,17 +136,79 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
 
   // Existing methods...
   ThemeData getTheme(BuildContext context) {
-    if (_themeMode == ThemeModeType.dark) {
-      return ThemeData.dark();
-    } else if (_themeMode == ThemeModeType.light) {
-      return ThemeData.light();
-    } else {
-      var brightness = MediaQuery.of(context).platformBrightness;
-      return brightness == Brightness.dark
-          ? ThemeData.dark()
-          : ThemeData.light();
+    switch (_themeMode) {
+      case ThemeModeType.dark:
+        return ThemeData(
+          brightness: Brightness.dark,
+          scaffoldBackgroundColor: kDarkModeColor,
+          primaryColor: kDarkModeColor,
+          appBarTheme: const AppBarTheme(
+            backgroundColor: kDarkModeColor,
+          ),
+          colorScheme: ColorScheme.fromSeed(
+            seedColor:
+                kPurpleColor, // Using the custom purple color as the seed
+            brightness: Brightness.dark,
+          ),
+          textTheme: ThemeData.dark().textTheme.apply(
+                bodyColor: Colors.white,
+                displayColor: Colors.white,
+              ),
+        );
+      case ThemeModeType.light:
+        return ThemeData(
+          brightness: Brightness.light,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor:
+                kPurpleColor, // Using the custom purple color as the seed
+            brightness: Brightness.light,
+          ),
+        );
+      case ThemeModeType.system:
+      default:
+        var brightness = MediaQuery.of(context).platformBrightness;
+        if (brightness == Brightness.dark) {
+          return ThemeData(
+            brightness: Brightness.dark,
+            scaffoldBackgroundColor: kDarkModeColor,
+            primaryColor: kDarkModeColor,
+            appBarTheme: const AppBarTheme(
+              backgroundColor: kDarkModeColor,
+            ),
+            colorScheme: ColorScheme.fromSeed(
+              seedColor:
+                  kPurpleColor, // Using the custom purple color as the seed
+              brightness: Brightness.dark,
+            ),
+            textTheme: ThemeData.dark().textTheme.apply(
+                  bodyColor: Colors.white,
+                  displayColor: Colors.white,
+                ),
+          );
+        } else {
+          return ThemeData(
+            brightness: Brightness.light,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor:
+                  kPurpleColor, // Using the custom purple color as the seed
+              brightness: Brightness.light,
+            ),
+          );
+        }
     }
   }
+  // ThemeData getTheme(BuildContext context) {
+  //   if (_themeMode == ThemeModeType.dark) {
+  //     return ThemeData.dark();
+  //   } else if (_themeMode == ThemeModeType.light) {
+  //     return ThemeData.light();
+  //   } else {
+  //     var brightness = MediaQuery.of(context).platformBrightness;
+  //     return brightness == Brightness.dark
+  //         ? ThemeData.dark()
+  //         : ThemeData.light();
+  //   }
+  // }
 
   Future<void> saveActiveTimer(
       String estateId, DateTime scanTime, Duration duration) async {

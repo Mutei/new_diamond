@@ -28,6 +28,9 @@ class CustomDrawer extends StatelessWidget {
     final provider = Provider.of<GeneralProvider>(context);
 
     return Drawer(
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? kDarkModeColor
+          : Colors.white,
       child: SafeArea(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -44,15 +47,7 @@ class CustomDrawer extends StatelessWidget {
                 ),
               ),
             ),
-            DrawerItem(
-              text: getTranslated(context, "Settings"),
-              icon: Icon(Icons.settings, color: kDeepPurpleColor),
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const SettingsScreen()));
-              },
-              hint: '',
-            ),
+
             DrawerItem(
               text: getTranslated(context, "Profile"),
               icon: Icon(Icons.person, color: kDeepPurpleColor),
@@ -106,15 +101,14 @@ class CustomDrawer extends StatelessWidget {
             ),
             DrawerItem(
               text: getTranslated(context, "Booking Status"),
-              icon: Icon(Icons.notification_add, color: Colors.deepPurple),
+              icon: Icon(Icons.notification_add, color: kPurpleColor),
               badge: provider.approvalCount > 0
                   ? badges.Badge(
                       badgeContent: Text(
                         provider.approvalCount.toString(),
                         style: const TextStyle(color: Colors.white),
                       ),
-                      child: Icon(Icons.notification_add,
-                          color: Colors.deepPurple),
+                      child: Icon(Icons.notification_add, color: kPurpleColor),
                     )
                   : null,
               onTap: () {
@@ -138,6 +132,15 @@ class CustomDrawer extends StatelessWidget {
               },
               hint: getTranslated(
                   context, "From here you can upgrade account to Vip"),
+            ),
+            DrawerItem(
+              text: getTranslated(context, "Settings"),
+              icon: Icon(Icons.settings, color: kDeepPurpleColor),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const SettingsScreen()));
+              },
+              hint: '',
             ),
             // New DrawerItem for Private Chat Requests
 

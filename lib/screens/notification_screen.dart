@@ -1,3 +1,4 @@
+// notification_screen.dart
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:diamond_host_admin/constants/styles.dart';
 import 'package:flutter/material.dart';
@@ -14,28 +15,22 @@ class NotificationScreen extends StatefulWidget {
   _NotificationScreenState createState() => _NotificationScreenState();
 }
 
-class _NotificationScreenState extends State<NotificationScreen>
-    with TickerProviderStateMixin {
+class _NotificationScreenState extends State<NotificationScreen> {
   final DatabaseReference bookingRef =
       FirebaseDatabase.instance.ref("App").child("Booking").child("Book");
   bool isLoading = true;
   List<Map<String, dynamic>> bookings = [];
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-  late AnimationController _animationController;
+  List<Map<String, dynamic>> filteredBookings = [];
   String? currentUserId;
+  String currentFilter = 'under_process';
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
     _getCurrentUserId();
   }
 
   Future<void> _getCurrentUserId() async {
-    // Fetch the current user's ID using FirebaseAuth
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       setState(() {
@@ -43,17 +38,14 @@ class _NotificationScreenState extends State<NotificationScreen>
       });
       _fetchBookings();
     } else {
-      // Handle the case when the user is not authenticated
       setState(() {
         isLoading = false;
       });
-      // Optionally, navigate to the login screen
     }
   }
 
   Future<void> _fetchBookings() async {
     if (currentUserId == null) {
-      // If user ID is not available, do not proceed
       setState(() {
         isLoading = false;
       });
@@ -83,8 +75,8 @@ class _NotificationScreenState extends State<NotificationScreen>
 
       setState(() {
         bookings = loadedBookings;
+        _filterBookings();
         isLoading = false;
-        _populateList();
       });
     } else {
       setState(() {
@@ -93,12 +85,27 @@ class _NotificationScreenState extends State<NotificationScreen>
     }
   }
 
-  void _populateList() {
-    Future.delayed(const Duration(milliseconds: 300), () {
-      for (var i = 0; i < bookings.length; i++) {
-        _listKey.currentState
-            ?.insertItem(i, duration: const Duration(milliseconds: 400));
+  void _filterBookings() {
+    setState(() {
+      if (currentFilter == 'under_process') {
+        filteredBookings =
+            bookings.where((booking) => booking['status'] == '1').toList();
+      } else if (currentFilter == 'accepted') {
+        filteredBookings =
+            bookings.where((booking) => booking['status'] == '2').toList();
+      } else if (currentFilter == 'rejected') {
+        filteredBookings =
+            bookings.where((booking) => booking['status'] == '3').toList();
+      } else {
+        filteredBookings = [];
       }
+    });
+  }
+
+  void _changeFilter(String filter) {
+    setState(() {
+      currentFilter = filter;
+      _filterBookings();
     });
   }
 
@@ -118,46 +125,120 @@ class _NotificationScreenState extends State<NotificationScreen>
         iconTheme: kIconTheme,
         centerTitle: true,
       ),
-      body: isLoading
-          ? Center(
-              child: CircularProgressIndicator(
-                color: kDeepPurpleColor,
-              ),
-            )
-          : bookings.isEmpty
-              ? Center(
-                  child: AutoSizeText(
-                    getTranslated(context, "No bookings found."),
-                    style: const TextStyle(fontSize: 16),
-                    maxLines: 1,
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _changeFilter('under_process'),
+                    icon: Icon(Icons.hourglass_top),
+                    label: Text(
+                      getTranslated(context, 'Under Process'),
+                      textAlign: TextAlign.center,
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      textStyle: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.bold),
+                      backgroundColor: currentFilter == 'under_process'
+                          ? Colors.orange
+                          : Colors.grey[200],
+                      foregroundColor: currentFilter == 'under_process'
+                          ? Colors.white
+                          : Colors.black,
+                    ),
                   ),
-                )
-              : AnimatedList(
-                  key: _listKey,
-                  initialItemCount: bookings.length,
-                  itemBuilder: (context, index, animation) {
-                    if (index < bookings.length) {
-                      final booking = bookings[index];
-                      final String displayName =
-                          Localizations.localeOf(context).languageCode == 'ar'
-                              ? booking['nameAr']
-                              : booking['nameEn'];
-                      return BookingCardWidget(
-                        booking: booking,
-                        animation: animation,
-                        estateName: displayName,
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  },
                 ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _changeFilter('accepted'),
+                    icon: Icon(Icons.check_circle),
+                    label: Text(
+                      getTranslated(context, 'Booking Accepted'),
+                      textAlign: TextAlign.center,
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      textStyle: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.bold),
+                      backgroundColor: currentFilter == 'accepted'
+                          ? Colors.green
+                          : Colors.grey[200],
+                      foregroundColor: currentFilter == 'accepted'
+                          ? Colors.white
+                          : Colors.black,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _changeFilter('rejected'),
+                    icon: Icon(Icons.cancel),
+                    label: Text(
+                      getTranslated(context, 'Booking Rejected'),
+                      textAlign: TextAlign.center,
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      textStyle: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.bold),
+                      backgroundColor: currentFilter == 'rejected'
+                          ? Colors.red
+                          : Colors.grey[200],
+                      foregroundColor: currentFilter == 'rejected'
+                          ? Colors.white
+                          : Colors.black,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: isLoading
+                ? Center(
+                    child: CircularProgressIndicator(
+                      color: kDeepPurpleColor,
+                    ),
+                  )
+                : filteredBookings.isEmpty
+                    ? Center(
+                        child: AutoSizeText(
+                          getTranslated(context, "No bookings found."),
+                          style: const TextStyle(fontSize: 16),
+                          maxLines: 1,
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount: filteredBookings.length,
+                        itemBuilder: (context, index) {
+                          final booking = filteredBookings[index];
+                          final String displayName =
+                              Localizations.localeOf(context).languageCode ==
+                                      'ar'
+                                  ? booking['nameAr']
+                                  : booking['nameEn'];
+                          return BookingCardWidget(
+                            booking: booking,
+                            estateName: displayName,
+                          );
+                        },
+                      ),
+          ),
+        ],
+      ),
     );
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
   }
 }

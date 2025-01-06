@@ -1,3 +1,4 @@
+import 'package:diamond_host_admin/constants/colors.dart';
 import 'package:diamond_host_admin/localization/language_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -19,9 +20,12 @@ class BottomNavBar extends StatelessWidget {
     final provider = Provider.of<GeneralProvider>(context);
 
     return BottomNavigationBar(
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? kDarkModeColor
+          : Colors.white,
       currentIndex: currentIndex,
       onTap: onItemTapped,
-      selectedItemColor: Colors.deepPurple,
+      selectedItemColor: kPurpleColor,
       unselectedItemColor: Colors.grey,
       items: [
         BottomNavigationBarItem(

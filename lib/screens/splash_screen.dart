@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:diamond_host_admin/state_management/general_provider.dart';
 import '../auth_handler.dart';
+import '../constants/colors.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -73,8 +74,8 @@ class _SplashScreenState extends State<SplashScreen>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: Theme.of(context).brightness == Brightness.dark
-                    ? [Colors.black, Colors.purple[600]!]
-                    : [Colors.white, Colors.purple[300]!, Colors.purple[600]!],
+                    ? [kDarkModeColor]
+                    : [Colors.white],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -111,7 +112,7 @@ class _SplashScreenState extends State<SplashScreen>
                       style: const TextStyle(
                         fontSize: 24.0,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: kPurpleColor,
                         letterSpacing: 1.5,
                       ),
                     ),
@@ -121,7 +122,7 @@ class _SplashScreenState extends State<SplashScreen>
                           "You won't be alone anymore"), // Optional tagline
                       style: TextStyle(
                         fontSize: 16.0,
-                        color: Colors.white.withOpacity(0.8),
+                        color: kPurpleColor,
                       ),
                     ),
                   ],

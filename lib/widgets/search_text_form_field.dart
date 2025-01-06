@@ -1,8 +1,9 @@
 // lib/widgets/search_text_field.dart
 
-import 'package:diamond_host_admin/constants/colors.dart';
-import 'package:diamond_host_admin/localization/language_constants.dart';
 import 'package:flutter/material.dart';
+
+import '../constants/colors.dart';
+import '../localization/language_constants.dart';
 
 class SearchTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -49,7 +50,7 @@ class SearchTextField extends StatelessWidget {
               fontSize: 16.0),
           filled: true,
           fillColor: Theme.of(context).brightness == Brightness.dark
-              ? Colors.black
+              ? kDarkModeColor
               : Colors.white.withOpacity(0.9),
           contentPadding:
               EdgeInsets.symmetric(vertical: 14.0, horizontal: 16.0),

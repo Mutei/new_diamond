@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:diamond_host_admin/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:geolocator/geolocator.dart'; // Added
@@ -474,13 +475,12 @@ class _MainScreenContentState extends State<MainScreenContent> {
                                                   gradient: LinearGradient(
                                                     colors: isDarkMode
                                                         ? [
-                                                            Colors.deepPurple
-                                                                .shade700,
+                                                            kPurpleColor,
                                                             Colors
                                                                 .indigo.shade700
                                                           ]
                                                         : [
-                                                            Colors.deepPurple,
+                                                            kPurpleColor,
                                                             Colors.indigo
                                                           ],
                                                     begin: Alignment.topLeft,

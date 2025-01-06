@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../constants/colors.dart';
 import '../localization/language_constants.dart';
 
 class DifferentEstateCards extends StatelessWidget {
@@ -33,6 +34,9 @@ class DifferentEstateCards extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
       child: Card(
+        color: Theme.of(context).brightness == Brightness.dark
+            ? kDarkModeColor
+            : Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         elevation: 4,
         child: Column(

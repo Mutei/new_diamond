@@ -6,68 +6,63 @@ import 'package:diamond_host_admin/localization/language_constants.dart';
 
 class BookingCardWidget extends StatelessWidget {
   final Map<String, dynamic> booking;
-  final Animation<double> animation;
   final String estateName;
 
   const BookingCardWidget({
     Key? key,
     required this.booking,
-    required this.animation,
     required this.estateName,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SlideTransition(
-      position: animation.drive(Tween<Offset>(
-        begin: const Offset(1, 0),
-        end: Offset.zero,
-      ).chain(CurveTween(curve: Curves.easeInOut))),
-      child: GestureDetector(
-        onTap: () {
-          // Add any interaction or additional navigation if necessary
-        },
-        child: Card(
-          elevation: 6,
-          margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${getTranslated(context, 'Booking ID')}: ${booking["bookingId"]}',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: kPurpleColor,
-                  ),
+    return GestureDetector(
+      onTap: () {
+        // Add any interaction or additional navigation if necessary
+      },
+      child: Card(
+        color: Theme.of(context).brightness == Brightness.dark
+            ? kDarkModeColor
+            : Colors.white,
+        elevation: 6,
+        margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${getTranslated(context, 'Booking ID')}: ${booking["bookingId"]}',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: kPurpleColor,
                 ),
-                12.kH,
-                _buildStatusWidget(context, booking["status"]),
-                12.kH,
-                _buildInfoRow(
-                  context,
-                  Icons.store,
-                  '${getTranslated(context, 'Name')}: $estateName',
-                ),
-                12.kH,
-                _buildInfoRow(
-                  context,
-                  Icons.date_range,
-                  '${getTranslated(context, 'Date')}: ${booking["startDate"]}',
-                ),
-                12.kH,
-                _buildInfoRow(
-                  context,
-                  Icons.access_time,
-                  '${getTranslated(context, 'Time')}: ${booking["clock"]}',
-                ),
-              ],
-            ),
+              ),
+              12.kH,
+              _buildStatusWidget(context, booking["status"]),
+              12.kH,
+              _buildInfoRow(
+                context,
+                Icons.store,
+                '${getTranslated(context, 'Name')}: $estateName',
+              ),
+              12.kH,
+              _buildInfoRow(
+                context,
+                Icons.date_range,
+                '${getTranslated(context, 'Date')}: ${booking["startDate"]}',
+              ),
+              12.kH,
+              _buildInfoRow(
+                context,
+                Icons.access_time,
+                '${getTranslated(context, 'Time')}: ${booking["clock"]}',
+              ),
+            ],
           ),
         ),
       ),

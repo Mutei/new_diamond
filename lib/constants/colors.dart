@@ -10,17 +10,16 @@ const kTextButtonColor = Colors.blue;
 const kSenderTextMessage = Colors.white;
 const kReceiverTextMessage = Colors.black;
 final kAmberColor = Colors.amber[600];
-final kDeepPurpleColor = Colors.deepPurple[300]!;
-final kPurpleColor = Colors.purple[300]!;
+const kDeepPurpleColor = Colors.teal;
+const kPurpleColor = Colors.teal;
 const kErrorColor = Colors.red;
 const kConfirmColor = Colors.green;
 const kUnderProcessColor = Colors.orange;
+const kDarkModeColor = Color(0xFF193945);
+
 // Define the gradient as a reusable constant
-final LinearGradient kPrimaryGradient = LinearGradient(
-  colors: [
-    kPurpleColor,
-    Colors.purple[800]!,
-  ],
+LinearGradient kPrimaryGradient = LinearGradient(
+  colors: [kPurpleColor, Colors.indigo.shade700],
   begin: Alignment.topRight,
   end: Alignment.bottomRight,
 );
