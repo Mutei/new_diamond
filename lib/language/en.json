@@ -309,5 +309,7 @@
   "NonSmoker":"NonSmoker",
   "Do you have any allergies?":"Do you have any allergies?",
   "Enter allergies (optional)":"Enter allergies (optional)",
-  "Fill up your Personal Information":"Fill up your Personal Information"
+  "Fill up your Personal Information":"Fill up your Personal Information",
+  "I accept the ": "I accept the ",
+  "terms and conditions": "terms and conditions"
 }

@@ -195,9 +195,11 @@
 //   }
 // }
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:diamond_host_admin/extension/sized_box_extension.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../backend/authentication_methods.dart';
 import '../constants/colors.dart';
 import '../constants/styles.dart';
@@ -227,6 +229,15 @@ class _SignInScreenState extends State<SignInScreen> {
   bool _acceptedTerms = false;
 
   final AuthenticationMethods _authMethods = AuthenticationMethods();
+  Future<void> _launchTermsUrl() async {
+    const url = 'https://www.diamondstel.com/Home/privacypolicy';
+    try {
+      bool launched = await launch(url, forceWebView: false);
+      print('Launch successful: $launched');
+    } catch (e) {
+      print('Error launching maps: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -316,14 +327,33 @@ class _SignInScreenState extends State<SignInScreen> {
                   // ),
                   // 10.kH,
                   CheckboxListTile(
-                    title: Text(getTranslated(
-                        context, 'I accept the terms and conditions')),
                     value: _acceptedTerms,
                     onChanged: (value) {
                       setState(() {
                         _acceptedTerms = value!;
                       });
                     },
+                    title: RichText(
+                      text: TextSpan(
+                        text: getTranslated(context, 'I accept the '),
+                        style: Theme.of(context).textTheme.bodyLarge,
+                        children: <TextSpan>[
+                          TextSpan(
+                            text:
+                                getTranslated(context, 'terms and conditions'),
+                            style:
+                                Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                      color: Colors.blue,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                _launchTermsUrl();
+                              },
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                   CustomButton(
                     text: getTranslated(context, 'Sign in'),

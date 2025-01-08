@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../constants/colors.dart';
 import '../state_management/general_provider.dart';
 import '../localization/language_constants.dart';
 import '../main.dart';
@@ -59,7 +60,7 @@ class SettingsScreen extends StatelessWidget {
                     provider.updateLanguage(value);
                   }
                 },
-                activeColor: Color(0xFF6A1B9A),
+                activeColor: kPurpleColor,
               ),
             ),
             ListTile(
@@ -80,7 +81,7 @@ class SettingsScreen extends StatelessWidget {
                     provider.updateLanguage(value);
                   }
                 },
-                activeColor: Color(0xFF6A1B9A),
+                activeColor: kPurpleColor,
               ),
             ),
             Divider(),
@@ -104,7 +105,7 @@ class SettingsScreen extends StatelessWidget {
                     provider.toggleTheme(value);
                   }
                 },
-                activeColor: Color(0xFF6A1B9A),
+                activeColor: kPurpleColor,
               ),
             ),
             ListTile(
@@ -117,7 +118,7 @@ class SettingsScreen extends StatelessWidget {
                     provider.toggleTheme(value);
                   }
                 },
-                activeColor: Color(0xFF6A1B9A),
+                activeColor: kPurpleColor,
               ),
             ),
             ListTile(
@@ -130,7 +131,7 @@ class SettingsScreen extends StatelessWidget {
                     provider.toggleTheme(value);
                   }
                 },
-                activeColor: Color(0xFF6A1B9A),
+                activeColor: kPurpleColor,
               ),
             ),
             Divider(),
@@ -150,7 +151,7 @@ class SettingsScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
               trailing: IconButton(
-                icon: Icon(Icons.phone, color: Color(0xFF6A1B9A)),
+                icon: Icon(Icons.phone, color: kPurpleColor),
                 onPressed: () => _makePhoneCall("920031542"),
               ),
             ),
