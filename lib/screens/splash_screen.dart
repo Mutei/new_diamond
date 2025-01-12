@@ -96,10 +96,12 @@ class _SplashScreenState extends State<SplashScreen>
                       width: 150.0,
                       height: 150.0,
                       decoration: const BoxDecoration(
+                        shape: BoxShape.circle, // Makes the box a circle
                         image: DecorationImage(
                           image: AssetImage(
                               'assets/images/logo.png'), // Your app logo path
-                          fit: BoxFit.cover,
+                          fit: BoxFit
+                              .cover, // Ensures the image covers the circle
                         ),
                       ),
                     ),

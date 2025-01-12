@@ -39,11 +39,24 @@ class CustomDrawer extends StatelessWidget {
               padding:
                   const EdgeInsets.only(top: 20), // Reduce space above image
               child: Center(
-                child: Image.asset(
-                  "assets/images/logo.png",
-                  width: 200, // Increase width to make the image larger
-                  height: 200, // Maintain aspect ratio with width
-                  fit: BoxFit.cover, // Make the image cover the area
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    const CircleAvatar(
+                      radius: 100, // Radius of the outer circle
+                      backgroundColor:
+                          Colors.transparent, // Transparent background
+                    ),
+                    ClipOval(
+                      child: Image.asset(
+                        "assets/images/logo.png",
+                        width: 160, // Exact width for the image
+                        height: 160, // Exact height for the image
+                        fit: BoxFit
+                            .cover, // Ensures the image covers the circle area
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

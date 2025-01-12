@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import '../constants/colors.dart';
 import '../localization/language_constants.dart';
 
 class CustomerPoints extends StatefulWidget {
@@ -74,8 +75,8 @@ class _CustomerPointsState extends State<CustomerPoints> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: Theme.of(context).brightness == Brightness.dark
-                ? [Colors.black, Colors.purple[600]!]
-                : [Color(0xFF673AB7), Color(0xFFE040FB)],
+                ? [kPurpleColor, Colors.indigo.shade700]
+                : [kPurpleColor, Colors.indigo],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -162,7 +163,7 @@ class _CustomerPointsState extends State<CustomerPoints> {
                               context, '25 SR off with 500,000 points'),
                       style: TextStyle(
                         fontSize: screenWidth * 0.045, // Responsive font size
-                        color: const Color(0xFF673AB7),
+                        color: kPurpleColor,
                       ),
                       maxLines: 1,
                     ),

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:diamond_host_admin/constants/colors.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
@@ -465,7 +466,7 @@ class _ReusedAllPostsCardsState extends State<ReusedAllPostsCards> {
       onDoubleTap: _handleLike,
       child: Card(
         color: isDarkMode
-            ? Colors.grey[900]
+            ? kDarkModeColor
             : Colors.white, // Adjust card color based on theme
         elevation: 3,
         shape: RoundedRectangleBorder(

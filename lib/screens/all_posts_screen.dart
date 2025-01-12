@@ -251,7 +251,7 @@ class _AllPostsScreenState extends State<AllPostsScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         color: Theme.of(context).brightness == Brightness.dark
-            ? Colors.black
+            ? kDarkModeColor
             : Colors.white,
         child: Row(
           children: [

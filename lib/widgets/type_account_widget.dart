@@ -3,6 +3,8 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
+import '../constants/colors.dart';
+
 class TypeAccountWidget extends StatelessWidget {
   final String accountType;
   final String selectedTypeAccount;
@@ -35,8 +37,10 @@ class TypeAccountWidget extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           gradient: isSelected
-              ? const LinearGradient(
-                  colors: [Colors.deepPurpleAccent, Colors.purpleAccent],
+              ? LinearGradient(
+                  colors: Theme.of(context).brightness == Brightness.dark
+                      ? [kPurpleColor, Colors.indigo.shade700]
+                      : [kPurpleColor, Colors.indigo],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 )
@@ -44,11 +48,11 @@ class TypeAccountWidget extends StatelessWidget {
           color: isSelected
               ? Colors.purple[50]
               : Theme.of(context).brightness == Brightness.dark
-                  ? Colors.black
+                  ? kDarkModeColor
                   : Colors.white,
           border: Border.all(
             color: isSelected
-                ? Colors.deepPurple
+                ? kPurpleColor
                 : Theme.of(context).brightness == Brightness.dark
                     ? Colors.grey
                     : Colors.grey.shade300,
@@ -67,7 +71,7 @@ class TypeAccountWidget extends StatelessWidget {
           children: [
             // Account Type Icon
             CircleAvatar(
-              backgroundColor: isSelected ? Colors.deepPurple : Colors.grey,
+              backgroundColor: isSelected ? kPrimaryColor : Colors.grey,
               radius: 30,
               child: Icon(
                 isSelected ? Icons.check_circle : Icons.account_circle,

@@ -384,7 +384,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                           filled: true,
                           fillColor:
                               Theme.of(context).brightness == Brightness.dark
-                                  ? Colors.black
+                                  ? kDarkModeColor
                                   : Colors.grey[200],
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
@@ -420,7 +420,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                         filled: true,
                         fillColor:
                             Theme.of(context).brightness == Brightness.dark
-                                ? Colors.black
+                                ? kDarkModeColor
                                 : Colors.grey[200],
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.0),
