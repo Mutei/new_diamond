@@ -887,19 +887,19 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                                     ? getTranslated(
                                         context, "We have kids area")
                                     : getTranslated(
-                                        context, "We dont have kids area"))
+                                        context, "We don't have kids area"))
                                 : '')
-                        : Text(''),
+                        : SizedBox.shrink(),
                     widget.type == "1"
                         ? ChipWidget(
                             icon: Icons.bathtub,
                             label: widget.type == "1"
                                 ? (widget.hasJacuzziInRoom == "1"
-                                    ? getTranslated(context, "We have jaccuzzi")
+                                    ? getTranslated(context, "We have jacuzzi")
                                     : getTranslated(
-                                        context, "We dont have jaccuzzi"))
+                                        context, "We don't have jacuzzi"))
                                 : '')
-                        : Text(''),
+                        : SizedBox.shrink(),
                     ChipWidget(
                         icon: Icons.car_rental,
                         label: (widget.hasValet == "1"
@@ -919,9 +919,9 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                                     ? getTranslated(
                                         context, "We have swimming pool")
                                     : getTranslated(
-                                        context, "We dont have swimming pool"))
+                                        context, "We don't have swimming pool"))
                                 : '')
-                        : Text(''),
+                        : SizedBox.shrink(),
                     widget.type == "1"
                         ? ChipWidget(
                             icon: Icons.spa,
@@ -929,9 +929,9 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                                 ? (widget.hasMassage == "1"
                                     ? getTranslated(context, "We have massage")
                                     : getTranslated(
-                                        context, "We dont have massage"))
+                                        context, "We don't have massage"))
                                 : '')
-                        : Text(''),
+                        : SizedBox.shrink(),
                     widget.type == "1"
                         ? ChipWidget(
                             icon: Icons.fitness_center,
@@ -939,9 +939,9 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                                 ? (widget.hasGym == "1"
                                     ? getTranslated(context, "We have Gym")
                                     : getTranslated(
-                                        context, "We dont have Gym"))
+                                        context, "We don't have Gym"))
                                 : '')
-                        : Text(''),
+                        : SizedBox.shrink(),
                     widget.type == "1"
                         ? ChipWidget(
                             icon: Icons.content_cut,
@@ -949,9 +949,9 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                                 ? (widget.hasBarber == "1"
                                     ? getTranslated(context, "We have barber")
                                     : getTranslated(
-                                        context, "We dont have barber"))
+                                        context, "We don't have barber"))
                                 : '')
-                        : Text(''),
+                        : SizedBox.shrink(),
                     ChipWidget(
                         icon: Icons.smoking_rooms,
                         label: (widget.isSmokingAllowed == "1"
@@ -1287,7 +1287,6 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                           },
                         ),
                       )
-                // Remove the button from here
               ],
             ),
           ),

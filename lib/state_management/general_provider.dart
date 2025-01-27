@@ -106,12 +106,68 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     fetchApprovalCount();
     fetchNewRequestCount();
     CheckLogin();
-    loadUserInfo(); // Initialize user info from SharedPreferences
-    fetchAndSetUserInfo(); // Fetch user info from Firebase
+    listenToAuthChanges(); // Listen to auth changes
     fetchSubscriptionStatus(); // Fetch subscription status
     listenToPrivateChatRequests(); // Start listening to chat requests
-    loadActiveTimer(); // Load active timer from SharedPreferences
     loadLanguagePreference(); // Load language preference
+  }
+  void CheckLogin() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    if (sharedPreferences.getString("TypeUser") == "1") {
+      CheckLoginValue = false;
+    } else {
+      CheckLoginValue = true;
+    }
+    print('Login status checked: $CheckLoginValue');
+    notifyListeners();
+  }
+
+  void fetchNewRequestCount() {
+    String? id = FirebaseAuth.instance.currentUser?.uid;
+    if (id != null) {
+      FirebaseDatabase.instance
+          .ref("App/Booking/Book")
+          .orderByChild("IDOwner")
+          .equalTo(id)
+          .onValue
+          .listen((DatabaseEvent event) {
+        int count = 0;
+        if (event.snapshot.value != null) {
+          Map requests = event.snapshot.value as Map;
+          requests.forEach((key, value) {
+            if (value["Status"] == "1") {
+              count++;
+            }
+          });
+        }
+        _newRequestCount = count;
+        print('New request count updated: $_newRequestCount');
+        notifyListeners();
+      });
+    }
+  }
+
+  // Listen to authentication changes
+  void listenToAuthChanges() {
+    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+      if (user != null) {
+        // User is signed in
+        _userId = user.uid;
+        print('User signed in: $_userId');
+        await loadActiveTimer(); // Load timer for the new user
+        // Fetch user info if needed
+        await fetchUserInfoFromFirebase(user);
+      } else {
+        // User is signed out
+        print('User signed out.');
+        await removeActiveTimer(); // Remove timer on logout
+        _isButtonsActive = false;
+        _activeEstateId = null;
+        _userId = '';
+        _userName = '';
+        notifyListeners();
+      }
+    });
   }
 
   // New method to load language preference
@@ -197,27 +253,82 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
         }
     }
   }
-  // ThemeData getTheme(BuildContext context) {
-  //   if (_themeMode == ThemeModeType.dark) {
-  //     return ThemeData.dark();
-  //   } else if (_themeMode == ThemeModeType.light) {
-  //     return ThemeData.light();
-  //   } else {
-  //     var brightness = MediaQuery.of(context).platformBrightness;
-  //     return brightness == Brightness.dark
-  //         ? ThemeData.dark()
-  //         : ThemeData.light();
-  //   }
-  // }
 
+  // Function to save active timer with userId
   Future<void> saveActiveTimer(
       String estateId, DateTime scanTime, Duration duration) async {
+    if (_userId.isEmpty) {
+      print('Cannot save timer: userId is empty.');
+      return;
+    }
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('activeEstateId', estateId);
-    await prefs.setString('lastScanTime', scanTime.toIso8601String());
-    await prefs.setInt('activeDurationSeconds', duration.inSeconds);
+    await prefs.setString('activeEstateId_$_userId', estateId);
+    await prefs.setString('lastScanTime_$_userId', scanTime.toIso8601String());
+    await prefs.setInt('activeDurationSeconds_$_userId', duration.inSeconds);
+    print('Active timer saved for user $_userId: EstateId=$estateId');
   }
 
+  // Function to remove active timer with userId
+  Future<void> removeActiveTimer() async {
+    if (_userId.isEmpty) {
+      print('Cannot remove timer: userId is empty.');
+      return;
+    }
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('activeEstateId_$_userId');
+    await prefs.remove('lastScanTime_$_userId');
+    await prefs.remove('activeDurationSeconds_$_userId');
+    print('Active timer removed for user $_userId');
+  }
+
+  // Function to load active timer with userId
+  Future<void> loadActiveTimer() async {
+    if (_userId.isEmpty) {
+      // No userId available, do not load any timer
+      print('No userId available. Skipping loadActiveTimer.');
+      return;
+    }
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? estateId = prefs.getString('activeEstateId_$_userId');
+    String? scanTimeString = prefs.getString('lastScanTime_$_userId');
+    int? durationSeconds = prefs.getInt('activeDurationSeconds_$_userId');
+
+    if (estateId != null && scanTimeString != null && durationSeconds != null) {
+      DateTime scanTime = DateTime.parse(scanTimeString);
+      Duration elapsed = DateTime.now().difference(scanTime);
+      Duration totalDuration = Duration(seconds: durationSeconds);
+
+      if (elapsed < totalDuration) {
+        Duration remaining = totalDuration - elapsed;
+        _activeEstateId = estateId;
+        _isButtonsActive = true;
+        notifyListeners();
+        print(
+            'Active timer loaded for user $_userId: EstateId=$estateId, Remaining=${remaining.inSeconds} seconds');
+
+        // Start the timer with remaining duration
+        _buttonTimer = Timer(remaining, () async {
+          _isButtonsActive = false;
+          _activeEstateId = null;
+          notifyListeners();
+
+          // Remove the active timer info from SharedPreferences with userId
+          await removeActiveTimer();
+
+          // Emit the timer expired event with estateId
+          _timerExpiredController.add(estateId);
+          print('Active timer expired for user $_userId: EstateId=$estateId');
+        });
+      } else {
+        // Timer has already expired
+        await removeActiveTimer();
+        print('Active timer already expired for user $_userId');
+      }
+    }
+  }
+
+  // Function to toggle theme
   void toggleTheme(ThemeModeType themeModeType) async {
     _themeMode = themeModeType;
     notifyListeners();
@@ -226,17 +337,20 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     print('Theme mode toggled to: $_themeMode');
   }
 
+  // Function to save last seen approval count
   void saveLastSeenApprovalCount(int count) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setInt('lastSeenApprovalCount', count);
     print('Last seen approval count saved: $count');
   }
 
+  // Function to update language
   void updateLanguage(bool isEnglish) {
     CheckLangValue = isEnglish;
     notifyListeners();
   }
 
+  // Function to reset new chat request
   void resetNewChatRequest() {
     _hasNewChatRequest = false;
     _latestChatRequest = null;
@@ -244,6 +358,7 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     print('New chat request flag reset.');
   }
 
+  // Function to reset approval count
   void resetApprovalCount() async {
     _lastSeenApprovalCount += _approvalCount;
     _approvalCount = 0;
@@ -253,6 +368,7 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     notifyListeners();
   }
 
+  // Function to load theme preference
   void loadThemePreference() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _themeMode = ThemeModeType.values[prefs.getInt('themeMode') ?? 0];
@@ -260,6 +376,7 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     notifyListeners();
   }
 
+  // Function to load last seen approval count
   void loadLastSeenApprovalCount() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _lastSeenApprovalCount =
@@ -267,6 +384,7 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     print('Last seen approval count loaded: $_lastSeenApprovalCount');
   }
 
+  // Function to fetch approval count
   void fetchApprovalCount() {
     FirebaseDatabase.instance
         .ref("App/Booking/Book")
@@ -288,7 +406,13 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     });
   }
 
+  // Function to activate timer
   Future<void> activateTimer(String estateId, Duration duration) async {
+    if (_userId.isEmpty) {
+      print('Cannot activate timer: userId is empty.');
+      return;
+    }
+
     // Cancel existing timer if any
     _buttonTimer?.cancel();
 
@@ -297,7 +421,7 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     _isButtonsActive = true;
     notifyListeners();
 
-    // Save the active timer info to SharedPreferences
+    // Save the active timer info to SharedPreferences with userId
     await saveActiveTimer(estateId, DateTime.now(), duration);
 
     // Start a new timer
@@ -306,93 +430,40 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
       _activeEstateId = null;
       notifyListeners();
 
-      // Remove the active timer info from SharedPreferences
+      // Remove the active timer info from SharedPreferences with userId
       await removeActiveTimer();
 
       // Emit the timer expired event with estateId
       _timerExpiredController.add(estateId);
+      print('Active timer expired for user $_userId: EstateId=$estateId');
     });
+    print(
+        'Active timer activated for user $_userId: EstateId=$estateId, Duration=${duration.inSeconds} seconds');
   }
 
-  void fetchNewRequestCount() {
-    String? id = FirebaseAuth.instance.currentUser?.uid;
-    if (id != null) {
-      FirebaseDatabase.instance
-          .ref("App/Booking/Book")
-          .orderByChild("IDOwner")
-          .equalTo(id)
-          .onValue
-          .listen((DatabaseEvent event) {
-        int count = 0;
-        if (event.snapshot.value != null) {
-          Map requests = event.snapshot.value as Map;
-          requests.forEach((key, value) {
-            if (value["Status"] == "1") {
-              count++;
-            }
-          });
-        }
-        _newRequestCount = count;
-        print('New request count updated: $_newRequestCount');
+  // Function to fetch user info from Firebase
+  Future<void> fetchUserInfoFromFirebase(User user) async {
+    try {
+      final userRef = FirebaseDatabase.instance.ref('App/User/${user.uid}');
+      final snapshot = await userRef.get();
+      if (snapshot.exists) {
+        final data = snapshot.value as Map<dynamic, dynamic>;
+        final firstName = data['FirstName'] ?? 'Anonymous';
+        final lastName = data['LastName'] ?? '';
+        final userName = '$firstName $lastName';
+
+        _userName = userName;
+        print('User info fetched: $_userName');
         notifyListeners();
-      });
-    }
-  }
-
-  Future<void> removeActiveTimer() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('activeEstateId');
-    await prefs.remove('lastScanTime');
-    await prefs.remove('activeDurationSeconds');
-  }
-
-  void CheckLogin() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    if (sharedPreferences.getString("TypeUser") == "1") {
-      CheckLoginValue = false;
-    } else {
-      CheckLoginValue = true;
-    }
-    print('Login status checked: $CheckLoginValue');
-    notifyListeners();
-  }
-
-  Future<void> loadActiveTimer() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? estateId = prefs.getString('activeEstateId');
-    String? scanTimeString = prefs.getString('lastScanTime');
-    int? durationSeconds = prefs.getInt('activeDurationSeconds');
-
-    if (estateId != null && scanTimeString != null && durationSeconds != null) {
-      DateTime scanTime = DateTime.parse(scanTimeString);
-      Duration elapsed = DateTime.now().difference(scanTime);
-      Duration totalDuration = Duration(seconds: durationSeconds);
-
-      if (elapsed < totalDuration) {
-        Duration remaining = totalDuration - elapsed;
-        _activeEstateId = estateId;
-        _isButtonsActive = true;
-        notifyListeners();
-
-        // Start the timer with remaining duration
-        _buttonTimer = Timer(remaining, () async {
-          _isButtonsActive = false;
-          _activeEstateId = null;
-          notifyListeners();
-
-          // Remove the active timer info from SharedPreferences
-          await removeActiveTimer();
-
-          // Emit the timer expired event with estateId
-          _timerExpiredController.add(estateId);
-        });
       } else {
-        // Timer has already expired
-        await removeActiveTimer();
+        print('User data does not exist in Firebase for UID: ${user.uid}');
       }
+    } catch (e) {
+      print('Error fetching user info: $e');
     }
   }
 
+  // Function to listen to private chat requests
   void listenToPrivateChatRequests() {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId != null) {
@@ -493,97 +564,6 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
       }
     }
   }
-
-  // Method to load user information from SharedPreferences
-  Future<void> loadUserInfo() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    _userId = prefs.getString('userId') ?? '';
-    _userName = prefs.getString('userName') ?? 'Anonymous';
-    print('User info loaded: $_userId, $_userName');
-    notifyListeners();
-  }
-
-  // Method to fetch user info from Firebase and update state
-  Future<void> fetchAndSetUserInfo() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      print('No user is currently logged in.');
-      return; // No user is logged in
-    }
-
-    try {
-      final userRef = FirebaseDatabase.instance.ref('App/User/${user.uid}');
-      final snapshot = await userRef.get();
-      if (snapshot.exists) {
-        final data = snapshot.value as Map;
-        final userId = data['userId'] ?? '';
-        final firstName = data['FirstName'] ?? 'Anonymous';
-        final lastName = data['LastName'] ?? '';
-
-        // Update userName
-        final userName = '$firstName $lastName';
-
-        // Save in SharedPreferences
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('userId', userId);
-        await prefs.setString('userName', userName);
-
-        // Update provider state
-        _userId = userId;
-        _userName = userName;
-
-        print('User info fetched and set: $_userId, $_userName');
-        notifyListeners();
-
-        // Start listening to post status changes after fetching user info
-        listenToUserPostStatusChanges();
-      } else {
-        print('User data does not exist in Firebase for UID: ${user.uid}');
-      }
-    } catch (e) {
-      print('Error fetching user info: $e');
-    }
-  }
-
-  // Method to listen to post status changes for the current user
-  void listenToUserPostStatusChanges() {
-    if (_userId.isEmpty) {
-      // No user ID available
-      return;
-    }
-    FirebaseDatabase.instance
-        .ref("App")
-        .child("AllPosts")
-        .orderByChild("userId")
-        .equalTo(_userId)
-        .onValue
-        .listen((DatabaseEvent event) {
-      if (event.snapshot.value != null) {
-        Map<dynamic, dynamic> postsData =
-            event.snapshot.value as Map<dynamic, dynamic>;
-        postsData.forEach((key, value) {
-          String postId = key;
-          String status = value['Status'] ?? '0';
-          if (_userPostStatuses.containsKey(postId)) {
-            String oldStatus = _userPostStatuses[postId]!;
-            if (oldStatus != status && (status == '1' || status == '2')) {
-              // Status changed to '1' or '2'
-              _postStatusChangeController
-                  .add(PostStatusChangeEvent(postId: postId, status: status));
-              print('Post $postId status changed to $status. Event emitted.');
-            }
-          }
-          _userPostStatuses[postId] = status;
-        });
-      }
-    }, onError: (error) {
-      print('Error listening to post status changes: $error');
-    });
-  }
-
-  // -------------------- Subscription Methods Continued --------------------
-
-  // ... Rest of the existing code remains unchanged ...
 
   @override
   void dispose() {
