@@ -129,7 +129,11 @@ class LoginMethod {
       );
 
       String uid = userCredential.user!.uid;
+
+      // Retrieve the token
       String? token = await FirebaseMessaging.instance.getToken();
+      print("Retrieved token: $token");
+
       DatabaseReference userRef =
           FirebaseDatabase.instance.ref("App/User/$uid");
       DatabaseReference typeUserRef =
@@ -140,7 +144,12 @@ class LoginMethod {
 
       if (snapshot.value == '1') {
         if (token != null) {
+          // Update token in the database
           await userRef.update({"Token": token});
+
+          // Read back the token from the database to confirm
+          DataSnapshot tokenSnapshot = await userRef.child("Token").get();
+          print("Token saved in DB: ${tokenSnapshot.value}");
         }
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => const MainScreen()),
@@ -151,10 +160,8 @@ class LoginMethod {
         showLoginErrorDialog(context, "You are not allowed to log in.");
       }
     } on FirebaseAuthException catch (e) {
-      // Dismiss the loading dialog in case of an error
       Navigator.of(context, rootNavigator: true).pop();
 
-      // Handle Firebase authentication errors
       if (e.code == 'user-not-found') {
         showErrorDialog(context, "No user found for that email.");
       } else if (e.code == 'wrong-password') {
@@ -166,10 +173,7 @@ class LoginMethod {
             context, e.message ?? "Login failed. Please try again.");
       }
     } catch (e) {
-      // Dismiss the loading dialog in case of an unexpected error
       Navigator.of(context, rootNavigator: true).pop();
-
-      // Show a generic error message
       showErrorDialog(
           context, "An unexpected error occurred. Please try again.");
     }
@@ -182,7 +186,6 @@ class LoginMethod {
     try {
       showCustomLoadingDialog(context);
 
-      // Get users from Firebase and check TypeUser
       DatabaseReference userRef = _databaseRef.child('App/User');
       DataSnapshot usersSnapshot = await userRef.get();
       String? uid;
@@ -202,22 +205,27 @@ class LoginMethod {
         return;
       }
 
-      // Check TypeUser
       DatabaseReference typeUserRef = userRef.child('$uid/TypeUser');
       DataSnapshot snapshot = await typeUserRef.get();
+
+      // Retrieve the token
       String? token = await FirebaseMessaging.instance.getToken();
+      print("Retrieved token (phone login): $token");
+
       DatabaseReference userRefs =
           FirebaseDatabase.instance.ref("App/User/$uid");
 
       if (snapshot.value == '2') {
-        // Proceed with OTP verification
-
         await _auth.verifyPhoneNumber(
           phoneNumber: phoneNumber,
           verificationCompleted: (PhoneAuthCredential credential) async {
             // Auto-retrieval or instant verification
             if (token != null) {
               await userRefs.update({"Token": token});
+
+              // Read back token from DB for verification
+              DataSnapshot tokenSnapshot = await userRefs.child("Token").get();
+              print("Token saved in DB (phone login): ${tokenSnapshot.value}");
             }
             await _auth.signInWithCredential(credential);
             Navigator.of(context).pushAndRemoveUntil(
@@ -226,11 +234,9 @@ class LoginMethod {
             );
           },
           verificationFailed: (FirebaseAuthException e) {
-            // Handle errors (e.g., invalid phone number)
             showErrorDialog(context, e.message ?? "Verification failed.");
           },
           codeSent: (String verificationId, int? resendToken) {
-            // Navigate to OTP screen with verification ID for manual entry
             Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => OTPLoginScreen(
                 phoneNumber: phoneNumber,
@@ -239,7 +245,7 @@ class LoginMethod {
             ));
           },
           codeAutoRetrievalTimeout: (String verificationId) {
-            // Auto-retrieval timeout, pass the verification ID to the OTP screen
+            // Optionally handle timeout
           },
         );
       } else {
