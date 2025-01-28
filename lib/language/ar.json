@@ -313,5 +313,16 @@
   "Enter allergies (optional)": "أدخل الحساسية (اختياري)",
   "Fill up your Personal Information": "املأ معلوماتك الشخصية",
   "I accept the ": "أقبل ",
-  "terms and conditions": "الشروط والأحكام"
+  "terms and conditions": "الشروط والأحكام",
+  "Invalid QR code scanned or out of range.": "تم مسح رمز الاستجابة السريعة غير صالح أو خارج النطاق.",
+  "Location Services Disabled": "خدمات الموقع معطلة",
+  "Please enable location services to proceed.": "يرجى تمكين خدمات الموقع للمتابعة.",
+  "Location Permission Denied": "تم رفض إذن الموقع",
+  "Please grant location permission to proceed.": "يرجى منح إذن الموقع للمتابعة.",
+  "Location Permission Permanently Denied": "تم رفض إذن الموقع بشكل دائم",
+  "Please enable location permissions in settings.": "يرجى تمكين أذونات الموقع من الإعدادات.",
+  "Access Revoked": "تم إلغاء الوصول",
+  "You have moved out of the required proximity. Access has been revoked.": "لقد خرجت من النطاق المطلوب. تم إلغاء الوصول.",
+  "You are not within the required distance to perform this action.": "أنت لست ضمن المسافة المطلوبة لتنفيذ هذا الإجراء.",
+  "We don't have kids area": "ليس لدينا منطقة للأطفال"
 }

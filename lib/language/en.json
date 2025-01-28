@@ -311,5 +311,16 @@
   "Enter allergies (optional)":"Enter allergies (optional)",
   "Fill up your Personal Information":"Fill up your Personal Information",
   "I accept the ": "I accept the ",
-  "terms and conditions": "terms and conditions"
+  "terms and conditions": "terms and conditions",
+  "Invalid QR code scanned or out of range.": "Invalid QR code scanned or out of range.",
+  "Location Services Disabled": "Location Services Disabled",
+  "Please enable location services to proceed.": "Please enable location services to proceed.",
+  "Location Permission Denied": "Location Permission Denied",
+  "Please grant location permission to proceed.": "Please grant location permission to proceed.",
+  "Location Permission Permanently Denied": "Location Permission Permanently Denied",
+  "Please enable location permissions in settings.": "Please enable location permissions in settings.",
+  "Access Revoked": "Access Revoked",
+  "You have moved out of the required proximity. Access has been revoked.": "You have moved out of the required proximity. Access has been revoked.",
+  "You are not within the required distance to perform this action.": "You are not within the required distance to perform this action.",
+  "We don't have kids area": "We don't have kids area"
 }

@@ -58,14 +58,19 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
       _scrollToBottom();
     });
 
-    // Listen to timer expired events
     final provider = Provider.of<GeneralProvider>(context, listen: false);
     _timerExpiredSubscription =
         provider.timerExpiredStream.listen((expiredEstateId) {
       if (expiredEstateId == widget.estateId) {
-        // Timer expired for this estate, navigate back
+        // Timer expired for this estate, remove user from activeUsers and navigate back
+        _removeActiveUser();
         Navigator.of(context).pop(); // Go back to ProfileEstateScreen
       }
+    });
+
+    // Add user to activeUsers
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _addActiveUser();
     });
   }
 
@@ -75,6 +80,7 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
     _scrollController.dispose();
     _hideReactionPickersStream.close(); // Close the StreamController
     _timerExpiredSubscription.cancel(); // Cancel the subscription
+    // Removed _removeActiveUser() from dispose to ensure activeUsers are only removed on expiry
     super.dispose();
   }
 
@@ -86,6 +92,62 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
         curve: Curves.easeOut,
       );
     }
+  }
+
+  Future<void> _addActiveUser() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      // User not logged in, do not add to activeUsers
+      return;
+    }
+
+    final provider = Provider.of<GeneralProvider>(context, listen: false);
+
+    // Get user profile
+    final userProfile = await _userService.getUserProfile(user.uid);
+    final senderName = userProfile != null
+        ? '${userProfile.firstName} ${userProfile.lastName}'
+        : 'Anonymous';
+    final profileImageUrl = userProfile?.profileImageUrl ?? '';
+
+    // Reference to activeUsers
+    DatabaseReference activeUsersRef =
+        _chatRef.child('activeUsers').child(user.uid);
+
+    // Check if user is already in activeUsers
+    DataSnapshot snapshot = await activeUsersRef.get();
+    if (!snapshot.exists) {
+      // User not in activeUsers, add them
+      DateTime now = DateTime.now();
+      DateTime? expiresAt = provider.activeTimerExpiryTime;
+
+      // If expiresAt is not set, set a default duration (e.g., 1 hour)
+      expiresAt ??= now.add(Duration(minutes: 2));
+
+      await activeUsersRef.set({
+        'joinedAt': now.toIso8601String(),
+        'expiresAt': expiresAt.toIso8601String(),
+        'name': senderName,
+        'status': 'online',
+      });
+
+      print('User ${user.uid} added to activeUsers.');
+    } else {
+      print('User ${user.uid} is already in activeUsers.');
+    }
+  }
+
+  Future<void> _removeActiveUser() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return;
+    }
+
+    DatabaseReference activeUsersRef =
+        _chatRef.child('activeUsers').child(user.uid);
+
+    await activeUsersRef.remove();
+    print('User ${user.uid} removed from activeUsers.');
   }
 
   void _sendMessage() async {
@@ -192,7 +254,8 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(getTranslated(context, 'Please log in to react.'))),
+            content:
+                Text(getTranslated(context, 'Failed to update reaction.'))),
       );
       print('Error updating reaction: $e');
     } finally {
@@ -211,9 +274,10 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
 
     return Scaffold(
       appBar: ReusedAppBar(
-          title: Localizations.localeOf(context).languageCode == 'en'
-              ? " ${displayName} $chat"
-              : "$chat ${displayName}"),
+        title: Localizations.localeOf(context).languageCode == 'en'
+            ? " ${displayName} $chat"
+            : "$chat ${displayName}",
+      ),
       body: Column(
         children: [
           Expanded(
@@ -229,16 +293,39 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
                     List<Map<dynamic, dynamic>> messages = [];
                     DataSnapshot dataValues = snapshot.data!.snapshot;
                     if (dataValues.value != null) {
-                      Map<dynamic, dynamic> map =
-                          dataValues.value as Map<dynamic, dynamic>;
-                      map.forEach((key, value) {
-                        Map<String, dynamic> message =
-                            Map<String, dynamic>.from(value);
-                        message['messageId'] = key;
-                        messages.add(message);
-                      });
-                      messages.sort((a, b) => DateTime.parse(b['timestamp'])
-                          .compareTo(DateTime.parse(a['timestamp'])));
+                      if (dataValues.value is Map<dynamic, dynamic>) {
+                        Map<dynamic, dynamic> map =
+                            dataValues.value as Map<dynamic, dynamic>;
+
+                        map.forEach((key, value) {
+                          // 🔴 Skip activeUsers - Only include actual messages
+                          if (key == "activeUsers") return;
+
+                          if (value is Map<dynamic, dynamic>) {
+                            Map<String, dynamic> message =
+                                Map<String, dynamic>.from(value);
+                            message['messageId'] = key;
+                            messages.add(message);
+                          }
+                        });
+
+                        // Sort messages by timestamp descending
+                        messages.sort((a, b) {
+                          String? timestampA = a['timestamp'];
+                          String? timestampB = b['timestamp'];
+                          if (timestampA == null || timestampB == null)
+                            return 0;
+
+                          try {
+                            DateTime dateA = DateTime.parse(timestampA);
+                            DateTime dateB = DateTime.parse(timestampB);
+                            return dateB.compareTo(dateA);
+                          } catch (e) {
+                            print('Error parsing timestamp: $e');
+                            return 0;
+                          }
+                        });
+                      }
                     }
 
                     if (messages.isEmpty) {
@@ -273,22 +360,23 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
                           if (value is String) {
                             reactionCounts[value] =
                                 (reactionCounts[value] ?? 0) + 1;
-                          } else {
-                            // Handle invalid reaction format if necessary
                           }
                         });
 
                         Map<String, dynamic>? replyTo;
                         if (msg.containsKey('replyTo')) {
-                          replyTo = Map<String, dynamic>.from(msg['replyTo']);
+                          final dynamic replyData = msg['replyTo'];
+                          if (replyData is Map<dynamic, dynamic>) {
+                            replyTo = Map<String, dynamic>.from(replyData);
+                          }
                         }
 
                         return MessageBubble(
-                          messageId: msg['messageId'],
+                          messageId: msg['messageId'] ?? '',
                           estateId: widget.estateId,
-                          senderId: msg['senderId'], // Pass senderId
-                          sender: msg['senderName'] ?? 'Anonymous',
-                          text: msg['text'] ?? '',
+                          senderId: msg['senderId'] ?? '',
+                          sender: msg['senderName'] ?? 'Unknown User',
+                          text: msg['text'] ?? 'No message',
                           isMe: isMe,
                           timestamp: msg['timestamp'] ?? '',
                           profileImageUrl: msg['profileImageUrl'] ?? '',
@@ -297,7 +385,7 @@ class _EstateChatScreenState extends State<EstateChatScreen> {
                           onReply: _replyToMessage,
                           onReact: (reaction, {bool toggle = false}) =>
                               _reactToMessage(
-                                  reaction, msg['messageId'], toggle),
+                                  reaction, msg['messageId'] ?? '', toggle),
                           hideReactionPickersStream:
                               _hideReactionPickersStream.stream,
                         );

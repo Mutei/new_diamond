@@ -100,6 +100,10 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
 
   Stream<String> get timerExpiredStream => _timerExpiredController.stream;
 
+  // New property to track active timer expiry time
+  DateTime? _activeTimerExpiryTime;
+  DateTime? get activeTimerExpiryTime => _activeTimerExpiryTime;
+
   GeneralProvider() {
     loadThemePreference();
     loadLastSeenApprovalCount();
@@ -111,6 +115,7 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     listenToPrivateChatRequests(); // Start listening to chat requests
     loadLanguagePreference(); // Load language preference
   }
+
   void CheckLogin() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     if (sharedPreferences.getString("TypeUser") == "1") {
@@ -163,6 +168,7 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
         await removeActiveTimer(); // Remove timer on logout
         _isButtonsActive = false;
         _activeEstateId = null;
+        _activeTimerExpiryTime = null;
         _userId = '';
         _userName = '';
         notifyListeners();
@@ -188,6 +194,23 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
       print('No language preference found. Defaulting to English.');
     }
     notifyListeners();
+  }
+
+  // Function to remove user from activeUsers
+  Future<void> removeActiveUserFromDatabase(String estateId) async {
+    if (_userId.isEmpty) {
+      print('Cannot remove active user: userId is empty.');
+      return;
+    }
+
+    try {
+      DatabaseReference activeUserRef = FirebaseDatabase.instance
+          .ref('App/EstateChats/$estateId/activeUsers/$_userId');
+      await activeUserRef.remove();
+      print('User $_userId removed from activeUsers for EstateId=$estateId');
+    } catch (e) {
+      print('Error removing active user from database: $e');
+    }
   }
 
   // Existing methods...
@@ -303,6 +326,7 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
         Duration remaining = totalDuration - elapsed;
         _activeEstateId = estateId;
         _isButtonsActive = true;
+        _activeTimerExpiryTime = scanTime.add(totalDuration);
         notifyListeners();
         print(
             'Active timer loaded for user $_userId: EstateId=$estateId, Remaining=${remaining.inSeconds} seconds');
@@ -311,6 +335,7 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
         _buttonTimer = Timer(remaining, () async {
           _isButtonsActive = false;
           _activeEstateId = null;
+          _activeTimerExpiryTime = null;
           notifyListeners();
 
           // Remove the active timer info from SharedPreferences with userId
@@ -424,10 +449,14 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     // Save the active timer info to SharedPreferences with userId
     await saveActiveTimer(estateId, DateTime.now(), duration);
 
+    // Set the expiry time
+    _activeTimerExpiryTime = DateTime.now().add(duration);
+
     // Start a new timer
     _buttonTimer = Timer(duration, () async {
       _isButtonsActive = false;
       _activeEstateId = null;
+      _activeTimerExpiryTime = null;
       notifyListeners();
 
       // Remove the active timer info from SharedPreferences with userId
@@ -435,6 +464,10 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
 
       // Emit the timer expired event with estateId
       _timerExpiredController.add(estateId);
+
+      // Remove user from activeUsers in the database
+      await removeActiveUserFromDatabase(estateId);
+
       print('Active timer expired for user $_userId: EstateId=$estateId');
     });
     print(
@@ -572,7 +605,11 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     _buttonTimer?.cancel();
     _subscriptionExpiredController.close();
     _subscriptionTimer?.cancel();
-    _postStatusChangeController.close(); // Close the post status controller
+    _postStatusChangeController.close();
+    // Remove user from activeUsers when the app is closed
+    if (_activeEstateId != null) {
+      removeActiveUserFromDatabase(_activeEstateId!);
+    } // Close the post status controller
     super.dispose();
   }
 }

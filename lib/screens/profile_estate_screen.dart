@@ -1,6 +1,7 @@
 // lib/screens/profile_estate_screen.dart
 
-import 'dart:async'; // Added for Timer
+import 'dart:async';
+import 'dart:math'; // Added for distance calculation
 import 'package:diamond_host_admin/constants/coffee_music_options.dart';
 import 'package:diamond_host_admin/constants/hotel_entry_options.dart';
 import 'package:diamond_host_admin/constants/sessions_options.dart';
@@ -13,7 +14,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Added for SharedPreferences
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -21,7 +22,7 @@ import '../backend/additional_facility.dart';
 import '../backend/booking_services.dart';
 import '../backend/rooms.dart';
 import '../backend/customer_rate_services.dart';
-import '../backend/user_service.dart'; // Import UserService
+import '../backend/user_service.dart';
 import '../constants/colors.dart';
 import '../constants/entry_options.dart';
 import '../constants/restaurant_options.dart';
@@ -30,14 +31,14 @@ import '../extension/sized_box_extension.dart';
 import '../localization/language_constants.dart';
 import '../state_management/general_provider.dart';
 import '../utils/success_dialogue.dart';
-import '../utils/failure_dialogue.dart'; // Import FailureDialog
+import '../utils/failure_dialogue.dart';
 import '../widgets/chip_widget.dart';
 import '../widgets/reused_appbar.dart';
 import '../widgets/reused_elevated_button.dart';
-import '../widgets/message_bubble.dart'; // Import MessageBubble
+import '../widgets/message_bubble.dart';
 import 'feedback_dialog_screen.dart';
 import 'qr_scanner_screen.dart';
-import 'estate_chat_screen.dart'; // Import EstateChatScreen
+import 'estate_chat_screen.dart';
 
 class ProfileEstateScreen extends StatefulWidget {
   final String nameEn;
@@ -107,11 +108,12 @@ class ProfileEstateScreen extends StatefulWidget {
 
 class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
   List<String> _imageUrls = [];
+  Map<String, dynamic> estate = {};
   TimeOfDay? selectedTime;
   DateTime? selectedDate;
   List<Rooms> LstRoomsSelected = [];
   final BookingServices bookingServices = BookingServices();
-  final UserService _userService = UserService(); // Initialize UserService
+  final UserService _userService = UserService();
   final _cacheManager = CacheManager(
       Config('customCacheKey', stalePeriod: const Duration(days: 7)));
   double _overallRating = 0.0;
@@ -502,6 +504,21 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
     );
   }
 
+  // New method to show the proximity failure dialog
+  Future<void> _showProximityFailureDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // Prevent dialog from closing on outside tap
+      builder: (BuildContext context) {
+        return FailureDialog(
+          text: getTranslated(context, 'Error'),
+          text1: getTranslated(context,
+              'You are not within the required distance to perform this action.'),
+        );
+      },
+    );
+  }
+
   // Create the booking using the BookingServices class
   Future<void> _createBooking() async {
     if (selectedDate != null && selectedTime != null) {
@@ -540,6 +557,59 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
         }
       }),
     );
+  }
+
+  /// Calculates distance between two coordinates in meters
+  double _calculateDistanceMeters(
+      double lat1, double lon1, double lat2, double lon2) {
+    const double R = 6371000; // Earth's radius in meters
+    double dLat = _deg2rad(lat2 - lat1);
+    double dLon = _deg2rad(lon2 - lon1);
+    double a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(_deg2rad(lat1)) *
+            cos(_deg2rad(lat2)) *
+            sin(dLon / 2) *
+            sin(dLon / 2);
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    double distance = R * c;
+    return distance;
+  }
+
+  double _deg2rad(double deg) {
+    return deg * (pi / 180);
+  }
+
+  // Method to check proximity based on estate type
+  Future<bool> _checkProximity() async {
+    final prefs = await SharedPreferences.getInstance();
+    final double? currentLat = prefs.getDouble('currentLat');
+    final double? currentLon = prefs.getDouble('currentLon');
+
+    if (currentLat == null || currentLon == null) {
+      print('Current latitude or longitude is null.');
+      return false;
+    }
+
+    final double distance = _calculateDistanceMeters(
+        currentLat, currentLon, widget.lat, widget.lon);
+
+    print(
+        'Calculated distance: $distance meters (User: [$currentLat, $currentLon], Estate: [${widget.lat}, ${widget.lon}])');
+
+    if (widget.type == '1') {
+      // Hotel: 50 to 100 meters
+      bool isValid = distance >= 50 && distance <= 100;
+      print('Proximity for Hotel is valid: $isValid');
+      return isValid;
+    } else if (widget.type == '2' || widget.type == '3') {
+      // Coffee or Restaurant: 5 to 10 meters
+      bool isValid = distance >= 50 && distance <= 1000;
+      print('Proximity for Restaurant/Coffee is valid: $isValid');
+      return isValid;
+    }
+
+    // For other types, assume invalid
+    return false;
   }
 
   @override
@@ -604,28 +674,33 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                     );
 
                     if (scanResult == true) {
-                      // If QR code is valid, activate the timer before navigating
-                      final now = DateTime.now();
-                      final duration = getButtonActiveDuration();
-                      await objProvider.activateTimer(
-                          widget.estateId, duration);
+                      final isProximityValid = await _checkProximity();
+                      if (isProximityValid) {
+                        // If QR code is valid and proximity is valid, activate the timer before navigating
+                        final duration = getButtonActiveDuration();
+                        await objProvider.activateTimer(
+                            widget.estateId, duration);
 
-                      // Navigate to Feedback Dialog Screen
-                      final result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => FeedbackDialogScreen(
-                            estateId: widget.estateId,
-                            estateNameEn: widget.nameEn,
-                            estateNameAr: widget.nameAr,
+                        // Navigate to Feedback Dialog Screen
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => FeedbackDialogScreen(
+                              estateId: widget.estateId,
+                              estateNameEn: widget.nameEn,
+                              estateNameAr: widget.nameAr,
+                            ),
                           ),
-                        ),
-                      );
+                        );
 
-                      if (result == true) {
-                        await _fetchFeedback();
-                        await _fetchUserRatings();
-                        // Timer remains active until it expires
+                        if (result == true) {
+                          await _fetchFeedback();
+                          await _fetchUserRatings();
+                          // Timer remains active until it expires
+                        }
+                      } else {
+                        // Show proximity failure dialog
+                        await _showProximityFailureDialog();
                       }
                     } else if (scanResult == false) {
                       // Show FailureDialog notifying the user of the invalid scan
@@ -679,22 +754,27 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                       );
 
                       if (scanResult == true) {
-                        // If QR code is valid, activate the timer before navigating
-                        final now = DateTime.now();
-                        final duration = getButtonActiveDuration();
-                        await objProvider.activateTimer(
-                            widget.estateId, duration);
+                        final isProximityValid = await _checkProximity();
+                        if (isProximityValid) {
+                          // If QR code is valid and proximity is valid, activate the timer before navigating
+                          final duration = getButtonActiveDuration();
+                          await objProvider.activateTimer(
+                              widget.estateId, duration);
 
-                        // Navigate to EstateChatScreen
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => EstateChatScreen(
-                              estateId: widget.estateId,
-                              estateNameEn: widget.nameEn,
-                              estateNameAr: widget.nameAr,
+                          // Navigate to EstateChatScreen
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => EstateChatScreen(
+                                estateId: widget.estateId,
+                                estateNameEn: widget.nameEn,
+                                estateNameAr: widget.nameAr,
+                              ),
                             ),
-                          ),
-                        );
+                          );
+                        } else {
+                          // Show proximity failure dialog
+                          await _showProximityFailureDialog();
+                        }
                       } else if (scanResult == false) {
                         // Show FailureDialog notifying the user of the invalid scan
                         await _showInvalidQRScanFailureDialog();
@@ -812,31 +892,7 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                             minFontSize: 12,
                           ),
                         ),
-                        // const SizedBox(width: 10),
-                        // const Icon(Icons.monetization_on,
-                        //     color: Colors.grey, size: 16),
-                        // const SizedBox(width: 4),
-                        // Flexible(
-                        //   child: AutoSizeText(
-                        //     widget.fee,
-                        //     style: const TextStyle(
-                        //         fontSize: 14, color: Colors.grey),
-                        //     maxLines: 1,
-                        //     minFontSize: 12,
-                        //   ),
-                        // ),
-                        // const SizedBox(width: 10),
-                        // const Icon(Icons.timer, color: Colors.grey, size: 16),
                         const SizedBox(width: 4),
-                        // Flexible(
-                        //   child: AutoSizeText(
-                        //     widget.deliveryTime,
-                        //     style: const TextStyle(
-                        //         fontSize: 14, color: Colors.grey),
-                        //     maxLines: 1,
-                        //     minFontSize: 12,
-                        //   ),
-                        // ),
                       ],
                     );
                   },
@@ -845,118 +901,125 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
 
                 // Chips Section
                 Wrap(
-                  spacing: 10.0, // Space between chips
-                  runSpacing: 10.0, // Space between rows
+                  spacing: 10.0,
+                  runSpacing: 10.0,
                   children: [
-                    ChipWidget(
-                      icon: Icons.fastfood,
-                      label: getTranslatedTypeOfRestaurant(
-                          context, widget.typeOfRestaurant),
-                    ),
-                    ChipWidget(
+                    if (widget.type == "3")
+                      ChipWidget(
+                        icon: Icons.fastfood,
+                        label: getTranslatedTypeOfRestaurant(
+                          context,
+                          estate['TypeofRestaurant'] ?? widget.typeOfRestaurant,
+                        ),
+                      ),
+                    if (widget.type == "3" || widget.type == "2")
+                      ChipWidget(
                         icon: Icons.home,
                         label: getTranslatedSessions(
                           context,
-                          widget.sessions,
-                        )),
+                          estate['Sessions'] ?? widget.sessions,
+                        ),
+                      ),
                     ChipWidget(
-                        icon: Icons.grain,
-                        label: widget.type == "1"
-                            ? getTranslatedHotelEntry(context, widget.entry)
-                            : getTranslatedEntry(context, widget.entry)),
+                      icon: Icons.grain,
+                      label: widget.type == "1"
+                          ? getTranslatedHotelEntry(
+                              context,
+                              estate['Entry'] ?? widget.entry,
+                            )
+                          : getTranslatedEntry(
+                              context,
+                              estate['Entry'] ?? widget.entry,
+                            ),
+                    ),
                     ChipWidget(
                       icon: Icons.music_note,
-                      label: widget.type == "3" || widget.type == "1"
-                          ? (widget.music == "1"
+                      label: (widget.type == "3" || widget.type == "1")
+                          ? ((estate['Music'] ?? widget.music) == "1"
                               ? getTranslated(context, "There is music")
                               : getTranslated(context, "There is no music"))
                           : (widget.type == "2"
-                              ? widget.music == "1"
+                              ? ((estate['Music'] ?? widget.music) == "1"
                                   ? getTranslatedCoffeeMusicOptions(
                                       context,
-                                      widget.lstMusic,
+                                      estate['Lstmusic'] ?? widget.lstMusic,
                                     )
-                                  : getTranslated(context, "There is no music")
+                                  : getTranslated(context, "There is no music"))
                               : getTranslated(context, "There is no music")),
                     ),
-                    widget.type != "1"
-                        ? ChipWidget(
-                            icon: Icons.boy,
-                            label: widget.type != "1"
-                                ? (widget.hasKidsArea == "1"
-                                    ? getTranslated(
-                                        context, "We have kids area")
-                                    : getTranslated(
-                                        context, "We don't have kids area"))
-                                : '')
-                        : SizedBox.shrink(),
-                    widget.type == "1"
-                        ? ChipWidget(
-                            icon: Icons.bathtub,
-                            label: widget.type == "1"
-                                ? (widget.hasJacuzziInRoom == "1"
-                                    ? getTranslated(context, "We have jacuzzi")
-                                    : getTranslated(
-                                        context, "We don't have jacuzzi"))
-                                : '')
-                        : SizedBox.shrink(),
+                    if (widget.type != "1")
+                      ChipWidget(
+                        icon: Icons.boy,
+                        label: (estate['HasKidsArea'] ?? widget.hasKidsArea) ==
+                                "1"
+                            ? getTranslated(context, "We have kids area")
+                            : getTranslated(context, "We dont have kids area"),
+                      ),
+                    if (widget.type == "1")
+                      ChipWidget(
+                        icon: Icons.bathtub,
+                        label: (estate['HasJacuzziInRoom'] ??
+                                    widget.hasJacuzziInRoom) ==
+                                "1"
+                            ? getTranslated(context, "We have jaccuzzi")
+                            : getTranslated(context, "We dont have jaccuzzi"),
+                      ),
                     ChipWidget(
-                        icon: Icons.car_rental,
-                        label: (widget.hasValet == "1"
-                            ? getTranslated(context, "Valet service available")
-                            : getTranslated(
-                                context, "No valet service available"))),
-                    ChipWidget(
+                      icon: Icons.car_rental,
+                      label: (estate['HasValet'] ?? widget.hasValet) == "1"
+                          ? getTranslated(context, "Valet service available")
+                          : getTranslated(
+                              context, "No valet service available"),
+                    ),
+                    if ((estate['HasValet'] ?? widget.hasValet) == "1")
+                      ChipWidget(
                         icon: Icons.money,
-                        label: (widget.valetWithFees == "1"
-                            ? getTranslated(context, "Valet is free")
-                            : getTranslated(context, "Valet is not free"))),
-                    widget.type == "1"
-                        ? ChipWidget(
-                            icon: Icons.pool,
-                            label: widget.type == "1"
-                                ? (widget.hasSwimmingPool == "1"
-                                    ? getTranslated(
-                                        context, "We have swimming pool")
-                                    : getTranslated(
-                                        context, "We don't have swimming pool"))
-                                : '')
-                        : SizedBox.shrink(),
-                    widget.type == "1"
-                        ? ChipWidget(
-                            icon: Icons.spa,
-                            label: widget.type == "1"
-                                ? (widget.hasMassage == "1"
-                                    ? getTranslated(context, "We have massage")
-                                    : getTranslated(
-                                        context, "We don't have massage"))
-                                : '')
-                        : SizedBox.shrink(),
-                    widget.type == "1"
-                        ? ChipWidget(
-                            icon: Icons.fitness_center,
-                            label: widget.type == "1"
-                                ? (widget.hasGym == "1"
-                                    ? getTranslated(context, "We have Gym")
-                                    : getTranslated(
-                                        context, "We don't have Gym"))
-                                : '')
-                        : SizedBox.shrink(),
-                    widget.type == "1"
-                        ? ChipWidget(
-                            icon: Icons.content_cut,
-                            label: widget.type == "1"
-                                ? (widget.hasBarber == "1"
-                                    ? getTranslated(context, "We have barber")
-                                    : getTranslated(
-                                        context, "We don't have barber"))
-                                : '')
-                        : SizedBox.shrink(),
+                        label:
+                            (estate['ValetWithFees'] ?? widget.valetWithFees) ==
+                                    "1"
+                                ? getTranslated(context, "Valet is not free")
+                                : getTranslated(context, "Valet is free"),
+                      ),
+                    if (widget.type == "1")
+                      ChipWidget(
+                        icon: Icons.pool,
+                        label: (estate['HasSwimmingPool'] ??
+                                    widget.hasSwimmingPool) ==
+                                "1"
+                            ? getTranslated(context, "We have swimming pool")
+                            : getTranslated(
+                                context, "We dont have swimming pool"),
+                      ),
+                    if (widget.type == "1")
+                      ChipWidget(
+                        icon: Icons.spa,
+                        label: (estate['HasMassage'] ?? widget.hasMassage) ==
+                                "1"
+                            ? getTranslated(context, "We have massage")
+                            : getTranslated(context, "We dont have massage"),
+                      ),
+                    if (widget.type == "1")
+                      ChipWidget(
+                        icon: Icons.fitness_center,
+                        label: (estate['HasGym'] ?? widget.hasGym) == "1"
+                            ? getTranslated(context, "We have Gym")
+                            : getTranslated(context, "We dont have Gym"),
+                      ),
+                    if (widget.type == "1")
+                      ChipWidget(
+                        icon: Icons.content_cut,
+                        label: (estate['HasBarber'] ?? widget.hasBarber) == "1"
+                            ? getTranslated(context, "We have barber")
+                            : getTranslated(context, "We dont have barber"),
+                      ),
                     ChipWidget(
-                        icon: Icons.smoking_rooms,
-                        label: (widget.isSmokingAllowed == "1"
-                            ? getTranslated(context, "Smoking is allowed")
-                            : getTranslated(context, "Smoking is not allowed")))
+                      icon: Icons.smoking_rooms,
+                      label: (estate['IsSmokingAllowed'] ??
+                                  widget.isSmokingAllowed) ==
+                              "1"
+                          ? getTranslated(context, "Smoking is allowed")
+                          : getTranslated(context, "Smoking is not allowed"),
+                    ),
                   ],
                 ),
 
