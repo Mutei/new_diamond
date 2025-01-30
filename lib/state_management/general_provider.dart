@@ -13,6 +13,9 @@ import '../backend/user_service.dart';
 import '../constants/colors.dart';
 import '../localization/language_constants.dart';
 
+// Assuming PrivateChatRequest is defined in private_chat_service.dart
+import '../backend/private_chat_service.dart';
+
 enum ThemeModeType { system, light, dark }
 
 // Class to represent post status change events
@@ -104,6 +107,9 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
   DateTime? _activeTimerExpiryTime;
   DateTime? get activeTimerExpiryTime => _activeTimerExpiryTime;
 
+  // **New Property: StreamSubscription for Active User Listener**
+  StreamSubscription<DatabaseEvent>? _activeUserListener;
+
   GeneralProvider() {
     loadThemePreference();
     loadLastSeenApprovalCount();
@@ -114,6 +120,7 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
     fetchSubscriptionStatus(); // Fetch subscription status
     listenToPrivateChatRequests(); // Start listening to chat requests
     loadLanguagePreference(); // Load language preference
+    loadActiveTimer(); // Load active timer on initialization
   }
 
   void CheckLogin() async {
@@ -208,8 +215,66 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
           .ref('App/EstateChats/$estateId/activeUsers/$_userId');
       await activeUserRef.remove();
       print('User $_userId removed from activeUsers for EstateId=$estateId');
+
+      // Cancel the listener as the user has been removed
+      _activeUserListener?.cancel();
+      _activeUserListener = null;
     } catch (e) {
       print('Error removing active user from database: $e');
+    }
+  }
+
+  // **Modified Method: Add Active User to Database with Listener**
+  Future<void> addActiveUserToDatabase(String estateId) async {
+    if (_userId.isEmpty) {
+      print('Cannot add active user: userId is empty.');
+      return;
+    }
+
+    try {
+      DatabaseReference activeUserRef = FirebaseDatabase.instance
+          .ref('App/EstateChats/$estateId/activeUsers/$_userId');
+
+      DateTime now = DateTime.now();
+      DateTime? expiresAt = _activeTimerExpiryTime;
+
+      // If expiresAt is not set, set a default duration (e.g., 2 minutes)
+      expiresAt ??= now.add(Duration(minutes: 2));
+
+      await activeUserRef.set({
+        'joinedAt': now.toIso8601String(),
+        'expiresAt': expiresAt.toIso8601String(),
+        'name': _userName,
+        'status': 'online',
+      });
+
+      print('User $_userId added to activeUsers for EstateId=$estateId');
+
+      // Cancel any existing listener before setting up a new one
+      _activeUserListener?.cancel();
+
+      // Set up a listener to monitor the activeUsers/$userId node
+      _activeUserListener = activeUserRef.onValue.listen((event) async {
+        if (!event.snapshot.exists) {
+          // User has been removed from activeUsers
+          print(
+              'User $_userId has been removed from activeUsers by the owner for EstateId=$estateId.');
+
+          // Update the state
+          _isButtonsActive = false;
+          _activeEstateId = null;
+          _activeTimerExpiryTime = null;
+          notifyListeners();
+
+          // Remove active timer info
+          await removeActiveTimer();
+
+          // Emit the timer expired event with estateId
+          _timerExpiredController.add(estateId);
+        }
+      });
+    } catch (e) {
+      print('Error adding active user to database: $e');
     }
   }
 
@@ -344,7 +409,13 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
           // Emit the timer expired event with estateId
           _timerExpiredController.add(estateId);
           print('Active timer expired for user $_userId: EstateId=$estateId');
+
+          // Remove user from activeUsers in the database
+          await removeActiveUserFromDatabase(estateId);
         });
+
+        // **Set up listener for activeUsers node if not already active**
+        await addActiveUserToDatabase(estateId);
       } else {
         // Timer has already expired
         await removeActiveTimer();
@@ -470,8 +541,12 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
 
       print('Active timer expired for user $_userId: EstateId=$estateId');
     });
+
     print(
         'Active timer activated for user $_userId: EstateId=$estateId, Duration=${duration.inSeconds} seconds');
+
+    // **Set up listener for activeUsers node**
+    await addActiveUserToDatabase(estateId);
   }
 
   // Function to fetch user info from Firebase
@@ -600,28 +675,24 @@ class GeneralProvider with ChangeNotifier, DiagnosticableTreeMixin {
 
   @override
   void dispose() {
-    _privateChatSubscription?.cancel();
+    _privateChatSubscription?.cancel(); // Cancel chat subscriptions if any
+    _buttonTimer?.cancel(); // Cancel any active timers
+    _subscriptionTimer?.cancel(); // Cancel subscription timers
+
+    // Close all defined stream controllers
     _timerExpiredController.close();
-    _buttonTimer?.cancel();
     _subscriptionExpiredController.close();
-    _subscriptionTimer?.cancel();
     _postStatusChangeController.close();
+
+    // Cancel the active user listener if it's active
+    _activeUserListener?.cancel();
+    _activeUserListener = null;
+
     // Remove user from activeUsers when the app is closed
     if (_activeEstateId != null) {
       removeActiveUserFromDatabase(_activeEstateId!);
-    } // Close the post status controller
+    }
+
     super.dispose();
   }
-}
-
-class CustomerType {
-  late String name, type, subtext;
-  late IconData icon; // Change image to IconData
-
-  CustomerType({
-    required this.icon, // Use icon instead of image
-    required this.name,
-    required this.type,
-    required this.subtext,
-  });
 }

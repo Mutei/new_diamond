@@ -322,5 +322,7 @@
   "Access Revoked": "Access Revoked",
   "You have moved out of the required proximity. Access has been revoked.": "You have moved out of the required proximity. Access has been revoked.",
   "You are not within the required distance to perform this action.": "You are not within the required distance to perform this action.",
-  "We don't have kids area": "We don't have kids area"
+  "We don't have kids area": "We don't have kids area",
+  "Your access has been revoked. Please scan again to regain access.": "Your access has been revoked. Please scan again to regain access."
+
 }

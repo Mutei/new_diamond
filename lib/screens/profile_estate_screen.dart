@@ -602,7 +602,7 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
       print('Proximity for Hotel is valid: $isValid');
       return isValid;
     } else if (widget.type == '2' || widget.type == '3') {
-      // Coffee or Restaurant: 5 to 10 meters
+      // Coffee or Restaurant: 50 to 1000 meters
       bool isValid = distance >= 50 && distance <= 1000;
       print('Proximity for Restaurant/Coffee is valid: $isValid');
       return isValid;
@@ -680,6 +680,10 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                         final duration = getButtonActiveDuration();
                         await objProvider.activateTimer(
                             widget.estateId, duration);
+
+                        // **Add the user to activeUsers in Firebase with the desired structure**
+                        await objProvider
+                            .addActiveUserToDatabase(widget.estateId);
 
                         // Navigate to Feedback Dialog Screen
                         final result = await Navigator.push(
@@ -760,6 +764,10 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                           final duration = getButtonActiveDuration();
                           await objProvider.activateTimer(
                               widget.estateId, duration);
+
+                          // **Add the user to activeUsers in Firebase with the desired structure**
+                          await objProvider
+                              .addActiveUserToDatabase(widget.estateId);
 
                           // Navigate to EstateChatScreen
                           Navigator.of(context).push(
@@ -961,8 +969,8 @@ class _ProfileEstateScreenState extends State<ProfileEstateScreen> {
                         label: (estate['HasJacuzziInRoom'] ??
                                     widget.hasJacuzziInRoom) ==
                                 "1"
-                            ? getTranslated(context, "We have jaccuzzi")
-                            : getTranslated(context, "We dont have jaccuzzi"),
+                            ? getTranslated(context, "We have jacuzzi")
+                            : getTranslated(context, "We dont have jacuzzi"),
                       ),
                     ChipWidget(
                       icon: Icons.car_rental,

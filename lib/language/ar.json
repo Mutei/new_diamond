@@ -324,5 +324,7 @@
   "Access Revoked": "تم إلغاء الوصول",
   "You have moved out of the required proximity. Access has been revoked.": "لقد خرجت من النطاق المطلوب. تم إلغاء الوصول.",
   "You are not within the required distance to perform this action.": "أنت لست ضمن المسافة المطلوبة لتنفيذ هذا الإجراء.",
-  "We don't have kids area": "ليس لدينا منطقة للأطفال"
+  "We don't have kids area": "ليس لدينا منطقة للأطفال",
+  "Your access has been revoked. Please scan again to regain access.": "تم إلغاء وصولك. يرجى المسح الضوئي مرة أخرى لاستعادة الوصول."
+
 }
